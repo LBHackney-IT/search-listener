@@ -102,8 +102,8 @@ jobs:
   build-and-test:
     executor: docker-python
     steps:
-      # - checkout
-      # - setup_remote_docker
+      - checkout
+      - setup_remote_docker
       # - run:
           # name: build
           # command: docker-compose build tenure-listener-test
