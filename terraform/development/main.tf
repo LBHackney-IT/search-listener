@@ -50,7 +50,7 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
           "Resource": "${aws_sqs_queue.housing_search_listener_queue.arn}",
           "Condition": {
           "ArnEquals": {
-              "aws:SourceArn": "${data.aws_ssm_parameter.person_sns_topic_arn.value}"
+              "aws:SourceArn": "${aws_sqs_queue.housing_search_listener_queue.arn.value}"
           }
           }
       }
@@ -60,7 +60,7 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
 }
 
 resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_person_sns" {
-  topic_arn = data.aws_ssm_parameter.sns_topic_arn.value
+  topic_arn = "arn:aws:sns:eu-west-2:364864573329:person.fifo"
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.housing_search_listener_queue.arn
 }
@@ -68,5 +68,5 @@ resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_t
 resource "aws_ssm_parameter" "housing_search_listeners_sqs_queue_arn" {
   name  = "/sqs-queue/development/housing_search_listener_queue/arn"
   type  = "String"
-  value = aws_sqs_queue.tenure_queue.arn
+  value = aws_sqs_queue.housing_search_listener_queue.arn
 }
