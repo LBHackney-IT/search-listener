@@ -50,7 +50,7 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
           "Resource": "${aws_sqs_queue.housing_search_listener_queue.arn}",
           "Condition": {
           "ArnEquals": {
-              "aws:SourceArn": "${aws_sqs_queue.housing_search_listener_queue.arn.value}"
+              "aws:SourceArn": "${aws_sqs_queue.housing_search_listener_queue.arn}"
           }
           }
       }
