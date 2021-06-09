@@ -29,8 +29,8 @@ locals {
 }
 
 resource "aws_sqs_queue" "housing_search_listener_queue" {
-  name                        = "TenuresQueue.fifo"
-  fifo_topic                  = true
+  name                        = "housingsearchlistenerqueue.fifo"
+  fifo_queue                  = true
   content_based_deduplication = true
   kms_master_key_id = "alias/aws/sqs"
 }
