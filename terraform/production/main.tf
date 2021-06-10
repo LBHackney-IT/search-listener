@@ -24,17 +24,17 @@ data "aws_caller_identity" "current" {}
 
 data "aws_region" "current" {}
 
-locals {
-    parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
-}
-
 terraform {
   backend "s3" {
-    bucket  = "terraform-state-housing-development"
+    bucket  = "terraform-state-housing-production"
     encrypt = true
     region  = "eu-west-2"
     key     = "services/housing-search-listener/state"
   }
+}
+
+locals {
+    parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 }
 
 resource "aws_sqs_queue" "housing_search_listener_queue" {
@@ -68,8 +68,12 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
   POLICY
 }
 
+data "aws_ssm_parameter" "person_sns_topic_arn" {
+	name = "/sns-topic/production/person_created/arn"
+}
+
 resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_person_sns" {
-  topic_arn = "arn:aws:sns:eu-west-2:364864573329:person.fifo"
+  topic_arn = "${data.aws_ssm_parameter.person_sns_topic_arn.value}"
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.housing_search_listener_queue.arn
 }
