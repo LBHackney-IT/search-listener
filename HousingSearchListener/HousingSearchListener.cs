@@ -10,7 +10,7 @@ using Amazon.Lambda.Core;
 
 namespace HousingSearchListener
 {
-    public class Function
+    public class HousingSearchListener
     {
 
         /// <summary>
