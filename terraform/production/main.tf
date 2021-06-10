@@ -30,7 +30,7 @@ locals {
 
 terraform {
   backend "s3" {
-    bucket  = "terraform-state-housing-search-listener"
+    bucket  = "terraform-state-housing-development"
     encrypt = true
     region  = "eu-west-2"
     key     = "services/housing-search-listener/state"
