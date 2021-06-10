@@ -1,4 +1,4 @@
-service: housing-listener-service
+service: housing-search-listener
 provider:
   name: aws
   runtime: dotnetcore3.1
@@ -11,7 +11,7 @@ provider:
   region: eu-west-2
 
 package:
-  artifact: ./bin/release/netcoreapp3.1/housing-listener-service.zip
+  artifact: ./bin/release/netcoreapp3.1/housing-search-listener.zip
 
 functions:
   PersonApi:
