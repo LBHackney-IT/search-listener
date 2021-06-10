@@ -1,4 +1,3 @@
-using System;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SNSEvents;
 
@@ -20,7 +19,7 @@ namespace HousingSearchListener
         {
             foreach (var record in snsEvent.Records)
             {
-                
+
             }
         }
     }
