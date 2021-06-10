@@ -69,11 +69,11 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
 }
 
 data "aws_ssm_parameter" "person_sns_topic_arn" {
-	parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+	name = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 }
 
 resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_person_sns" {
-  topic_arn = data.aws_ssm_parameter.sns_topic_arn.value
+  topic_arn = data.aws_ssm_parameter.person_sns_topic_arn.value
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.housing_search_listener_queue.arn
 }
