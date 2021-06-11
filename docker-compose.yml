@@ -1,0 +1,33 @@
+version: "3.2"
+
+services:
+   housing-search-listener-tests:
+     image: housing-search-listener-tests
+     build:
+       context: .
+       dockerfile: HousingSearchListener.Tests/Dockerfile
+       args:
+       - LBHPACKAGESTOKEN=${LBHPACKAGESTOKEN}
+     ports:
+       - 3000:3000
+     environment:
+       - AWS_REGION=eu-west-2
+       - AWS_ACCESS_KEY_ID=local
+       - AWS_SECRET_ACCESS_KEY=local       
+      links:
+        - localstack
+
+   localstack:
+     container_name: "${LOCALSTACK_DOCKER_NAME-localstack_main}"
+     image: localstack/localstack    
+     hostname: awslocal    
+     ports:
+       - "4566:4566"      
+     environment:
+       - SERVICES=sns,sqs
+       - DEBUG=1                  
+       - DOCKER_HOST=unix:///var/run/docker.sock
+       - HOST_TMP_FOLDER=/tmp/localstack      
+     volumes:
+       - "./.localstack:/tmp/localstack"
+       - "/var/run/docker.sock:/var/run/docker.sock"
