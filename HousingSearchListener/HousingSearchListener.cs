@@ -1,4 +1,5 @@
 using Amazon.Lambda.Core;
+using Amazon.Lambda.SNSEvents;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -14,9 +15,12 @@ namespace HousingSearchListener
         /// <param name="input"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public string FunctionHandler(string input, ILambdaContext context)
+        public void FunctionHandler(SNSEvent snsEvent)
         {
-            return input?.ToUpper();
+            foreach (var record in snsEvent.Records)
+            {
+
+            }
         }
     }
 }
