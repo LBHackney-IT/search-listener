@@ -24,6 +24,10 @@ data "aws_caller_identity" "current" {}
 
 data "aws_region" "current" {}
 
+data "aws_ssm_parameter" "person_sns_topic_arn" {
+  name = "/sns-topic/development/person_created/arn"
+}
+
 terraform {
   backend "s3" {
     bucket  = "terraform-state-housing-staging"
@@ -59,17 +63,13 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
           "Resource": "${aws_sqs_queue.housing_search_listener_queue.arn}",
           "Condition": {
           "ArnEquals": {
-              "aws:SourceArn": "${aws_sqs_queue.housing_search_listener_queue.arn}"
+              "aws:SourceArn": "${data.aws_ssm_parameter.person_sns_topic_arn.value}"
           }
           }
       }
       ]
   }
   POLICY
-}
-
-data "aws_ssm_parameter" "person_sns_topic_arn" {
-	name = "/sns-topic/staging/person_created/arn"
 }
 
 resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_person_sns" {
