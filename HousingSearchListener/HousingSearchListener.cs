@@ -6,7 +6,7 @@ using Amazon.Lambda.SNSEvents;
 
 namespace HousingSearchListener
 {
-    public class HousingSearchListener
+    public class HousingSearchListener : BaseFunction
     {
 
         /// <summary>
