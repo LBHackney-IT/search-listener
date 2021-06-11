@@ -27,7 +27,7 @@ public abstract class BaseFunction
         var builder = new ConfigurationBuilder();
 
         Configuration = builder.Build();
-        
+
         services.AddSingleton<IConfiguration>(Configuration);
 
         AddLogging(services);
