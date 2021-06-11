@@ -6,7 +6,7 @@ namespace HousingSearchListener.Tests
     {
         public SetupSqsSnsOnLocalstack()
         {
-            
+
         }
     }
 }
