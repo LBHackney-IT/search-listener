@@ -19,18 +19,7 @@ functions:
     handler: HousingSearchListener::HousingSearchListener.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
     environment:      
-      ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}
-    events:
-      - http:
-          path: /{proxy+}
-          method: ANY
-          authorizer:
-            arn: ${ssm:/api-authenticator/${self:provider.stage}/arn}
-            type: request
-            resultTtlInSeconds: 0
-            identitySource: method.request.header.Authorization
-            managedExternally: true       
-          cors: true
+      ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}    
 resources:
   Resources:
     LambdaSecurityGroup:
