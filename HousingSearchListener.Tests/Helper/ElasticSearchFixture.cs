@@ -23,7 +23,7 @@ namespace HousingSearchListener.Tests.Helper
 
         public void Dispose()
         {
-            
+
         }
     }
 }
