@@ -17,7 +17,7 @@ namespace HousingSearchListener
     {
         public ElasticSearchUpdater(IServiceCollection services) : base(services)
         {
-            
+
         }
 
         public async Task Update(SNSEvent snsEvent)

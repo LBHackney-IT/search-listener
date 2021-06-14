@@ -13,7 +13,7 @@ namespace HousingSearchListener
     {
         public HousingSearchListener(IServiceCollection services) : base(services)
         {
-            
+
         }
 
         /// <summary>
