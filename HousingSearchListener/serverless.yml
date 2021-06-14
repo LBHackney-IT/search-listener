@@ -19,7 +19,10 @@ functions:
     handler: HousingSearchListener::HousingSearchListener.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
     environment:      
-      ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}    
+      ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}      
+      ELASTICSEARCH_DOMAIN_URL: ${ssm:/housing-search-api/${self:provider.stage}/elasticsearch-domain}
+      PersonApiUrl: ${ssm:/housing-tl/${self:provider.stage}/person-api-url}
+      PersonApiToken: ${ssm:/housing-tl/${self:provider.stage}/person-api-token}
 resources:
   Resources:
     LambdaSecurityGroup:

@@ -13,21 +13,47 @@ services:
      environment:
        - AWS_REGION=eu-west-2
        - AWS_ACCESS_KEY_ID=local
-       - AWS_SECRET_ACCESS_KEY=local       
-      links:
-        - localstack
+       - AWS_SECRET_ACCESS_KEY=local
+       - Localstack_SnsServiceUrl=http://localstack:4566
+       - Localstack_SqsServiceUrl=http://localstack:4566
+       - LOCALSTACK_HOST=localhost
+       - AWS_REGION=eu-central-1
+       - LOCALSTACK_DUMMY_ID=000000000000
+     links:        
+       - elasticsearch
 
-   localstack:
-     container_name: "${LOCALSTACK_DOCKER_NAME-localstack_main}"
-     image: localstack/localstack    
-     hostname: awslocal    
-     ports:
-       - "4566:4566"      
-     environment:
-       - SERVICES=sns,sqs
-       - DEBUG=1                  
-       - DOCKER_HOST=unix:///var/run/docker.sock
-       - HOST_TMP_FOLDER=/tmp/localstack      
-     volumes:
-       - "./.localstack:/tmp/localstack"
-       - "/var/run/docker.sock:/var/run/docker.sock"
+   elasticsearch:
+    image: elasticsearch
+    container_name: elasticsearch
+    build:
+      context: .
+      dockerfile: data/elasticsearch/Dockerfile
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - 9200:9200
+    volumes:
+      - esdata-test:/usr/share/elasticsearch/data
+    networks:
+      elastic:
+        aliases:
+          - test-elasticsearch
+          - elastic
+          - elasticsearch
+   kibana:
+        image: docker.elastic.co/kibana/kibana:7.9.3
+        ports:
+            - "5601:5601"
+        networks:
+            - elastic
+        depends_on:
+            - elasticsearch
+volumes:
+    esdata-test:
+        driver: local
+networks:
+  elastic:
+    driver: bridge

@@ -1,57 +1,86 @@
-﻿using Amazon.XRay.Recorder.Core;
-using Amazon.XRay.Recorder.Core.Strategies;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using Elasticsearch.Net;
 using Hackney.Core.Logging;
+using HousingSearchListener.Gateways;
+using HousingSearchListener.V1.HealthCheck;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Reflection;
+using Nest;
 
-[ExcludeFromCodeCoverage]
-public abstract class BaseFunction
+namespace HousingSearchListener.Infrastructure
 {
-    protected IConfigurationRoot Configuration { get; }
-
-    protected IServiceProvider ServiceProvider { get; }
-
-    protected ILogger Logger { get; }
-
-    protected BaseFunction()
+    [ExcludeFromCodeCoverage]
+    public abstract class BaseFunction
     {
-        AWSSDKHandler.RegisterXRayForAllServices();
+        protected IConfigurationRoot Configuration { get; }
 
-        var services = new ServiceCollection();
-        var builder = new ConfigurationBuilder();
+        protected IServiceProvider ServiceProvider { get; }
 
-        Configuration = builder.Build();
+        protected ILogger Logger { get; }
 
-        services.AddSingleton<IConfiguration>(Configuration);
+        protected BaseFunction()
+        {
+            AWSSDKHandler.RegisterXRayForAllServices();
 
-        AddLogging(services);
-        ConfigureServices(services);
+            var services = new ServiceCollection();
+            var builder = new ConfigurationBuilder();
 
-        ServiceProvider = services.BuildServiceProvider();
-        ServiceProvider.UseLogCall();
+            Configuration = builder.Build();
+            RegisterDependencies(services);
 
-        Logger = ServiceProvider.GetRequiredService<ILogger<BaseFunction>>();
-    }
+            AddLogging(services);
+            ConfigureServices(services);
 
-    private void AddLogging(ServiceCollection services)
-    {
-        services.ConfigureLambdaLogging(Configuration);
-        services.AddLogCallAspect();
-    }
+            ServiceProvider = services.BuildServiceProvider();
+            ServiceProvider.UseLogCall();
 
-    /// <summary>>
-    /// Base implementation
-    /// Automatically adds LogCallAspect
-    /// </summary>
-    /// <param name="services"></param>
-    protected virtual void ConfigureServices(IServiceCollection services)
-    {
-        services.AddLogCallAspect();
+            Logger = ServiceProvider.GetRequiredService<ILogger<BaseFunction>>();
+        }
+
+        private void RegisterDependencies(ServiceCollection services)
+        {
+            services.AddHttpClient();
+
+            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddScoped<IPersonMessageFactory, PersonMessageFactory>();
+            services.AddScoped<IESPersonFactory, EsPersonFactory>();
+
+            ConfigureElasticsearch(services);
+        }
+
+        private void ConfigureElasticsearch(IServiceCollection services)
+        {
+            var url = Environment.GetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL") ?? "http://localhost:9200";
+            var pool = new SingleNodeConnectionPool(new Uri(url));
+            var connectionSettings =
+                new ConnectionSettings(pool)
+                    .PrettyJson().ThrowExceptions().DisableDirectStreaming();
+            var esClient = new ElasticClient(connectionSettings);
+
+            services.TryAddSingleton<IElasticClient>(esClient);
+
+            services.AddElasticSearchHealthCheck();
+        }
+
+        private void AddLogging(ServiceCollection services)
+        {
+            services.ConfigureLambdaLogging(Configuration);
+            services.AddLogCallAspect();
+        }
+
+        /// <summary>>
+        /// Base implementation
+        /// Automatically adds LogCallAspect
+        /// </summary>
+        /// <param name="services"></param>
+        protected virtual void ConfigureServices(IServiceCollection services)
+        {
+            services.AddLogCallAspect();
+        }
     }
 }
