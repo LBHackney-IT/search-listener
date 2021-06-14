@@ -23,8 +23,9 @@ namespace HousingSearchListener.Tests
                 "\"user\": { \"id\": \"ac703d87-c100-40ec-90a0-dabf183e7377\", \"name\": \"Joe Bloggs\", \"email\": \"joe.bloggs@hackney.gov.uk\" }, " +
                 "\"entityId\": \"45c76564-2e38-48f3-bb31-6bab2fef8623\" }";
 
-            await _sut.FunctionHandler(new SNSEvent { 
-            Records = new List<SNSEvent.SNSRecord>(){
+            await _sut.FunctionHandler(new SNSEvent
+            {
+                Records = new List<SNSEvent.SNSRecord>(){
                 new SNSEvent.SNSRecord
                 {
                     Sns = new SNSEvent.SNSMessage
@@ -32,7 +33,8 @@ namespace HousingSearchListener.Tests
                         Message = message
                     }
                 }
-            }});
+            }
+            });
         }
     }
 }

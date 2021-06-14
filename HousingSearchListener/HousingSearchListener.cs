@@ -28,7 +28,7 @@ namespace HousingSearchListener
         /// <returns></returns>
         public async Task FunctionHandler(SNSEvent snsEvent)
         {
-            Environment.SetEnvironmentVariable("PersonApiUrl","http://127.0.0.1");
+            Environment.SetEnvironmentVariable("PersonApiUrl", "http://127.0.0.1");
             //var httpClientFactory = ServiceProvider.GetService<IHttpClientFactory>();
             var personMessageFactory = ServiceProvider.GetService<IPersonMessageFactory>();
 
@@ -37,8 +37,8 @@ namespace HousingSearchListener
                 var personCreatedMessage = personMessageFactory.Create(record);
 
                 var httpClient = new HttpClient();
-                
-                var url = QueryHelpers.AddQueryString(Environment.GetEnvironmentVariable("PersonApiUrl"), 
+
+                var url = QueryHelpers.AddQueryString(Environment.GetEnvironmentVariable("PersonApiUrl"),
                     "id", personCreatedMessage.EntityId.ToString());
 
                 httpClient.DefaultRequestHeaders.Authorization =
