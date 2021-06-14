@@ -6,12 +6,11 @@ using Amazon.Lambda.SNSEvents;
 using HousingSearchListener.Gateways;
 using HousingSearchListener.Infrastructure;
 using HousingSearchListener.V1.Domain;
-using HousingSearchListener.V1.Interfaces;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace HousingSearchListener
+namespace HousingSearchListener.V1.Interfaces
 {
     public class ElasticSearchUpdater : BaseFunction, IElasticSearchUpdater
     {
