@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Elasticsearch.Net;
 using Hackney.Core.Logging;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Nest;
+using HttpClientHandler = HousingSearchListener.V1.Interfaces.HttpClientHandler;
 
 namespace HousingSearchListener.Infrastructure
 {
@@ -43,28 +45,13 @@ namespace HousingSearchListener.Infrastructure
 
         private void RegisterDependencies(IServiceCollection services)
         {
-            services.AddHttpClient();
-
+            services.TryAddSingleton<IHttpHandler, HttpClientHandler>();
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddScoped<IPersonMessageFactory, PersonMessageFactory>();
             services.AddScoped<IESPersonFactory, EsPersonFactory>();
             services.AddScoped<IElasticSearchHelper, ElasticSearchHelper>();
 
-            ConfigureElasticsearch(services);
-        }
-
-        private void ConfigureElasticsearch(IServiceCollection services)
-        {
-            var url = Environment.GetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL") ?? "http://localhost:9200";
-            var pool = new SingleNodeConnectionPool(new Uri(url));
-            var connectionSettings =
-                new ConnectionSettings(pool)
-                    .PrettyJson().ThrowExceptions().DisableDirectStreaming();
-            var esClient = new ElasticClient(connectionSettings);
-
-            services.TryAddSingleton<IElasticClient>(esClient);
-
-            services.AddElasticSearchHealthCheck();
+            ESServiceInitialization.ConfigureElasticsearch(services);
         }
 
         private void AddLogging(IServiceCollection services)
@@ -81,6 +68,23 @@ namespace HousingSearchListener.Infrastructure
         protected virtual void ConfigureServices(IServiceCollection services)
         {
             services.AddLogCallAspect();
+        }
+    }
+
+    public static class ESServiceInitialization
+    {
+        public static void ConfigureElasticsearch(IServiceCollection services)
+        {
+            var url = Environment.GetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL") ?? "http://localhost:9200";
+            var pool = new SingleNodeConnectionPool(new Uri(url));
+            var connectionSettings =
+                new ConnectionSettings(pool)
+                    .PrettyJson().ThrowExceptions().DisableDirectStreaming();
+            var esClient = new ElasticClient(connectionSettings);
+
+            services.TryAddSingleton<IElasticClient>(esClient);
+
+            services.AddElasticSearchHealthCheck();
         }
     }
 }

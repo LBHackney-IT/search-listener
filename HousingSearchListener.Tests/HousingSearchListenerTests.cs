@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Amazon.Lambda.SNSEvents;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace HousingSearchListener.Tests
@@ -12,7 +13,7 @@ namespace HousingSearchListener.Tests
 
         public HousingSearchListenerTests()
         {
-            _sut = new HousingSearchListener();
+            _sut = new HousingSearchListener(new ServiceCollection());
         }
 
         [Fact]

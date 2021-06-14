@@ -6,11 +6,16 @@ using Nest;
 
 namespace HousingSearchListener.Tests.Helper
 {
-    public class ElasticSearchFixture : BaseFunction, IDisposable
+    public class ElasticSearchFixture : IDisposable
     {
         public ElasticSearchFixture()
         {
-            TestDataHelper.InsertPersonInEs(ServiceProvider.GetService<IElasticClient>());
+            var serviceCollection = new ServiceCollection();
+            ESServiceInitialization.ConfigureElasticsearch(serviceCollection);
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            TestDataHelper.InsertPersonInEs(serviceProvider.GetService<IElasticClient>());
 
             // For the index to have time to be populated
             Thread.Sleep(500);
@@ -18,7 +23,7 @@ namespace HousingSearchListener.Tests.Helper
 
         public void Dispose()
         {
-
+            
         }
     }
 }
