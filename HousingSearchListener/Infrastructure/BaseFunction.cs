@@ -23,11 +23,10 @@ namespace HousingSearchListener.Infrastructure
 
         protected ILogger Logger { get; }
 
-        protected BaseFunction()
+        protected BaseFunction(IServiceCollection services)
         {
             AWSSDKHandler.RegisterXRayForAllServices();
 
-            var services = new ServiceCollection();
             var builder = new ConfigurationBuilder();
 
             Configuration = builder.Build();
@@ -42,7 +41,7 @@ namespace HousingSearchListener.Infrastructure
             Logger = ServiceProvider.GetRequiredService<ILogger<BaseFunction>>();
         }
 
-        private void RegisterDependencies(ServiceCollection services)
+        private void RegisterDependencies(IServiceCollection services)
         {
             services.AddHttpClient();
 
@@ -68,7 +67,7 @@ namespace HousingSearchListener.Infrastructure
             services.AddElasticSearchHealthCheck();
         }
 
-        private void AddLogging(ServiceCollection services)
+        private void AddLogging(IServiceCollection services)
         {
             services.ConfigureLambdaLogging(Configuration);
             services.AddLogCallAspect();
