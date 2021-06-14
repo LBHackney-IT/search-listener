@@ -7,6 +7,7 @@ using Amazon.Lambda.SNSEvents;
 using HousingSearchListener.Gateways;
 using HousingSearchListener.Infrastructure;
 using HousingSearchListener.V1.Domain;
+using HousingSearchListener.V1.Interfaces;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -43,7 +44,7 @@ namespace HousingSearchListener
                 httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue(Environment.GetEnvironmentVariable("PersonApiToken"));
                 var esPersonFactory = ServiceProvider.GetService<IESPersonFactory>();
-
+                var esHelper = ServiceProvider.GetService<IElasticSearchHelper>();
 
                 var result = await httpClient.GetAsync(url);
                 var person = JsonConvert.DeserializeObject<Person>(result.Content.ReadAsStringAsync().Result);

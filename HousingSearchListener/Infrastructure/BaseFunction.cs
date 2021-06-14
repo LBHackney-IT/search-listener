@@ -5,10 +5,10 @@ using Elasticsearch.Net;
 using Hackney.Core.Logging;
 using HousingSearchListener.Gateways;
 using HousingSearchListener.V1.HealthCheck;
+using HousingSearchListener.V1.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Nest;
 
@@ -49,6 +49,7 @@ namespace HousingSearchListener.Infrastructure
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddScoped<IPersonMessageFactory, PersonMessageFactory>();
             services.AddScoped<IESPersonFactory, EsPersonFactory>();
+            services.AddScoped<IElasticSearchHelper, ElasticSearchHelper>();
 
             ConfigureElasticsearch(services);
         }
