@@ -48,6 +48,7 @@ resource "aws_sqs_queue" "housing_search_listener_queue" {
   redrive_policy              = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.tenure_dead_letter_queue.arn,
     maxReceiveCount     = 3
+	})
 }
 
 resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
