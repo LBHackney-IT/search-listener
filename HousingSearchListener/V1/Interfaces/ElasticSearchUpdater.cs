@@ -29,8 +29,7 @@ namespace HousingSearchListener.V1.Interfaces
             {
                 var personCreatedMessage = personMessageFactory.Create(record);
 
-                var url = QueryHelpers.AddQueryString(Environment.GetEnvironmentVariable("PersonApiUrl"),
-                    "id", personCreatedMessage.EntityId.ToString());
+                var url = $"{Environment.GetEnvironmentVariable("PersonApiUrl")}/persons/{personCreatedMessage.EntityId}";
 
                 httpHandler.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue(Environment.GetEnvironmentVariable("PersonApiToken"));
@@ -41,7 +40,7 @@ namespace HousingSearchListener.V1.Interfaces
                 var personString = result.Content.ReadAsStringAsync().Result;
                 var person = JsonConvert.DeserializeObject<Person>(personString);
 
-                Logger.Log(LogLevel.Information, $"{personCreatedMessage.EntityId.ToString()}, {personString}");
+                Logger.Log(LogLevel.Information, $"{personCreatedMessage.EntityId.ToString()}, {url}, {Environment.GetEnvironmentVariable("PersonApiToken")}, {personString}");
 
                 var esPerson = esPersonFactory.Create(person);
 
