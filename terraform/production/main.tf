@@ -86,7 +86,6 @@ resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_t
   topic_arn = "${data.aws_ssm_parameter.person_sns_topic_arn.value}"
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.housing_search_listener_queue.arn
-  raw_message_delivery = true
 }
 
 resource "aws_ssm_parameter" "housing_search_listeners_sqs_queue_arn" {
