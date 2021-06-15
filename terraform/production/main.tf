@@ -44,8 +44,7 @@ locals {
 resource "aws_sqs_queue" "housing_search_listener_queue" {
   name                        = "housingsearchlistenerqueue.fifo"
   fifo_queue                  = true
-  content_based_deduplication = true
-  kms_master_key_id = "alias/aws/sqs"
+  content_based_deduplication = true  
 }
 
 resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
