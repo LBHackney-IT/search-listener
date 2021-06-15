@@ -16,7 +16,7 @@ package:
 functions:
   HousingSearchListener:
     name: ${self:service}-${self:provider.stage}
-    handler: HousingSearchListener::HousingSearchListener.HousingSearchListener::FunctionHandlerAsync
+    handler: HousingSearchListener::HousingSearchListener.HousingSearchListener::FunctionHandler
     role: lambdaExecutionRole
     environment:      
       ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}      
