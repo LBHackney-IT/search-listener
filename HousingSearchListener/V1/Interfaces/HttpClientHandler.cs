@@ -32,6 +32,6 @@ namespace HousingSearchListener.V1.Interfaces
         public HttpRequestHeaders DefaultRequestHeaders
         {
             get { return _client.DefaultRequestHeaders; }
-        } 
+        }
     }
 }

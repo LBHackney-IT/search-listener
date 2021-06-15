@@ -25,7 +25,7 @@ namespace HousingSearchListener.Tests.E2E
 
         public IntegrationTests()
         {
-            if(Environment.GetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL") == null)
+            if (Environment.GetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL") == null)
                 Environment.SetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL", "http://localhost:9200");
 
             if (Environment.GetEnvironmentVariable("PersonApiUrl") == null)
@@ -53,7 +53,7 @@ namespace HousingSearchListener.Tests.E2E
             var person = JsonConvert.DeserializeObject<Person>(personString);
             person.Id = Guid.NewGuid().ToString();
             var result = await _esClient.SearchAsync<QueryablePerson>(x => x.Index(_indices)
-                .Query(q => Create(q, new []{$"*{person.FirstName}*", $"*{person.Surname}*"})));
+                .Query(q => Create(q, new[] { $"*{person.FirstName}*", $"*{person.Surname}*" })));
 
             var snsMessage =
                 "{ \"id\": \"8e648f3d-9556-4896-8400-211cb1c5451b\", \"eventType\": \"PersonCreatedEvent\", \"sourceDomain\": \"Person\", \"sourceSystem\": " +

@@ -15,7 +15,7 @@ namespace HousingSearchListener.V1.Interfaces
         }
 
         public async Task<IndexResponse> Create(ESPerson esPerson)
-        {            
+        {
             return await _elasticClient.IndexAsync(new IndexRequest<ESPerson>(esPerson, "persons"));
         }
     }
