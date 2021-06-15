@@ -10,13 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HousingSearchListener
 {
-    public class HousingSearchListener : BaseFunction
+    public class HousingSearchListener
     {
-        public HousingSearchListener(IServiceCollection services) : base(services)
-        {
-
-        }
-
         /// <summary>
         /// A simple function that takes a string and does a ToUpper
         /// </summary>
