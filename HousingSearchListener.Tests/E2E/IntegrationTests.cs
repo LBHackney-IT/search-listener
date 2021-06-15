@@ -7,7 +7,6 @@ using FluentAssertions;
 using HousingSearchListener.Tests.Stubs;
 using HousingSearchListener.V1.Domain;
 using HousingSearchListener.V1.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Nest;
 using Newtonsoft.Json;
@@ -26,14 +25,7 @@ namespace HousingSearchListener.Tests.E2E
 
         public IntegrationTests()
         {
-            if (Environment.GetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL") == null)
-                Environment.SetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL", "http://localhost:9200");
-
-            if (Environment.GetEnvironmentVariable("PersonApiUrl") == null)
-                Environment.SetEnvironmentVariable("PersonApiUrl", "http://fakehost");
-
-            if (Environment.GetEnvironmentVariable("PersonApiToken") == null)
-                Environment.SetEnvironmentVariable("PersonApiToken", "faketoken");
+            SetupEnvVariables();
 
             _serviceCollection = new ServiceCollection();
             _serviceCollection.AddSingleton<IHttpHandler, HttpHandlerStub>();
@@ -42,6 +34,18 @@ namespace HousingSearchListener.Tests.E2E
             _serviceProvider = _serviceCollection.BuildServiceProvider();
 
             _indices = Indices.Index(new List<IndexName> { "persons" });
+        }
+
+        private static void SetupEnvVariables()
+        {
+            if (Environment.GetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL") == null)
+                Environment.SetEnvironmentVariable("ELASTICSEARCH_DOMAIN_URL", "http://localhost:9200");
+
+            if (Environment.GetEnvironmentVariable("PersonApiUrl") == null)
+                Environment.SetEnvironmentVariable("PersonApiUrl", "http://fakehost");
+
+            if (Environment.GetEnvironmentVariable("PersonApiToken") == null)
+                Environment.SetEnvironmentVariable("PersonApiToken", "faketoken");
         }
 
         [Fact]
@@ -92,69 +96,5 @@ namespace HousingSearchListener.Tests.E2E
 
             return searchSurnames;
         }
-    }
-
-    public class GetPersonListRequest
-    {
-        private const int DefaultPageSize = 12;
-
-        [FromQuery(Name = "searchText")]
-        public string SearchText { get; set; }
-
-        [FromQuery(Name = "pageSize")]
-        public int PageSize { get; set; } = DefaultPageSize;
-
-        [FromQuery(Name = "page")]
-        public int Page { get; set; }
-
-        [FromQuery(Name = "sortBy")]
-        public string SortBy { get; set; }
-
-        [FromQuery(Name = "isDesc")]
-        public bool IsDesc { get; set; }
-    }
-
-    public class QueryablePerson
-    {
-        [Text(Name = "id")]
-        public string Id { get; set; }
-        public string Title { get; set; }
-
-        [Keyword(Name = "firstname")]
-        public string Firstname { get; set; }
-
-        [Text(Name = "middlename")]
-        public string MiddleName { get; set; }
-
-        [Keyword(Name = "surname")]
-        public string Surname { get; set; }
-
-        [Text(Name = "preferredFirstname")]
-        public string PreferredFirstname { get; set; }
-
-        [Text(Name = "preferredSurname")]
-        public string PreferredSurname { get; set; }
-
-        public string Ethinicity { get; set; }
-
-        public string Nationality { get; set; }
-
-        public string PlaceOfBirth { get; set; }
-
-        [Text(Name = "dateOfBirth")]
-        public string DateOfBirth { get; set; }
-
-        public string Gender { get; set; }
-
-        public List<Identification> Identification { get; set; }
-
-        public List<string> PersonTypes { get; set; }
-
-        public bool IsPersonCautionaryAlert { get; set; }
-
-        public bool IsTenureCautionaryAlert { get; set; }
-
-        public List<Tenure> Tenures { get; set; }
-
     }
 }
