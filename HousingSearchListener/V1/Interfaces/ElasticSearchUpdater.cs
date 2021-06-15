@@ -41,7 +41,7 @@ namespace HousingSearchListener.V1.Interfaces
                 var personString = result.Content.ReadAsStringAsync().Result;
                 var person = JsonConvert.DeserializeObject<Person>(personString);
 
-                Logger.Log(LogLevel.Information,$"{personCreatedMessage.EntityId.ToString()}, {personString}");
+                Logger.Log(LogLevel.Information, $"{personCreatedMessage.EntityId.ToString()}, {personString}");
 
                 var esPerson = esPersonFactory.Create(person);
 
