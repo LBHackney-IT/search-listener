@@ -1,10 +1,11 @@
 using Amazon.Lambda.SNSEvents;
+using Amazon.Lambda.SQSEvents;
 using HousingSearchListener.V1.Domain;
 
 namespace HousingSearchListener.Gateways
 {
     public interface IPersonMessageFactory
     {
-        PersonCreatedMessage Create(SNSEvent.SNSRecord record);
+        PersonCreatedMessage Create(SQSEvent.SQSMessage record);
     }
 }

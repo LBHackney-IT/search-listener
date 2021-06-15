@@ -2,6 +2,7 @@ using System;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Amazon.Lambda.SNSEvents;
+using Amazon.Lambda.SQSEvents;
 using HousingSearchListener.Gateways;
 using HousingSearchListener.Infrastructure;
 using HousingSearchListener.V1.Domain;
@@ -18,12 +19,12 @@ namespace HousingSearchListener.V1.Interfaces
 
         }
 
-        public async Task Update(SNSEvent snsEvent)
+        public async Task Update(SQSEvent sqsEvent)
         {
             var httpHandler = ServiceProvider.GetService<IHttpHandler>();
             var personMessageFactory = ServiceProvider.GetService<IPersonMessageFactory>();
 
-            foreach (var record in snsEvent.Records)
+            foreach (var record in sqsEvent.Records)
             {
                 var personCreatedMessage = personMessageFactory.Create(record);
 

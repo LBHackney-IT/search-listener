@@ -1,5 +1,6 @@
 ﻿using System;
 using Amazon.Lambda.SNSEvents;
+using Amazon.Lambda.SQSEvents;
 using FluentAssertions;
 using HousingSearchListener.Gateways;
 using Xunit;
@@ -28,12 +29,9 @@ namespace HousingSearchListener.Tests.Gateways
                 "\"entityId\": \"45c76564-2e38-48f3-bb31-6bab2fef8623\" }";
 
             // when
-            var result = _sut.Create(new SNSEvent.SNSRecord
+            var result = _sut.Create(new SQSEvent.SQSMessage
             {
-                Sns = new SNSEvent.SNSMessage
-                {
-                    Message = message
-                }
+                Body = message
             });
 
             // then

@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SNSEvents;
+using Amazon.Lambda.SQSEvents;
 using HousingSearchListener.Infrastructure;
 using HousingSearchListener.V1.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +19,7 @@ namespace HousingSearchListener
         /// <param name="input"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task FunctionHandler(SNSEvent snsEvent)
+        public async Task FunctionHandler(SQSEvent snsEvent)
         {
             var elasticSearchUpdater = new ElasticSearchUpdater(new ServiceCollection());
             await elasticSearchUpdater.Update(snsEvent);

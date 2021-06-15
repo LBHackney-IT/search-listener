@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Amazon.Lambda.SNSEvents;
+using Amazon.Lambda.SQSEvents;
 using FluentAssertions;
 using HousingSearchListener.Tests.Stubs;
 using HousingSearchListener.V1.Domain;
@@ -55,7 +56,7 @@ namespace HousingSearchListener.Tests.E2E
             var result = await _esClient.SearchAsync<QueryablePerson>(x => x.Index(_indices)
                 .Query(q => Create(q, new[] { $"*{person.FirstName}*", $"*{person.Surname}*" })));
 
-            var snsMessage =
+            var sqsMessage =
                 "{ \"id\": \"8e648f3d-9556-4896-8400-211cb1c5451b\", \"eventType\": \"PersonCreatedEvent\", \"sourceDomain\": \"Person\", \"sourceSystem\": " +
                 "\"PersonAPI\", \"version\": \"v1\", \"correlationId\": \"f4d541d0-7c07-4524-8296-2d0d50cb58f4\", \"dateTime\": \"2021-05-17T11:59:57.25Z\", " +
                 "\"user\": { \"id\": \"ac703d87-c100-40ec-90a0-dabf183e7377\", \"name\": \"Joe Bloggs\", \"email\": \"joe.bloggs@hackney.gov.uk\" }, " +
@@ -64,19 +65,17 @@ namespace HousingSearchListener.Tests.E2E
             result.Documents.Count.Should().Be(0);
 
             // when
-            await _sut.Update(new SNSEvent
+            await _sut.Update(new SQSEvent
             {
-                Records = new List<SNSEvent.SNSRecord>()
+                Records = new List<SQSEvent.SQSMessage>()
                 {
-                    new SNSEvent.SNSRecord
+                    new SQSEvent.SQSMessage
                     {
-                        Sns = new SNSEvent.SNSMessage
-                        {
-                            Message = snsMessage
-                        }
+                        Body = sqsMessage
                     }
                 }
             });
+
             result = await _esClient.SearchAsync<QueryablePerson>(x => x.Index(_indices)
                 .Query(q => Create(q, new[] { $"*{person.FirstName}*", $"*{person.Surname}*" })));
 
