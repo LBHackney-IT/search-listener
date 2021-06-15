@@ -41,6 +41,13 @@ locals {
     parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 }
 
+resource "aws_sqs_queue" "housing_search_dead_letter_queue" {
+  name                        = "housing_searchdeadletterqueue.fifo"
+  fifo_queue                  = true
+  content_based_deduplication = true
+  kms_master_key_id           = "alias/aws/sqs"
+}
+
 resource "aws_sqs_queue" "housing_search_listener_queue" {
   name                        = "housingsearchlistenerqueue.fifo"
   fifo_queue                  = true
@@ -49,13 +56,6 @@ resource "aws_sqs_queue" "housing_search_listener_queue" {
     deadLetterTargetArn = aws_sqs_queue.housing_search_dead_letter_queue.arn,
     maxReceiveCount     = 3
   })
-}
-
-resource "aws_sqs_queue" "housing_search_letter_queue" {
-  name                        = "housing_searchdeadletterqueue.fifo"
-  fifo_queue                  = true
-  content_based_deduplication = true
-  kms_master_key_id           = "alias/aws/sqs"
 }
 
 resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
