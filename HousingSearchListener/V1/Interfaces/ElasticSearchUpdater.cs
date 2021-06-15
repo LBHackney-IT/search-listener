@@ -8,6 +8,7 @@ using HousingSearchListener.Infrastructure;
 using HousingSearchListener.V1.Domain;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace HousingSearchListener.V1.Interfaces
@@ -37,7 +38,11 @@ namespace HousingSearchListener.V1.Interfaces
                 var esHelper = ServiceProvider.GetService<IElasticSearchHelper>();
 
                 var result = await httpHandler.GetAsync(url);
-                var person = JsonConvert.DeserializeObject<Person>(result.Content.ReadAsStringAsync().Result);
+                var personString = result.Content.ReadAsStringAsync().Result;
+                var person = JsonConvert.DeserializeObject<Person>(personString);
+
+                Logger.Log(LogLevel.Information,$"{personCreatedMessage.EntityId.ToString()}, {personString}");
+
                 var esPerson = esPersonFactory.Create(person);
 
                 await esHelper.Create(esPerson);
