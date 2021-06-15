@@ -1,5 +1,4 @@
 using System;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Amazon.Lambda.SNSEvents;
@@ -21,27 +20,26 @@ namespace HousingSearchListener.V1.Interfaces
 
         public async Task Update(SNSEvent snsEvent)
         {
-            var httpClientFactory = ServiceProvider.GetService<IHttpClientFactory>();
+            var httpHandler = ServiceProvider.GetService<IHttpHandler>();
             var personMessageFactory = ServiceProvider.GetService<IPersonMessageFactory>();
 
             foreach (var record in snsEvent.Records)
             {
                 var personCreatedMessage = personMessageFactory.Create(record);
 
-                var httpClient = httpClientFactory.CreateClient();
-
                 var url = QueryHelpers.AddQueryString(Environment.GetEnvironmentVariable("PersonApiUrl"),
                     "id", personCreatedMessage.EntityId.ToString());
 
-                httpClient.DefaultRequestHeaders.Authorization =
+                httpHandler.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue(Environment.GetEnvironmentVariable("PersonApiToken"));
                 var esPersonFactory = ServiceProvider.GetService<IESPersonFactory>();
                 var esHelper = ServiceProvider.GetService<IElasticSearchHelper>();
 
-                var result = await httpClient.GetAsync(url);
+                var result = await httpHandler.GetAsync(url);
                 var person = JsonConvert.DeserializeObject<Person>(result.Content.ReadAsStringAsync().Result);
                 var esPerson = esPersonFactory.Create(person);
 
+                await esHelper.Create(esPerson);
             }
         }
     }

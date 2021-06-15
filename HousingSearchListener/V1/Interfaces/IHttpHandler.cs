@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.Interfaces
@@ -12,5 +13,7 @@ namespace HousingSearchListener.V1.Interfaces
         Task<HttpResponseMessage> GetAsync(string url);
 
         Task<HttpResponseMessage> PostAsync(string url, HttpContent content);
+
+        HttpRequestHeaders DefaultRequestHeaders { get; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using HousingSearchListener.V1.Domain.ElasticSearch;
 using Nest;
 
@@ -13,9 +14,9 @@ namespace HousingSearchListener.V1.Interfaces
             _elasticClient = elasticClient;
         }
 
-        public async Task<CreateResponse> Create(ESPerson esPerson)
-        {
-            return await _elasticClient.CreateAsync<ESPerson>(new CreateRequest<ESPerson>(esPerson));
+        public async Task<IndexResponse> Create(ESPerson esPerson)
+        {            
+            return await _elasticClient.IndexAsync(new IndexRequest<ESPerson>(esPerson, "persons"));
         }
     }
 }

@@ -1,4 +1,6 @@
+
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.Interfaces
@@ -26,5 +28,10 @@ namespace HousingSearchListener.V1.Interfaces
         {
             return await _client.PostAsync(url, content);
         }
+
+        public HttpRequestHeaders DefaultRequestHeaders
+        {
+            get { return _client.DefaultRequestHeaders; }
+        } 
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Net.Http;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Elasticsearch.Net;
 using Hackney.Core.Logging;

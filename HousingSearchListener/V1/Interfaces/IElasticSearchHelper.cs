@@ -6,6 +6,6 @@ namespace HousingSearchListener.V1.Interfaces
 {
     public interface IElasticSearchHelper
     {
-        Task<CreateResponse> Create(ESPerson esPerson);
+        Task<IndexResponse> Create(ESPerson esPerson);
     }
 }
