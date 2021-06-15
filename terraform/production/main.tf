@@ -46,9 +46,16 @@ resource "aws_sqs_queue" "housing_search_listener_queue" {
   fifo_queue                  = true
   content_based_deduplication = true
   redrive_policy              = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.tenure_dead_letter_queue.arn,
+    deadLetterTargetArn = aws_sqs_queue.housing_search_dead_letter_queue.arn,
     maxReceiveCount     = 3
   })
+}
+
+resource "aws_sqs_queue" "housing_search_letter_queue" {
+  name                        = "housing_searchdeadletterqueue.fifo"
+  fifo_queue                  = true
+  content_based_deduplication = true
+  kms_master_key_id           = "alias/aws/sqs"
 }
 
 resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
