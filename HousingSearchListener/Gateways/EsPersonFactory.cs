@@ -19,9 +19,9 @@ namespace HousingSearchListener.Gateways
                 MiddleName = person.MiddleName,
                 PreferredFirstname = person.PreferredFirstName,
                 PreferredSurname = person.PreferredSurname,
-                Identifications = CreateIdentifications(person.Identifications),
+                Identifications = person.Identifications != null ? CreateIdentifications(person.Identifications) : new List<ESIdentification>(),
                 PersonTypes = person.PersonType,
-                Tenures = CreateTenures(person.Tenures)
+                Tenures = person.Tenures != null ? CreateTenures(person.Tenures) : new List<ESTenure>()
             };
         }
 
