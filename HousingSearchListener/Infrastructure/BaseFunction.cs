@@ -3,15 +3,11 @@ using System.Diagnostics.CodeAnalysis;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Elasticsearch.Net;
 using Hackney.Core.Logging;
-using HousingSearchListener.Gateways;
-using HousingSearchListener.V1.HealthCheck;
-using HousingSearchListener.V1.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Nest;
-using HttpClientHandler = HousingSearchListener.V1.Interfaces.HttpClientHandler;
 
 namespace HousingSearchListener.Infrastructure
 {
@@ -70,8 +66,6 @@ namespace HousingSearchListener.Infrastructure
             var esClient = new ElasticClient(connectionSettings);
 
             services.TryAddSingleton<IElasticClient>(esClient);
-
-            services.AddElasticSearchHealthCheck();
         }
     }
 }

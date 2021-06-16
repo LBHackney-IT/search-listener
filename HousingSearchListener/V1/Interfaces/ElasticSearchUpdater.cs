@@ -2,16 +2,13 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Amazon.Lambda.SNSEvents;
 using Amazon.Lambda.SQSEvents;
 using HousingSearchListener.Gateways;
 using HousingSearchListener.Infrastructure;
 using HousingSearchListener.V1.Domain;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace HousingSearchListener.V1.Interfaces
@@ -49,6 +46,9 @@ namespace HousingSearchListener.V1.Interfaces
                 new AuthenticationHeaderValue(Environment.GetEnvironmentVariable("PersonApiToken"));
 
             var result = await _httpHandler.GetAsync(personApiUrl);
+
+            if (!result.IsSuccessStatusCode)
+                throw new Exception(result.Content.ReadAsStringAsync().Result);
 
             return result;
         }

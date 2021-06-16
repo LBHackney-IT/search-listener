@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HousingSearchListener.V1.Domain.ElasticSearch;
 using Nest;
 

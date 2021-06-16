@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
 using AutoFixture;
 using HousingSearchListener.V1.Domain;
 using HousingSearchListener.V1.Interfaces;

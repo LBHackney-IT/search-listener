@@ -1,5 +1,4 @@
 ﻿using System;
-using Amazon.Lambda.SNSEvents;
 using Amazon.Lambda.SQSEvents;
 using FluentAssertions;
 using HousingSearchListener.Gateways;

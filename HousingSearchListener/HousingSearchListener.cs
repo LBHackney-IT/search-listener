@@ -1,8 +1,6 @@
 using System.Threading.Tasks;
 using Amazon.Lambda.Core;
-using Amazon.Lambda.SNSEvents;
 using Amazon.Lambda.SQSEvents;
-using HousingSearchListener.Infrastructure;
 using HousingSearchListener.V1.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
