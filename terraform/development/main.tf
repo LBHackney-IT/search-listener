@@ -42,7 +42,7 @@ locals {
 }
 
 resource "aws_sqs_queue" "housing_search_dead_letter_queue" {
-  name                        = "housing_searchdeadletterqueue.fifo"
+  name                        = "housingsearchlistenerdeadletterqueue.fifo"
   fifo_queue                  = true
   content_based_deduplication = true
   kms_master_key_id           = "alias/aws/sqs"
