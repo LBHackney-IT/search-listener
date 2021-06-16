@@ -8,7 +8,9 @@ using HousingSearchListener.Gateways;
 using HousingSearchListener.Infrastructure;
 using HousingSearchListener.V1.Domain;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -59,6 +61,25 @@ namespace HousingSearchListener.V1.Interfaces
             var esPerson = _esPersonFactory.Create(person);
 
             await _esHelper.Create(esPerson);
+        }
+
+        protected override void ConfigureServices(IServiceCollection services)
+        {
+            base.ConfigureServices(services);
+            RegisterDependencies(services);
+
+        }
+
+        private void RegisterDependencies(IServiceCollection services)
+        {
+            services.TryAddSingleton<IHttpHandler, HttpClientHandler>();
+
+            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddScoped<IPersonMessageFactory, PersonMessageFactory>();
+            services.AddScoped<IESPersonFactory, EsPersonFactory>();
+            services.AddScoped<IElasticSearchHelper, ElasticSearchHelper>();
+
+            ESServiceInitialization.ConfigureElasticsearch(services);
         }
     }
 }

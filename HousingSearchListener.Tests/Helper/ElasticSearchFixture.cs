@@ -15,7 +15,7 @@ namespace HousingSearchListener.Tests.Helper
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            TestDataHelper.InsertPersonInEs(serviceProvider.GetService<IElasticClient>());
+            TestDataHelper.CreateEsIndex(serviceProvider.GetService<IElasticClient>());
 
             // For the index to have time to be populated
             Thread.Sleep(500);

@@ -31,7 +31,6 @@ namespace HousingSearchListener.Infrastructure
             var builder = new ConfigurationBuilder();
 
             Configuration = builder.Build();
-            RegisterDependencies(services);
 
             AddLogging(services);
             ConfigureServices(services);
@@ -40,17 +39,6 @@ namespace HousingSearchListener.Infrastructure
             ServiceProvider.UseLogCall();
 
             Logger = ServiceProvider.GetRequiredService<ILogger<BaseFunction>>();
-        }
-
-        private void RegisterDependencies(IServiceCollection services)
-        {
-            services.TryAddSingleton<IHttpHandler, HttpClientHandler>();
-            services.AddSingleton<IConfiguration>(Configuration);
-            services.AddScoped<IPersonMessageFactory, PersonMessageFactory>();
-            services.AddScoped<IESPersonFactory, EsPersonFactory>();
-            services.AddScoped<IElasticSearchHelper, ElasticSearchHelper>();
-
-            ESServiceInitialization.ConfigureElasticsearch(services);
         }
 
         private void AddLogging(IServiceCollection services)

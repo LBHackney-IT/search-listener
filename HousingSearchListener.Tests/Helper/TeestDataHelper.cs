@@ -6,7 +6,7 @@ namespace HousingSearchListener.Tests.Helper
     {
         public static string[] Alphabet = { "aa", "bb", "cc", "dd", "ee", "vv", "ww", "xx", "yy", "zz" };
 
-        public static void InsertPersonInEs(IElasticClient elasticClient)
+        public static void CreateEsIndex(IElasticClient elasticClient)
         {
             elasticClient?.Indices.Delete("persons");
 

@@ -1,4 +1,4 @@
-service: housings-search-listener
+service: housing-search-listener
 provider:
   name: aws
   runtime: dotnetcore3.1
@@ -18,8 +18,7 @@ functions:
     name: ${self:service}-${self:provider.stage}
     handler: HousingSearchListener::HousingSearchListener.HousingSearchListener::FunctionHandler
     role: lambdaExecutionRole
-    environment:      
-      ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}      
+    environment:            
       ELASTICSEARCH_DOMAIN_URL: ${ssm:/housing-search-api/${self:provider.stage}/elasticsearch-domain}
       PersonApiUrl: ${ssm:/housing-tl/${self:provider.stage}/person-api-url}
       PersonApiToken: ${ssm:/housing-tl/${self:provider.stage}/person-api-token}
