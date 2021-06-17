@@ -14,12 +14,16 @@ package:
   artifact: ./bin/release/netcoreapp3.1/housing-search-listener.zip
 
 functions:
-  PersonApi:
+  HousingSearchListener:
     name: ${self:service}-${self:provider.stage}
-    handler: HousingSearchListener::HousingSearchListener.LambdaEntryPoint::FunctionHandlerAsync
+    handler: HousingSearchListener::HousingSearchListener.HousingSearchListener::FunctionHandler
     role: lambdaExecutionRole
-    environment:      
-      ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}    
+    environment:            
+      ELASTICSEARCH_DOMAIN_URL: ${ssm:/housing-search-api/${self:provider.stage}/elasticsearch-domain}
+      PersonApiUrl: ${ssm:/housing-tl/${self:provider.stage}/person-api-url}
+      PersonApiToken: ${ssm:/housing-tl/${self:provider.stage}/person-api-token}
+    events:
+      - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housing_search_listener_queue/arn} 
 resources:
   Resources:
     LambdaSecurityGroup:
@@ -81,6 +85,21 @@ resources:
                   Action:
                     - "lambda:InvokeFunction"
                   Resource: "*"          
+          - PolicyName: sqsAccess
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - "sqs:ChangeMessageVisibility"
+                    - "sqs:DeleteMessage"
+                    - "sqs:GetQueueAttributes"
+                    - "sqs:GetQueueUrl"
+                    - "sqs:ListQueueTags"
+                    - "sqs:ReceiveMessage"
+                    - "sqs:SendMessage"
+                    - "kms:Decrypt"
+                  Resource: "*" 
 custom:
   vpcId:
     development: vpc-0d15f152935c8716f

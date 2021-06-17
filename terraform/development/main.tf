@@ -41,11 +41,21 @@ locals {
     parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
 }
 
-resource "aws_sqs_queue" "housing_search_listener_queue" {
-  name                        = "housingsearchlistenerqueue.fifo"
+resource "aws_sqs_queue" "housing_search_dead_letter_queue" {
+  name                        = "housingsearchdeadletterqueue.fifo"
   fifo_queue                  = true
   content_based_deduplication = true
-  kms_master_key_id = "alias/aws/sqs"
+  kms_master_key_id           = "alias/aws/sqs"
+}
+
+resource "aws_sqs_queue" "housing_search_listener_queue" {
+  name                        = "housingsearchqueue.fifo"
+  fifo_queue                  = true
+  content_based_deduplication = true
+  redrive_policy              = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.housing_search_dead_letter_queue.arn,
+    maxReceiveCount     = 3
+	})
 }
 
 resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
@@ -77,6 +87,7 @@ resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_t
   topic_arn = "${data.aws_ssm_parameter.person_sns_topic_arn.value}"
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.housing_search_listener_queue.arn
+  raw_message_delivery = true
 }
 
 resource "aws_ssm_parameter" "housing_search_listeners_sqs_queue_arn" {
