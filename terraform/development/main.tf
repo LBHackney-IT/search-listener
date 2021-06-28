@@ -27,6 +27,9 @@ data "aws_region" "current" {}
 data "aws_ssm_parameter" "person_sns_topic_arn" {
   name = "/sns-topic/development/person_created/arn"
 }
+data "aws_ssm_parameter" "person_updated_sns_topic_arn" {
+  name = "/sns-topic/development/person_updated/arn"
+}
 
 terraform {
   backend "s3" {
@@ -88,6 +91,37 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
 
 resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_person_sns" {
   topic_arn = "${data.aws_ssm_parameter.person_sns_topic_arn.value}"
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.housing_search_listener_queue.arn
+  raw_message_delivery = true
+}
+
+resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
+  queue_url = aws_sqs_queue.housing_search_listener_queue.id
+  policy = <<POLICY
+  {
+      "Version": "2012-10-17",
+      "Id": "sqspolicy",
+      "Statement": [
+      {
+          "Sid": "First",
+          "Effect": "Allow",
+          "Principal": "*",
+          "Action": "sqs:SendMessage",
+          "Resource": "${aws_sqs_queue.housing_search_listener_queue.arn}",
+          "Condition": {
+          "ArnEquals": {
+              "aws:SourceArn": "${data.aws_ssm_parameter.person_updated_sns_topic_arn.value}"
+          }
+          }
+      }
+      ]
+  }
+  POLICY
+}
+
+resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_person_sns" {
+  topic_arn = "${data.aws_ssm_parameter.person_updated_sns_topic_arn.value}"
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.housing_search_listener_queue.arn
   raw_message_delivery = true
