@@ -91,14 +91,7 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
 
 
 resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_person_sns" {
-  topic_arn = "${data.aws_ssm_parameter.person_sns_topic_arn.value}"
-  protocol  = "sqs"
-  endpoint  = aws_sqs_queue.housing_search_listener_queue.arn
-  raw_message_delivery = true
-}
-
-resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_person_sns" {
-  topic_arn = "${data.aws_ssm_parameter.person_updated_sns_topic_arn.value}"
+  topic_arn = "${data.aws_ssm_parameter.person_sns_topic_arn.value}", "${data.aws_ssm_parameter.person_updated_sns_topic_arn.value}"
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.housing_search_listener_queue.arn
   raw_message_delivery = true
