@@ -25,7 +25,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 data "aws_ssm_parameter" "person_sns_topic_arn" {
-  name = "/sns-topic/development/person_created/arn"
+  name = "/sns-topic/development/person/arn"
 }
 
 terraform {
@@ -76,7 +76,7 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
           "Resource": "${aws_sqs_queue.housing_search_listener_queue.arn}",
           "Condition": {
           "ArnEquals": {
-              "aws:SourceArn": "${data.aws_ssm_parameter.person_sns_topic_arn.value}",
+              "aws:SourceArn": "${data.aws_ssm_parameter.person_sns_topic_arn.value}"
           }
           }
       }
