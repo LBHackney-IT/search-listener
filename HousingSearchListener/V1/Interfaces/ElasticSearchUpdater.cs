@@ -33,7 +33,7 @@ namespace HousingSearchListener.V1.Interfaces
             foreach (var record in sqsEvent.Records)
             {
                 var result = await GetPersonFromPersonApi(record);
-                await UpdateEsIndexWithCreatedPerson(result);
+                await UpdateEsIndexWithCreatedPerson(record, result);
             }
         }
 
@@ -53,21 +53,33 @@ namespace HousingSearchListener.V1.Interfaces
             return result;
         }
 
-        private async Task UpdateEsIndexWithCreatedPerson(HttpResponseMessage result)
+        private async Task UpdateEsIndexWithCreatedPerson(SQSEvent.SQSMessage record, HttpResponseMessage result)
         {
+            var personCreatedMessage = _personMessageFactory.Create(record);
+
             var personString = await result.Content.ReadAsStringAsync();
             var person = JsonConvert.DeserializeObject<Person>(personString);
 
             var esPerson = _esPersonFactory.Create(person);
 
-            await _esHelper.Create(esPerson);
+            switch (personCreatedMessage.EventType)
+            {
+                case EventTypes.PersonCreatedEvent:
+                    await _esHelper.Create(esPerson);
+                    break;
+                case EventTypes.PersonUpdatedEvent:
+                    await _esHelper.Update(esPerson);
+                    break;
+                default:
+                    await _esHelper.Create(esPerson);
+                    break;
+            }
         }
 
         protected override void ConfigureServices(IServiceCollection services)
         {
             base.ConfigureServices(services);
             RegisterDependencies(services);
-
         }
 
         private void RegisterDependencies(IServiceCollection services)

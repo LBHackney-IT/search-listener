@@ -13,7 +13,17 @@ namespace HousingSearchListener.V1.Interfaces
             _elasticClient = elasticClient;
         }
 
+        public async Task<IndexResponse> Update(ESPerson esPerson)
+        {
+            return await ESIndex(esPerson);
+        }
+
         public async Task<IndexResponse> Create(ESPerson esPerson)
+        {
+            return await ESIndex(esPerson);
+        }
+
+        private async Task<IndexResponse> ESIndex(ESPerson esPerson)
         {
             return await _elasticClient.IndexAsync(new IndexRequest<ESPerson>(esPerson, "persons"));
         }
