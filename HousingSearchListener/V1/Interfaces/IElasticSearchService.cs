@@ -3,7 +3,7 @@ using Amazon.Lambda.SQSEvents;
 
 namespace HousingSearchListener.V1.Interfaces
 {
-    public interface IElasticSearchUpdater
+    public interface IElasticSearchService
     {
         Task Update(SQSEvent sqsEvent);
     }

@@ -13,14 +13,14 @@ using Newtonsoft.Json;
 
 namespace HousingSearchListener.V1.Interfaces
 {
-    public class ElasticSearchUpdater : BaseFunction, IElasticSearchUpdater
+    public class ElasticSearchService : BaseService, IElasticSearchService
     {
         private IESPersonFactory _esPersonFactory;
         private IElasticSearchHelper _esHelper;
         private IHttpHandler _httpHandler;
         private IPersonMessageFactory _personMessageFactory;
 
-        public ElasticSearchUpdater(IServiceCollection services) : base(services)
+        public ElasticSearchService(IServiceCollection services) : base(services)
         {
             _esPersonFactory = ServiceProvider.GetService<IESPersonFactory>();
             _esHelper = ServiceProvider.GetService<IElasticSearchHelper>();
@@ -91,7 +91,7 @@ namespace HousingSearchListener.V1.Interfaces
             services.AddScoped<IESPersonFactory, EsPersonFactory>();
             services.AddScoped<IElasticSearchHelper, ElasticSearchHelper>();
 
-            ESServiceInitialization.ConfigureElasticsearch(services);
+            ESServiceInitializer.Initialize(services);
         }
     }
 }
