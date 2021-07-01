@@ -28,8 +28,8 @@ namespace HousingSearchListener.V1.Interfaces
             _esPersonFactory = ServiceProvider.GetService<IESPersonFactory>();
             _httpHandler = ServiceProvider.GetService<IHttpHandler>();
             _personMessageFactory = ServiceProvider.GetService<IPersonMessageFactory>();
-            _createPersonUseCase = ServiceProvider.GetService <ICreatePersonUseCase>();
-            _updatePersonUseCase = ServiceProvider.GetService <IUpdatePersonUseCase>();
+            _createPersonUseCase = ServiceProvider.GetService<ICreatePersonUseCase>();
+            _updatePersonUseCase = ServiceProvider.GetService<IUpdatePersonUseCase>();
         }
 
         public async Task Process(SQSEvent sqsEvent)
