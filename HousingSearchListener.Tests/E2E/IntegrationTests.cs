@@ -68,7 +68,7 @@ namespace HousingSearchListener.Tests.E2E
             result.Documents.Count.Should().Be(0);
 
             // when
-            await _sut.Update(new SQSEvent
+            await _sut.Process(new SQSEvent
             {
                 Records = new List<SQSEvent.SQSMessage>()
                 {

@@ -20,7 +20,7 @@ namespace HousingSearchListener
         public async Task FunctionHandler(SQSEvent snsEvent)
         {
             var elasticSearchUpdater = new ElasticSearchService(new ServiceCollection());
-            await elasticSearchUpdater.Update(snsEvent);
+            await elasticSearchUpdater.Process(snsEvent);
         }
     }
 }

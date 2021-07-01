@@ -1,14 +1,15 @@
 ﻿using System.Threading.Tasks;
 using HousingSearchListener.V1.Domain.ElasticSearch;
+using HousingSearchListener.V1.Interfaces;
 using Nest;
 
-namespace HousingSearchListener.V1.Interfaces
+namespace HousingSearchListener.V1.Gateway
 {
-    public class ElasticSearchHelper : IElasticSearchHelper
+    public class EsGateway : IEsGateway
     {
         private readonly IElasticClient _elasticClient;
 
-        public ElasticSearchHelper(IElasticClient elasticClient)
+        public EsGateway(IElasticClient elasticClient)
         {
             _elasticClient = elasticClient;
         }

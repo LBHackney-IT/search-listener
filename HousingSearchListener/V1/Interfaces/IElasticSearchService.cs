@@ -5,6 +5,6 @@ namespace HousingSearchListener.V1.Interfaces
 {
     public interface IElasticSearchService
     {
-        Task Update(SQSEvent sqsEvent);
+        Task Process(SQSEvent sqsEvent);
     }
 }
