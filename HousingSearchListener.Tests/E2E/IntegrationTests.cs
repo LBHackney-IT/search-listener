@@ -16,7 +16,7 @@ namespace HousingSearchListener.Tests.E2E
     [Collection("ElasticSearch collection")]
     public class IntegrationTests
     {
-        private ElasticSearchUpdater _sut;
+        private ElasticSearchService _sut;
         private ServiceCollection _serviceCollection;
         private ServiceProvider _serviceProvider;
         private readonly Indices.ManyIndices _indices;
@@ -29,7 +29,7 @@ namespace HousingSearchListener.Tests.E2E
             _serviceCollection = new ServiceCollection();
             _serviceCollection.AddSingleton<IHttpHandler, HttpHandlerStub>();
 
-            _sut = new ElasticSearchUpdater(_serviceCollection);
+            _sut = new ElasticSearchService(_serviceCollection);
             _serviceProvider = _serviceCollection.BuildServiceProvider();
 
             _indices = Indices.Index(new List<IndexName> { "persons" });
@@ -68,7 +68,7 @@ namespace HousingSearchListener.Tests.E2E
             result.Documents.Count.Should().Be(0);
 
             // when
-            await _sut.Update(new SQSEvent
+            await _sut.Process(new SQSEvent
             {
                 Records = new List<SQSEvent.SQSMessage>()
                 {

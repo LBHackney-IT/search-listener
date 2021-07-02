@@ -11,7 +11,7 @@ namespace HousingSearchListener.Tests.Helper
         public ElasticSearchFixture()
         {
             var serviceCollection = new ServiceCollection();
-            ESServiceInitialization.ConfigureElasticsearch(serviceCollection);
+            ESServiceInitializer.Initialize(serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
