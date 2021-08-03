@@ -1,4 +1,4 @@
-﻿namespace HousingSearchListener.V1.Boundary
+namespace HousingSearchListener.V1.Boundary
 {
     public class User
     {
