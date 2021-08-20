@@ -1,105 +1,109 @@
-using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using Amazon.Lambda.SQSEvents;
-using HousingSearchListener.Gateways;
-using HousingSearchListener.Infrastructure;
-using HousingSearchListener.V1.Domain;
-using HousingSearchListener.V1.Gateway;
-using HousingSearchListener.V1.UseCase;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Newtonsoft.Json;
+//using Amazon.Lambda.SQSEvents;
+//using HousingSearchListener.V1.Domain;
+//using HousingSearchListener.V1.Factories;
+//using HousingSearchListener.V1.Gateway;
+//using HousingSearchListener.V1.Infrastructure;
+//using HousingSearchListener.V1.UseCase;
+//using HousingSearchListener.V1.UseCase.Interfaces;
+//using Microsoft.Extensions.Configuration;
+//using Microsoft.Extensions.DependencyInjection;
+//using Microsoft.Extensions.DependencyInjection.Extensions;
+//using Newtonsoft.Json;
+//using System;
+//using System.Net.Http;
+//using System.Net.Http.Headers;
+//using System.Threading.Tasks;
 
-namespace HousingSearchListener.V1.Interfaces
-{
-    public class ElasticSearchService : BaseService, IElasticSearchService
-    {
-        private IESPersonFactory _esPersonFactory;
-        private IHttpHandler _httpHandler;
-        private IPersonMessageFactory _personMessageFactory;
-        private ICreatePersonUseCase _createPersonUseCase;
-        private IUpdatePersonUseCase _updatePersonUseCase;
+//namespace HousingSearchListener.V1.Interfaces
+//{
+//    public class ElasticSearchService : IElasticSearchService
+//    {
+//        private IESEntityFactory _esPersonFactory;
+//        private IHttpHandler _httpHandler;
+//        private IMessageFactory _messageFactory;
+//        private IIndexPersonUseCase _createPersonUseCase;
+//        private IUpdatePersonUseCase _updatePersonUseCase;
 
-        public ElasticSearchService(IServiceCollection services) : base(services)
-        {
-            _esPersonFactory = ServiceProvider.GetService<IESPersonFactory>();
-            _httpHandler = ServiceProvider.GetService<IHttpHandler>();
-            _personMessageFactory = ServiceProvider.GetService<IPersonMessageFactory>();
-            _createPersonUseCase = ServiceProvider.GetService<ICreatePersonUseCase>();
-            _updatePersonUseCase = ServiceProvider.GetService<IUpdatePersonUseCase>();
-        }
+//        public ElasticSearchService(IServiceCollection services) : base(services)
+//        {
+//            _esPersonFactory = ServiceProvider.GetService<IESEntityFactory>();
+//            _httpHandler = ServiceProvider.GetService<IHttpHandler>();
+//            _messageFactory = ServiceProvider.GetService<IMessageFactory>();
 
-        public async Task Process(SQSEvent sqsEvent)
-        {
-            foreach (var record in sqsEvent.Records)
-            {
-                var result = await GetPersonFromPersonApi(record);
-                await Process(record, result);
-            }
-        }
+//            _createPersonUseCase = ServiceProvider.GetService<IIndexPersonUseCase>();
+//            _updatePersonUseCase = ServiceProvider.GetService<IUpdatePersonUseCase>();
+//        }
 
-        private async Task Process(SQSEvent.SQSMessage record, HttpResponseMessage result)
-        {
-            var personCreatedMessage = _personMessageFactory.Create(record);
-            var personString = await result.Content.ReadAsStringAsync();
-            var person = JsonConvert.DeserializeObject<Person>(personString);
-            var esPerson = _esPersonFactory.Create(person);
+//        public async Task Process(EntityEventSns sqsEvent)
+//        {
+//            foreach (var record in sqsEvent.Records)
+//            {
+//                var result = await GetPersonFromPersonApi(record);
+//                await Process(record, result);
+//            }
+//        }
 
-            switch (personCreatedMessage.EventType)
-            {
-                case EventTypes.PersonCreatedEvent:
-                    await _createPersonUseCase.Create(esPerson);
-                    break;
-                case EventTypes.PersonUpdatedEvent:
-                    await _updatePersonUseCase.Update(esPerson);
-                    break;
-                default:
-                    throw new NotImplementedException(
-                        $"ES updated for eventtype {personCreatedMessage.EventType} not implemented");
-            }
-        }
+//        private async Task Process(SQSEvent.SQSMessage record, HttpResponseMessage result)
+//        {
+//            var message = _messageFactory.Create(record);
+//            var personString = await result.Content.ReadAsStringAsync();
+//            var person = JsonConvert.DeserializeObject<Person>(personString);
+//            var esPerson = _esPersonFactory.Create(person);
 
-        private async Task<HttpResponseMessage> GetPersonFromPersonApi(SQSEvent.SQSMessage record)
-        {
-            var personCreatedMessage = _personMessageFactory.Create(record);
-            var personApiUrl = $"{Environment.GetEnvironmentVariable("PersonApiUrl")}/persons/{personCreatedMessage.EntityId}";
+//            switch (message.EventType)
+//            {
+//                case EventTypes.PersonCreatedEvent:
+//                    await _createPersonUseCase.Create(esPerson);
+//                    break;
+//                case EventTypes.PersonUpdatedEvent:
+//                    await _updatePersonUseCase.Update(esPerson);
+//                    break;
+//                case EventTypes.TenureCreatedEvent:
+//                    await _createPersonUseCase.Update(esPerson);
+//                    break;
+//                default:
+//                    throw new NotImplementedException(
+//                        $"ES updated for eventtype {message.EventType} not implemented");
+//            }
+//        }
 
-            _httpHandler.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue(Environment.GetEnvironmentVariable("PersonApiToken"));
+//        private async Task<HttpResponseMessage> GetPersonFromPersonApi(SQSEvent.SQSMessage record)
+//        {
+//            var personCreatedMessage = _messageFactory.Create(record);
+//            var personApiUrl = $"{Environment.GetEnvironmentVariable("PersonApiUrl")}/persons/{personCreatedMessage.EntityId}";
 
-            var result = await _httpHandler.GetAsync(personApiUrl);
+//            _httpHandler.DefaultRequestHeaders.Authorization =
+//                new AuthenticationHeaderValue(Environment.GetEnvironmentVariable("PersonApiToken"));
 
-            if (!result.IsSuccessStatusCode)
-                throw new Exception(result.Content.ReadAsStringAsync().Result);
+//            var result = await _httpHandler.GetAsync(personApiUrl);
 
-            return result;
-        }
+//            if (!result.IsSuccessStatusCode)
+//                throw new Exception(result.Content.ReadAsStringAsync().Result);
 
-        #region Register Dependencies
+//            return result;
+//        }
 
-        protected override void ConfigureServices(IServiceCollection services)
-        {
-            base.ConfigureServices(services);
-            RegisterDependencies(services);
-        }
+//        #region Register Dependencies
 
-        private void RegisterDependencies(IServiceCollection services)
-        {
-            services.TryAddSingleton<IHttpHandler, HttpClientHandler>();
+//        protected override void ConfigureServices(IServiceCollection services)
+//        {
+//            base.ConfigureServices(services);
+//            RegisterDependencies(services);
+//        }
 
-            services.AddSingleton<IConfiguration>(Configuration);
-            services.AddScoped<IPersonMessageFactory, PersonMessageFactory>();
-            services.AddScoped<IESPersonFactory, EsPersonFactory>();
-            services.AddScoped<ICreatePersonUseCase, CreatePersonUseCase>();
-            services.AddScoped<IUpdatePersonUseCase, UpdatePersonUseCase>();
-            services.AddScoped<IEsGateway, EsGateway>();
+//        private void RegisterDependencies(IServiceCollection services)
+//        {
+//            services.TryAddSingleton<IHttpHandler, HttpClientHandler>();
 
-            ESServiceInitializer.Initialize(services);
-        }
+//            services.AddSingleton<IConfiguration>(Configuration);
+//            services.AddScoped<IESEntityFactory, EsEntityFactory>();
+//            services.AddScoped<IIndexPersonUseCase, IndexPersonUseCase>();
+//            services.AddScoped<IUpdatePersonUseCase, UpdatePersonUseCase>();
+//            services.AddScoped<IEsGateway, EsGateway>();
 
-        #endregion Register Dependencies
-    }
-}
+//            ESServiceInitializer.ConfigureElasticSearch(services);
+//        }
+
+//        #endregion Register Dependencies
+//    }
+//}

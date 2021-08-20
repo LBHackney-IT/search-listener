@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using HousingSearchListener.V1.Domain.ElasticSearch;
+﻿using HousingSearchListener.V1.Domain.ElasticSearch;
 using Nest;
+using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.Gateway
 {
     public interface IEsGateway
     {
-        Task<IndexResponse> Update(ESPerson esPerson);
+        Task<IndexResponse> IndexPerson(ESPerson esPerson);
 
-        Task<IndexResponse> Create(ESPerson esPerson);
+        Task<IndexResponse> IndexTenure(ESTenure esTenure);
     }
 }
