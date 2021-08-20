@@ -87,15 +87,15 @@ namespace HousingSearchListener
                     {
                         case EventTypes.PersonCreatedEvent:
                         case EventTypes.PersonUpdatedEvent:
-                        {
-                            processor = ServiceProvider.GetService<IIndexPersonUseCase>();
-                            break;
-                        }
+                            {
+                                processor = ServiceProvider.GetService<IIndexPersonUseCase>();
+                                break;
+                            }
                         case EventTypes.TenureCreatedEvent:
-                        {
-                            processor = ServiceProvider.GetService<IIndexTenureUseCase>();
-                            break;
-                        }
+                            {
+                                processor = ServiceProvider.GetService<IIndexTenureUseCase>();
+                                break;
+                            }
                         default:
                             throw new ArgumentException($"Unknown event type: {entityEvent.EventType} on message id: {message.MessageId}");
                     }
