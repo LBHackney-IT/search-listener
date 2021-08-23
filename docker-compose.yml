@@ -11,20 +11,15 @@ services:
      ports:
        - 3000:3000
      environment:
-       - AWS_REGION=eu-west-2
-       - AWS_ACCESS_KEY_ID=local
-       - AWS_SECRET_ACCESS_KEY=local
-       - Localstack_SnsServiceUrl=http://localstack:4566
-       - Localstack_SqsServiceUrl=http://localstack:4566
-       - LOCALSTACK_HOST=localhost
-       - AWS_REGION=eu-central-1
-       - LOCALSTACK_DUMMY_ID=000000000000
+       - ELASTICSEARCH_DOMAIN_URL=http://housing-search-listener-elasticsearch:9200
      links:        
-       - elasticsearch
+       - housing-search-listener-elasticsearch
+     networks:
+       - elastic
 
-   elasticsearch:
-    image: elasticsearch
-    container_name: elasticsearch
+   housing-search-listener-elasticsearch:
+    image: housing-search-listener-elasticsearch
+    container_name: housing-search-listener-elasticsearch
     build:
       context: .
       dockerfile: data/elasticsearch/Dockerfile
@@ -35,25 +30,16 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - 9200:9200
+      - 9300:9300
     volumes:
-      - esdata-test:/usr/share/elasticsearch/data
+      - housing-search-listener-esdata-test:/usr/share/elasticsearch/data
     networks:
-      elastic:
-        aliases:
-          - test-elasticsearch
-          - elastic
-          - elasticsearch
-   kibana:
-        image: docker.elastic.co/kibana/kibana:7.9.3
-        ports:
-            - "5601:5601"
-        networks:
-            - elastic
-        depends_on:
-            - elasticsearch
+      - elastic
+
 volumes:
-    esdata-test:
+    housing-search-listener-esdata-test:
         driver: local
+
 networks:
   elastic:
     driver: bridge

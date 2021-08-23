@@ -5,7 +5,32 @@ VisualStudioVersion = 16.0.31313.79
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HousingSearchListener", "HousingSearchListener\HousingSearchListener.csproj", "{4753BB6E-C0E5-4E26-81B3-005C203B7F7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HousingSearchListener.Tests", "HousingSearchListener.Tests\HousingSearchListener.Tests.csproj", "{3DC2B780-B341-406B-9E34-603C567F3F8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HousingSearchListener.Tests", "HousingSearchListener.Tests\HousingSearchListener.Tests.csproj", "{3DC2B780-B341-406B-9E34-603C567F3F8C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "terraform", "terraform", "{F2DF9CBD-4306-4C4B-BB32-8E982CBC3FE8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "development", "development", "{B4B1ED97-2905-4713-B600-31B8334DE661}"
+	ProjectSection(SolutionItems) = preProject
+		terraform\development\main.tf = terraform\development\main.tf
+		terraform\development\variables.tf = terraform\development\variables.tf
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "staging", "staging", "{21788091-E4ED-4558-8077-41D481C79B5C}"
+	ProjectSection(SolutionItems) = preProject
+		terraform\staging\main.tf = terraform\staging\main.tf
+		terraform\staging\variables.tf = terraform\staging\variables.tf
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "production", "production", "{8B6083BB-AB9E-4CBC-8256-482C4FF84A37}"
+	ProjectSection(SolutionItems) = preProject
+		terraform\production\main.tf = terraform\production\main.tf
+		terraform\production\variables.tf = terraform\production\variables.tf
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{016ECD61-2A5A-4098-BB8D-835F5ABCCAFB}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +49,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B4B1ED97-2905-4713-B600-31B8334DE661} = {F2DF9CBD-4306-4C4B-BB32-8E982CBC3FE8}
+		{21788091-E4ED-4558-8077-41D481C79B5C} = {F2DF9CBD-4306-4C4B-BB32-8E982CBC3FE8}
+		{8B6083BB-AB9E-4CBC-8256-482C4FF84A37} = {F2DF9CBD-4306-4C4B-BB32-8E982CBC3FE8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4793BE77-A55E-49B8-8051-7A0D05220DD4}

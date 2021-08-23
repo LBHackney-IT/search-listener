@@ -1,7 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using Hackney.Core.Logging;
 using HousingSearchListener.V1.Domain.ElasticSearch;
-using HousingSearchListener.V1.Interfaces;
 using Nest;
+using System;
+using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.Gateway
 {
@@ -9,24 +10,30 @@ namespace HousingSearchListener.V1.Gateway
     {
         private readonly IElasticClient _elasticClient;
 
+        private const string IndexNamePersons = "persons";
+        private const string IndexNameTenures = "tenures";
+
         public EsGateway(IElasticClient elasticClient)
         {
             _elasticClient = elasticClient;
         }
 
-        public async Task<IndexResponse> Update(ESPerson esPerson)
+        [LogCall]
+        private async Task<IndexResponse> ESIndex<T>(T esObject, string indexName) where T : class
         {
-            return await ESIndex(esPerson);
+            return await _elasticClient.IndexAsync(new IndexRequest<T>(esObject, indexName));
         }
 
-        public async Task<IndexResponse> Create(ESPerson esPerson)
+        public async Task<IndexResponse> IndexPerson(ESPerson esPerson)
         {
-            return await ESIndex(esPerson);
+            if (esPerson is null) throw new ArgumentNullException(nameof(esPerson));
+            return await ESIndex(esPerson, IndexNamePersons);
         }
 
-        private async Task<IndexResponse> ESIndex(ESPerson esPerson)
+        public async Task<IndexResponse> IndexTenure(ESTenure esTenure)
         {
-            return await _elasticClient.IndexAsync(new IndexRequest<ESPerson>(esPerson, "persons"));
+            if (esTenure is null) throw new ArgumentNullException(nameof(esTenure));
+            return await ESIndex(esTenure, IndexNameTenures);
         }
     }
 }
