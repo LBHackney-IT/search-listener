@@ -65,8 +65,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public void ThenAPersonNotFoundExceptionIsThrown(Guid id)
         {
             _lastException.Should().NotBeNull();
-            _lastException.Should().BeOfType(typeof(PersonNotFoundException));
-            (_lastException as PersonNotFoundException).Id.Should().Be(id);
+            _lastException.Should().BeOfType(typeof(EntityNotFoundException<Person>));
+            (_lastException as EntityNotFoundException<Person>).Id.Should().Be(id);
         }
 
         public async Task ThenTheIndexIsUpdatedWithThePerson(

@@ -89,7 +89,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                                        .ReturnsAsync((TenureInformation)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<TenureNotFoundException>();
+            func.Should().ThrowAsync<EntityNotFoundException<TenureInformation>>();
         }
 
         [Fact]

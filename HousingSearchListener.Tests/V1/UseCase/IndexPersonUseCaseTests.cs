@@ -90,7 +90,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                                        .ReturnsAsync((Person)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<PersonNotFoundException>();
+            func.Should().ThrowAsync<EntityNotFoundException<Person>>();
         }
 
         [Fact]

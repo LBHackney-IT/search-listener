@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -23,7 +22,7 @@ namespace HousingSearchListener
     [ExcludeFromCodeCoverage]
     public class HousingSearchListener : BaseFunction
     {
-        private readonly static JsonSerializerOptions _jsonOptions = CreateJsonOptions();
+        private readonly static JsonSerializerOptions _jsonOptions = JsonOptions.CreateJsonOptions();
 
         /// <summary>
         /// Default constructor. This constructor is used by Lambda to construct the instance. When invoked in a Lambda environment
@@ -32,17 +31,6 @@ namespace HousingSearchListener
         /// </summary>
         public HousingSearchListener()
         {
-        }
-
-        private static JsonSerializerOptions CreateJsonOptions()
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            options.Converters.Add(new JsonStringEnumConverter());
-            return options;
         }
 
         protected override void ConfigureServices(IServiceCollection services)

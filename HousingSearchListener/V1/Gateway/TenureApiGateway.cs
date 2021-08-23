@@ -1,5 +1,6 @@
 ﻿using Hackney.Core.Logging;
 using HousingSearchListener.V1.Domain.Tenure;
+using HousingSearchListener.V1.Infrastructure;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -7,7 +8,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.Gateway
@@ -20,7 +20,7 @@ namespace HousingSearchListener.V1.Gateway
 
         private const string TenureApiUrl = "TenureApiUrl";
         private const string TenureApiToken = "TenureApiToken";
-        private readonly static JsonSerializerOptions _jsonOptions = CreateJsonOptions();
+        private readonly static JsonSerializerOptions _jsonOptions = JsonOptions.CreateJsonOptions();
 
         public TenureApiGateway(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
@@ -32,17 +32,6 @@ namespace HousingSearchListener.V1.Gateway
             _getTenureApiToken = configuration.GetValue<string>(TenureApiToken);
             if (string.IsNullOrEmpty(_getTenureApiToken))
                 throw new ArgumentException($"Configuration does not contain a setting value for the key {TenureApiToken}.");
-        }
-
-        private static JsonSerializerOptions CreateJsonOptions()
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            options.Converters.Add(new JsonStringEnumConverter());
-            return options;
         }
 
         [LogCall]

@@ -1,10 +1,10 @@
 ﻿using AutoFixture;
+using HousingSearchListener.V1.Infrastructure;
 using System;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
@@ -22,7 +22,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 
         protected BaseApiFixture()
         {
-            _jsonOptions = CreateJsonOptions();
+            _jsonOptions = JsonOptions.CreateJsonOptions();
             StartApiStub();
         }
 
@@ -42,17 +42,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 
                 _disposed = true;
             }
-        }
-
-        private JsonSerializerOptions CreateJsonOptions()
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            options.Converters.Add(new JsonStringEnumConverter());
-            return options;
         }
 
         protected virtual void StartApiStub()

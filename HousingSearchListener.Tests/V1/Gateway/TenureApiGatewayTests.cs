@@ -2,6 +2,7 @@
 using FluentAssertions;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Gateway;
+using HousingSearchListener.V1.Infrastructure;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -11,7 +12,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -26,7 +26,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         private readonly HttpClient _httpClient;
         private readonly TenureApiGateway _sut;
         private IConfiguration _configuration;
-        private readonly static JsonSerializerOptions _jsonOptions = CreateJsonOptions();
+        private readonly static JsonSerializerOptions _jsonOptions = JsonOptions.CreateJsonOptions();
 
         private const string TenureApiRoute = "https://some-domain.com/api/";
         private const string TenureApiToken = "dksfghjskueygfakseygfaskjgfsdjkgfdkjsgfdkjgf";
@@ -48,17 +48,6 @@ namespace HousingSearchListener.Tests.V1.Gateway
                 .Build();
 
             _sut = new TenureApiGateway(_mockHttpClientFactory.Object, _configuration);
-        }
-
-        private static JsonSerializerOptions CreateJsonOptions()
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            options.Converters.Add(new JsonStringEnumConverter());
-            return options;
         }
 
         private static string Route(Guid id) => $"{TenureApiRoute}tenures/{id}";

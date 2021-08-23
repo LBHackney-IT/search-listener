@@ -36,15 +36,6 @@ services:
     networks:
       - elastic
 
-   #kibana:
-   #     image: docker.elastic.co/kibana/kibana:7.9.3
-   #     ports:
-   #         - "5601:5601"
-   #     networks:
-   #         - elastic
-   #     depends_on:
-   #         - housing-search-listener-elasticsearch
-
 volumes:
     housing-search-listener-esdata-test:
         driver: local

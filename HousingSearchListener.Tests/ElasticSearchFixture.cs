@@ -19,7 +19,7 @@ namespace HousingSearchListener.Tests
     {
         public IElasticClient ElasticSearchClient => _factory?.ElasticSearchClient;
 
-        private readonly AwsMockApplicationFactory _factory;
+        private readonly MockApplicationFactory _factory;
         private readonly IHost _host;
         private readonly ESEntityFactory _esEntityFactory = new ESEntityFactory();
 
@@ -40,7 +40,7 @@ namespace HousingSearchListener.Tests
             EnsureEnvVarConfigured("TenureApiUrl", FixtureConstants.TenureApiRoute);
             EnsureEnvVarConfigured("TenureApiToken", FixtureConstants.TenureApiToken);
 
-            _factory = new AwsMockApplicationFactory();
+            _factory = new MockApplicationFactory();
             _host = _factory.CreateHostBuilder(null).Build();
             _host.Start();
 
@@ -75,12 +75,9 @@ namespace HousingSearchListener.Tests
             {
                 elasticSearchClient.Indices.Delete(index.Key);
 
-                if (!elasticSearchClient.Indices.Exists(Indices.Index(index.Key)).Exists)
-                {
-                    var indexDoc = File.ReadAllTextAsync(index.Value).Result;
-                    elasticSearchClient.LowLevel.Indices.CreateAsync<BytesResponse>(index.Key, indexDoc)
-                                                        .ConfigureAwait(true);
-                }
+                var indexDoc = File.ReadAllTextAsync(index.Value).Result;
+                elasticSearchClient.LowLevel.Indices.CreateAsync<BytesResponse>(index.Key, indexDoc)
+                                                    .ConfigureAwait(true);
             }
         }
 

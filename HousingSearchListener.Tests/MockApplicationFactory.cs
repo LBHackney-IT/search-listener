@@ -6,13 +6,12 @@ using Nest;
 
 namespace HousingSearchListener.Tests
 {
-    public class AwsMockApplicationFactory
+    public class MockApplicationFactory
     {
         public IElasticClient ElasticSearchClient { get; private set; }
 
-        public AwsMockApplicationFactory()
-        {
-        }
+        public MockApplicationFactory()
+        { }
 
         public IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
            .ConfigureAppConfiguration(b => b.AddEnvironmentVariables())

@@ -65,8 +65,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public void ThenATenureNotFoundExceptionIsThrown(Guid id)
         {
             _lastException.Should().NotBeNull();
-            _lastException.Should().BeOfType(typeof(TenureNotFoundException));
-            (_lastException as TenureNotFoundException).Id.Should().Be(id);
+            _lastException.Should().BeOfType(typeof(EntityNotFoundException<TenureInformation>));
+            (_lastException as EntityNotFoundException<TenureInformation>).Id.Should().Be(id);
         }
 
         public async Task ThenTheIndexIsUpdatedWithTheTenure(

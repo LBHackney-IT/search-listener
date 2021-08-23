@@ -1,4 +1,5 @@
 ﻿using HousingSearchListener.V1.Boundary;
+using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
@@ -29,7 +30,7 @@ namespace HousingSearchListener.V1.UseCase
             // 1. Get Tenure from Tenure service API
             var tenure = await _tenureApiGateway.GetTenureByIdAsync(message.EntityId)
                                          .ConfigureAwait(false);
-            if (tenure is null) throw new TenureNotFoundException(message.EntityId);
+            if (tenure is null) throw new EntityNotFoundException<TenureInformation>(message.EntityId);
 
             // 2. Update the ES index
             var esTenure = _esEntityFactory.CreateTenure(tenure);
