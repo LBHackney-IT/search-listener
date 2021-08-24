@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace HousingSearchListener.V1.Domain.Tenure
 {

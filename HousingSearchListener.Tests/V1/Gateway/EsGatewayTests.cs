@@ -62,19 +62,11 @@ namespace HousingSearchListener.Tests.V1.Gateway
                            .Create();
         }
 
-<<<<<<< HEAD
         private QueryableTenure CreateQueryableTenure()
         {
             return _fixture.Build<QueryableTenure>()
                            .With(x => x.StartOfTenureDate, DateTime.UtcNow.AddMonths(-10).ToString())
                            .With(x => x.EndOfTenureDate, (string)null)
-=======
-        private ESTenure CreateTenure()
-        {
-            return _fixture.Build<ESTenure>()
-                           .With(x => x.StartDate, DateTime.UtcNow.AddMonths(-10).ToString())
-                           .With(x => x.EndDate, (string)null)
->>>>>>> 9e81dce (Complete refactor. Handle TenureCreated. Full test coverage (#13))
                            .Create();
         }
 
