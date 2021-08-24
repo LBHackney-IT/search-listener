@@ -56,8 +56,8 @@ namespace HousingSearchListener.V1.Factories
                 Id = tenure.Id,
                 StartOfTenureDate = tenure.StartOfTenureDate,
                 EndOfTenureDate = tenure.EndOfTenureDate,
-                TenureType = new QueryableTenureType() 
-                { 
+                TenureType = new QueryableTenureType()
+                {
                     Code = tenure.TenureType.Code,
                     Description = tenure.TenureType.Description
                 },
