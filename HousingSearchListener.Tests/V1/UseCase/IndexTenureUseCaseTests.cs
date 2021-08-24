@@ -58,9 +58,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
-        private bool VerifyTenureIndexed(ESTenure esTenure)
+        private bool VerifyTenureIndexed(QueryableTenure esTenure)
         {
-            esTenure.Should().BeEquivalentTo(_esEntityFactory.CreateTenure(_tenure));
+            esTenure.Should().BeEquivalentTo(_esEntityFactory.CreateQueryableTenure(_tenure));
             return true;
         }
 
@@ -98,7 +98,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             var exMsg = "This is the last error";
             _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
                                        .ReturnsAsync(_tenure);
-            _mockEsGateway.Setup(x => x.IndexTenure(It.IsAny<ESTenure>()))
+            _mockEsGateway.Setup(x => x.IndexTenure(It.IsAny<QueryableTenure>()))
                           .ThrowsAsync(new Exception(exMsg));
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -116,7 +116,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
-            _mockEsGateway.Verify(x => x.IndexTenure(It.Is<ESTenure>(y => VerifyTenureIndexed(y))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
         }
     }
 }

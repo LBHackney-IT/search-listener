@@ -49,16 +49,43 @@ namespace HousingSearchListener.V1.Factories
             };
         }
 
-        public ESTenure CreateTenure(TenureInformation tenure)
+        public QueryableTenure CreateQueryableTenure(TenureInformation tenure)
         {
-            return new ESTenure
+            return new QueryableTenure
             {
                 Id = tenure.Id,
-                AssetFullAddress = tenure.TenuredAsset.FullAddress,
-                StartDate = tenure.StartOfTenureDate,
-                EndDate = tenure.EndOfTenureDate,
-                Type = tenure.TenureType.Description
+                StartOfTenureDate = tenure.StartOfTenureDate,
+                EndOfTenureDate = tenure.EndOfTenureDate,
+                TenureType = new QueryableTenureType()
+                {
+                    Code = tenure.TenureType.Code,
+                    Description = tenure.TenureType.Description
+                },
+                PaymentReference = tenure.PaymentReference,
+                HouseholdMembers = CreateQueryableHouseholdMembers(tenure.HouseholdMembers),
+                TenuredAsset = new QueryableTenuredAsset()
+                {
+                    FullAddress = tenure.TenuredAsset?.FullAddress,
+                    Id = tenure.TenuredAsset?.Id,
+                    Type = tenure.TenuredAsset?.Type,
+                    Uprn = tenure.TenuredAsset?.Uprn,
+                }
             };
+        }
+
+        private List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers)
+        {
+            if (householdMembers is null) return new List<QueryableHouseholdMember>();
+
+            return householdMembers.Select(x => new QueryableHouseholdMember()
+            {
+                DateOfBirth = x.DateOfBirth,
+                FullName = x.FullName,
+                Id = x.Id,
+                IsResponsible = x.IsResponsible,
+                PersonTenureType = x.PersonTenureType,
+                Type = x.Type
+            }).ToList();
         }
     }
 }

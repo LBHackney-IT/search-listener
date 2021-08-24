@@ -54,16 +54,18 @@ namespace HousingSearchListener.Tests.V1.Factories
         }
 
         [Fact]
-        public void CreateTenureTest()
+        public void CreateQueryableTenureTest()
         {
             var domainTenure = _fixture.Create<TenureInformation>();
 
-            var result = _sut.CreateTenure(domainTenure);
-            result.AssetFullAddress.Should().Be(domainTenure.TenuredAsset.FullAddress);
-            result.EndDate.Should().Be(domainTenure.EndOfTenureDate);
+            var result = _sut.CreateQueryableTenure(domainTenure);
+            result.EndOfTenureDate.Should().Be(domainTenure.EndOfTenureDate);
+            result.HouseholdMembers.Should().BeEquivalentTo(domainTenure.HouseholdMembers);
             result.Id.Should().Be(domainTenure.Id);
-            result.StartDate.Should().Be(domainTenure.StartOfTenureDate);
-            result.Type.Should().Be(domainTenure.TenureType.Description);
+            result.PaymentReference.Should().Be(domainTenure.PaymentReference);
+            result.StartOfTenureDate.Should().Be(domainTenure.StartOfTenureDate);
+            result.TenuredAsset.Should().BeEquivalentTo(domainTenure.TenuredAsset);
+            result.TenureType.Should().BeEquivalentTo(domainTenure.TenureType);
         }
     }
 }

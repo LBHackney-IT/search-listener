@@ -8,6 +8,6 @@ namespace HousingSearchListener.V1.Gateway
     {
         Task<IndexResponse> IndexPerson(ESPerson esPerson);
 
-        Task<IndexResponse> IndexTenure(ESTenure esTenure);
+        Task<IndexResponse> IndexTenure(QueryableTenure esTenure);
     }
 }

@@ -137,8 +137,8 @@ namespace HousingSearchListener.Tests
 
         public async Task GivenATenureIsIndexed(TenureInformation tenure)
         {
-            var esTenure = _esEntityFactory.CreateTenure(tenure);
-            var request = new IndexRequest<ESTenure>(esTenure, IndexNameTenures);
+            var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+            var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
         }
     }

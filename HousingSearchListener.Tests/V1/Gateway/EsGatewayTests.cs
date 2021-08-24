@@ -62,11 +62,11 @@ namespace HousingSearchListener.Tests.V1.Gateway
                            .Create();
         }
 
-        private ESTenure CreateTenure()
+        private QueryableTenure CreateQueryableTenure()
         {
-            return _fixture.Build<ESTenure>()
-                           .With(x => x.StartDate, DateTime.UtcNow.AddMonths(-10).ToString())
-                           .With(x => x.EndDate, (string)null)
+            return _fixture.Build<QueryableTenure>()
+                           .With(x => x.StartOfTenureDate, DateTime.UtcNow.AddMonths(-10).ToString())
+                           .With(x => x.EndOfTenureDate, (string)null)
                            .Create();
         }
 
@@ -121,13 +121,13 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public async Task IndexTenureTestCallsEsClientUsingMocks()
         {
             var indexResponse = _fixture.Create<IndexResponse>();
-            var tenure = CreateTenure();
-            _mockEsClient.Setup(x => x.IndexAsync(It.IsAny<IndexRequest<ESTenure>>(), default(CancellationToken)))
+            var tenure = CreateQueryableTenure();
+            _mockEsClient.Setup(x => x.IndexAsync(It.IsAny<IndexRequest<QueryableTenure>>(), default(CancellationToken)))
                          .ReturnsAsync(indexResponse);
             var response = await _sut.IndexTenure(tenure).ConfigureAwait(false);
 
             response.Should().Be(indexResponse);
-            _mockEsClient.Verify(x => x.IndexAsync(It.Is<IndexRequest<ESTenure>>(y => ValidateIndexRequest<ESTenure>(y, tenure)),
+            _mockEsClient.Verify(x => x.IndexAsync(It.Is<IndexRequest<QueryableTenure>>(y => ValidateIndexRequest(y, tenure)),
                                                    default(CancellationToken)), Times.Once);
         }
 
@@ -135,14 +135,14 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public async Task IndexTenureTestCallsEsClient()
         {
             var sut = new EsGateway(_testFixture.ElasticSearchClient);
-            var tenure = CreateTenure();
+            var tenure = CreateQueryableTenure();
             var response = await sut.IndexTenure(tenure).ConfigureAwait(false);
 
             response.Should().NotBeNull();
             response.Result.Should().Be(Result.Created);
 
             var result = await _testFixture.ElasticSearchClient
-                                           .GetAsync<ESTenure>(tenure.Id, g => g.Index("tenures"))
+                                           .GetAsync<QueryableTenure>(tenure.Id, g => g.Index("tenures"))
                                            .ConfigureAwait(false);
             result.Source.Should().BeEquivalentTo(tenure);
 

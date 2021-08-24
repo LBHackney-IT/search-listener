@@ -30,7 +30,7 @@ namespace HousingSearchListener.V1.Gateway
             return await ESIndex(esPerson, IndexNamePersons);
         }
 
-        public async Task<IndexResponse> IndexTenure(ESTenure esTenure)
+        public async Task<IndexResponse> IndexTenure(QueryableTenure esTenure)
         {
             if (esTenure is null) throw new ArgumentNullException(nameof(esTenure));
             return await ESIndex(esTenure, IndexNameTenures);
