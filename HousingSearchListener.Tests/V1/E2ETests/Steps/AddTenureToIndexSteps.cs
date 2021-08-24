@@ -72,11 +72,11 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public async Task ThenTheIndexIsUpdatedWithTheTenure(
             TenureInformation tenure, IElasticClient esClient)
         {
-            var result = await esClient.GetAsync<ESTenure>(tenure.Id, g => g.Index("tenures"))
+            var result = await esClient.GetAsync<QueryableTenure>(tenure.Id, g => g.Index("tenures"))
                                        .ConfigureAwait(false);
 
             var tenureInIndex = result.Source;
-            tenureInIndex.Should().BeEquivalentTo(_entityFactory.CreateTenure(tenure));
+            tenureInIndex.Should().BeEquivalentTo(_entityFactory.CreateQueryableTenure(tenure));
 
             _cleanup.Add(async () => await esClient.DeleteAsync(new DeleteRequest("tenures", tenureInIndex.Id))
                                                    .ConfigureAwait(false));

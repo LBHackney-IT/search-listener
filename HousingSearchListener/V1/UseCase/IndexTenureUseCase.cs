@@ -33,7 +33,7 @@ namespace HousingSearchListener.V1.UseCase
             if (tenure is null) throw new EntityNotFoundException<TenureInformation>(message.EntityId);
 
             // 2. Update the ES index
-            var esTenure = _esEntityFactory.CreateTenure(tenure);
+            var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
             await _esGateway.IndexTenure(esTenure);
         }
     }

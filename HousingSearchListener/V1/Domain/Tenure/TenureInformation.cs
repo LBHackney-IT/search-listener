@@ -1,4 +1,6 @@
-﻿namespace HousingSearchListener.V1.Domain.Tenure
+﻿using System.Collections.Generic;
+
+namespace HousingSearchListener.V1.Domain.Tenure
 {
     public class TenureInformation
     {
@@ -8,5 +10,7 @@
         public string EndOfTenureDate { get; set; }
         public TenureType TenureType { get; set; }
         public bool IsActive { get; set; }
+        public List<HouseholdMembers> HouseholdMembers { get; set; }
+        public string PaymentReference { get; set; }
     }
 }
