@@ -12,6 +12,7 @@ namespace HousingSearchListener.V1.Domain.ElasticSearch
         public string PreferredFirstname { get; set; }
         public string PreferredSurname { get; set; }
         public string DateOfBirth { get; set; }
+        public double TotalBalance { get; set; }
         public List<ESIdentification> Identifications { get; set; }
         public List<string> PersonTypes { get; set; }
         public bool IsPersonCautionaryAlerted { get; set; }

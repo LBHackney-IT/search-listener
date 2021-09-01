@@ -46,6 +46,8 @@ namespace HousingSearchListener
 
             services.AddScoped<IIndexPersonUseCase, IndexPersonUseCase>();
             services.AddScoped<IIndexTenureUseCase, IndexTenureUseCase>();
+            services.AddScoped<IAccountUpdateUseCase, AccountUpdateUseCase>();
+            services.AddScoped<IAccountAddUseCase, AccountAddUseCase>();
 
             base.ConfigureServices(services);
         }
@@ -82,6 +84,16 @@ namespace HousingSearchListener
                         case EventTypes.TenureCreatedEvent:
                             {
                                 processor = ServiceProvider.GetService<IIndexTenureUseCase>();
+                                break;
+                            }
+                        case EventTypes.AccountCreatedEvent:
+                            {
+                                processor = ServiceProvider.GetService<IAccountAddUseCase>();
+                                break;
+                            }
+                        case EventTypes.AccountUpdatedEvent:
+                            {
+                                processor = ServiceProvider.GetService<IAccountUpdateUseCase>();
                                 break;
                             }
                         default:

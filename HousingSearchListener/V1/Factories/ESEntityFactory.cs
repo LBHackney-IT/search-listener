@@ -39,6 +39,7 @@ namespace HousingSearchListener.V1.Factories
                 DateOfBirth = person.DateOfBirth,
                 Title = person.Title,
                 Firstname = person.FirstName,
+                TotalBalance = person.TotalBalance,
                 Surname = person.Surname,
                 MiddleName = person.MiddleName,
                 PreferredFirstname = person.PreferredFirstName,
@@ -70,6 +71,19 @@ namespace HousingSearchListener.V1.Factories
                     Type = tenure.TenuredAsset?.Type,
                     Uprn = tenure.TenuredAsset?.Uprn,
                 }
+            };
+        }
+
+        public ESTenure CreateTenure(TenureInformation tenure)
+        {
+            return new ESTenure
+            {
+                Id = tenure.Id,
+                Type = string.Join(' ', tenure.TenureType.Code, tenure.TenureType.Description),// Is it right format of ESTenure type ?
+                StartDate = tenure.StartOfTenureDate,
+                EndDate = tenure.EndOfTenureDate,
+                AssetFullAddress = tenure.TenuredAsset.FullAddress,
+                TotalBalance = tenure.TotalBalance
             };
         }
 

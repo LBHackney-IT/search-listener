@@ -7,5 +7,6 @@
         public string StartDate { get; set; }
         public string EndDate { get; set; }
         public string AssetFullAddress { get; set; }
+        public double TotalBalance { get; set; }
     }
 }

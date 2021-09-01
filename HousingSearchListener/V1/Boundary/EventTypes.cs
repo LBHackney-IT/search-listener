@@ -6,5 +6,8 @@
         public const string PersonUpdatedEvent = "PersonUpdatedEvent";
 
         public const string TenureCreatedEvent = "TenureCreatedEvent";
+
+        public const string AccountCreatedEvent = "AccountCreatedEvent";
+        public const string AccountUpdatedEvent = "AccountUpdatedEvent";
     }
 }
