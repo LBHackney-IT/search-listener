@@ -53,7 +53,7 @@ namespace HousingSearchListener.V1.Gateway
             {
                 throw new ArgumentNullException(nameof(esPerson));
             }
-            
+
             var esTenure = esPerson.Tenures.Where(t => t.Id.Equals(tenure.Id)).FirstOrDefault();
             if (esTenure is null)
             {
@@ -75,7 +75,7 @@ namespace HousingSearchListener.V1.Gateway
             {
                 throw new ArgumentNullException(nameof(esPerson));
             }
-            
+
             if (esPerson.Tenures.Any(t => t.Id.Equals(esTenure.Id)))
             {
                 throw new ArgumentException($"Tenure with id: {esTenure.Id} already exist!");
