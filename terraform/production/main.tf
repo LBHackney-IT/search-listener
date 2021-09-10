@@ -114,6 +114,13 @@ resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_t
   endpoint             = aws_sqs_queue.housing_search_listener_queue.arn
   raw_message_delivery = true
 }
+ 
+resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_tenure_sns" {
+  topic_arn = data.aws_ssm_parameter.tenure_sns_topic_arn.value
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.housing_search_listener_queue.arn
+  raw_message_delivery = true
+}
 
 resource "aws_ssm_parameter" "housing_search_listeners_sqs_queue_arn" {
   name  = "/sqs-queue/production/housing_search_listener_queue/arn"
