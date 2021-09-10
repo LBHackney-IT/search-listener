@@ -41,6 +41,7 @@ namespace HousingSearchListener
             services.AddScoped<IEsGateway, EsGateway>();
             services.AddScoped<IPersonApiGateway, PersonApiGateway>();
             services.AddScoped<ITenureApiGateway, TenureApiGateway>();
+            services.AddScoped<IAccountApiGateway, AccountApiGateway>();
 
             services.ConfigureElasticSearch(Configuration);
 
@@ -48,6 +49,7 @@ namespace HousingSearchListener
             services.AddScoped<IIndexTenureUseCase, IndexTenureUseCase>();
             services.AddScoped<IAccountUpdateUseCase, AccountUpdateUseCase>();
             services.AddScoped<IAccountAddUseCase, AccountAddUseCase>();
+            services.AddScoped<IPersonBalanceUpdatedUseCase, PersonBalanceUpdatedUseCase>();
 
             base.ConfigureServices(services);
         }
@@ -94,6 +96,11 @@ namespace HousingSearchListener
                         case EventTypes.AccountUpdatedEvent:
                             {
                                 processor = ServiceProvider.GetService<IAccountUpdateUseCase>();
+                                break;
+                            }
+                        case EventTypes.PersonBalanceUpdatedEvent:
+                            {
+                                processor = ServiceProvider.GetService<IPersonBalanceUpdatedUseCase>();
                                 break;
                             }
                         default:

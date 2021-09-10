@@ -130,7 +130,7 @@ namespace HousingSearchListener.Tests
             var esPerson = _esEntityFactory.CreatePerson(person);
             esPerson.Firstname = "Old";
             esPerson.Surname = "Macdonald";
-            esPerson.Tenures = new List<ESTenure>();
+            esPerson.Tenures = new List<ESPersonTenure>();
             var request = new IndexRequest<ESPerson>(esPerson, IndexNamePersons);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
         }

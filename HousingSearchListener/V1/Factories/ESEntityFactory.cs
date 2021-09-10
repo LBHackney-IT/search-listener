@@ -19,9 +19,9 @@ namespace HousingSearchListener.V1.Factories
             }).ToList();
         }
 
-        private List<ESTenure> CreateTenures(List<Tenure> tenures)
+        private List<ESPersonTenure> CreateTenures(List<Tenure> tenures)
         {
-            return tenures.Select(x => new ESTenure
+            return tenures.Select(x => new ESPersonTenure
             {
                 AssetFullAddress = x.AssetFullAddress,
                 EndDate = x.EndDate,
@@ -46,7 +46,7 @@ namespace HousingSearchListener.V1.Factories
                 PreferredSurname = person.PreferredSurname,
                 Identifications = person.Identifications != null ? CreateIdentifications(person.Identifications) : new List<ESIdentification>(),
                 PersonTypes = person.PersonType,
-                Tenures = person.Tenures != null ? CreateTenures(person.Tenures) : new List<ESTenure>()
+                Tenures = person.Tenures != null ? CreateTenures(person.Tenures) : new List<ESPersonTenure>()
             };
         }
 
@@ -74,15 +74,16 @@ namespace HousingSearchListener.V1.Factories
             };
         }
 
-        public ESTenure CreateTenure(TenureInformation tenure)
+        public ESPersonTenure CreateTenure(TenureInformation tenure)
         {
-            return new ESTenure
+            return new ESPersonTenure
             {
                 Id = tenure.Id,
                 Type = string.Join(' ', tenure.TenureType.Code, tenure.TenureType.Description),// Is it right format of ESTenure type ?
                 StartDate = tenure.StartOfTenureDate,
                 EndDate = tenure.EndOfTenureDate,
                 AssetFullAddress = tenure.TenuredAsset.FullAddress,
+                PaymentReference = tenure.PaymentReference,
                 TotalBalance = tenure.TotalBalance
             };
         }

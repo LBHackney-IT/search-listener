@@ -7,7 +7,7 @@ namespace HousingSearchListener.V1.Factories
     public interface IESEntityFactory
     {
         ESPerson CreatePerson(Person person);
-        ESTenure CreateTenure(TenureInformation tenure);
+        ESPersonTenure CreateTenure(TenureInformation tenure);
         QueryableTenure CreateQueryableTenure(TenureInformation tenure);
     }
 }

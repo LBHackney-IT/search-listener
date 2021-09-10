@@ -29,12 +29,17 @@ namespace HousingSearchListener.V1.UseCase
 
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
-            if (message is null) throw new ArgumentNullException(nameof(message));
+            if (message is null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
 
             // 1. Get Tenure from Tenure service API
-            var tenure = await _tenureApiGateway.GetTenureByIdAsync(message.EntityId)
-                                         .ConfigureAwait(false);
-            if (tenure is null) throw new EntityNotFoundException<TenureInformation>(message.EntityId);
+            var tenure = await _tenureApiGateway.GetTenureByIdAsync(message.EntityId).ConfigureAwait(false);
+            if (tenure is null)
+            {
+                throw new EntityNotFoundException<TenureInformation>(message.EntityId);
+            }
 
             // Hanna Holasava
             // Can we be sure that we will find only one record with IsResponsible = true? 

@@ -27,11 +27,15 @@ namespace HousingSearchListener.V1.Gateway
             _httpClientFactory = httpClientFactory;
             _getTenureApiRoute = configuration.GetValue<string>(TenureApiUrl)?.TrimEnd('/');
             if (string.IsNullOrEmpty(_getTenureApiRoute) || !Uri.IsWellFormedUriString(_getTenureApiRoute, UriKind.Absolute))
+            {
                 throw new ArgumentException($"Configuration does not contain a setting value for the key {TenureApiUrl}.");
+            }
 
             _getTenureApiToken = configuration.GetValue<string>(TenureApiToken);
             if (string.IsNullOrEmpty(_getTenureApiToken))
+            {
                 throw new ArgumentException($"Configuration does not contain a setting value for the key {TenureApiToken}.");
+            }
         }
 
         [LogCall]
@@ -41,15 +45,19 @@ namespace HousingSearchListener.V1.Gateway
             var getTenureRoute = $"{_getTenureApiRoute}/tenures/{id}";
 
             client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(_getTenureApiToken);
-            var response = await client.GetAsync(new Uri(getTenureRoute))
-                                       .ConfigureAwait(false);
+
+            var response = await RetryService.DoAsync(client.GetAsync(new Uri(getTenureRoute)), maxAttemptCount: 5, delay: TimeSpan.FromSeconds(2)).ConfigureAwait(false);
 
             if (response.StatusCode is HttpStatusCode.NotFound)
+            {
                 return null;
+            }
 
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
+            {
                 return JsonSerializer.Deserialize<TenureInformation>(responseBody, _jsonOptions);
+            }
 
             throw new GetTenureException(id, response.StatusCode, responseBody);
         }
