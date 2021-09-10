@@ -1,6 +1,7 @@
 using HousingSearchListener.V1.Domain.ElasticSearch;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,6 +34,11 @@ namespace HousingSearchListener.V1.Factories
 
         public ESPerson CreatePerson(Person person)
         {
+            if (person is null)
+            {
+                throw new ArgumentNullException(nameof(person));
+            }
+
             return new ESPerson
             {
                 Id = person.Id,
@@ -46,12 +52,17 @@ namespace HousingSearchListener.V1.Factories
                 PreferredSurname = person.PreferredSurname,
                 Identifications = person.Identifications != null ? CreateIdentifications(person.Identifications) : new List<ESIdentification>(),
                 PersonTypes = person.PersonType,
-                Tenures = person.Tenures != null ? CreateTenures(person.Tenures) : new List<ESPersonTenure>()
+                Tenures = CreateTenures(person.Tenures) ?? new List<ESPersonTenure>()
             };
         }
 
         public QueryableTenure CreateQueryableTenure(TenureInformation tenure)
         {
+            if (tenure is null)
+            {
+                throw new ArgumentNullException(nameof(tenure));
+            }
+
             return new QueryableTenure
             {
                 Id = tenure.Id,
@@ -76,10 +87,15 @@ namespace HousingSearchListener.V1.Factories
 
         public ESPersonTenure CreateTenure(TenureInformation tenure)
         {
+            if (tenure is null)
+            {
+                throw new ArgumentNullException(nameof(tenure));
+            }
+
             return new ESPersonTenure
             {
                 Id = tenure.Id,
-                Type = string.Join(' ', tenure.TenureType.Code, tenure.TenureType.Description),// Is it right format of ESTenure type ?
+                Type = tenure.TenureType.Code,// Is it right format of ESTenure type ?
                 StartDate = tenure.StartOfTenureDate,
                 EndDate = tenure.EndOfTenureDate,
                 AssetFullAddress = tenure.TenuredAsset.FullAddress,
@@ -90,7 +106,10 @@ namespace HousingSearchListener.V1.Factories
 
         private List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers)
         {
-            if (householdMembers is null) return new List<QueryableHouseholdMember>();
+            if (householdMembers is null)
+            {
+                return new List<QueryableHouseholdMember>();
+            }
 
             return householdMembers.Select(x => new QueryableHouseholdMember()
             {

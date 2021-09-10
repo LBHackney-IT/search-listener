@@ -7,10 +7,4 @@ namespace HousingSearchListener.V1.Domain.Account
     {
         Housing, Garage
     }
-
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum AccountStatus
-    {
-        Active, Suspended, Ended
-    }
 }
