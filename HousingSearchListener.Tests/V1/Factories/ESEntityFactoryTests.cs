@@ -1,8 +1,11 @@
 ﻿using AutoFixture;
 using FluentAssertions;
+using HousingSearchListener.V1.Domain.ElasticSearch;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -60,12 +63,28 @@ namespace HousingSearchListener.Tests.V1.Factories
 
             var result = _sut.CreateQueryableTenure(domainTenure);
             result.EndOfTenureDate.Should().Be(domainTenure.EndOfTenureDate);
-            result.HouseholdMembers.Should().BeEquivalentTo(domainTenure.HouseholdMembers);
+            VerifyHouseholdMembers(result.HouseholdMembers, domainTenure.HouseholdMembers);
             result.Id.Should().Be(domainTenure.Id);
             result.PaymentReference.Should().Be(domainTenure.PaymentReference);
             result.StartOfTenureDate.Should().Be(domainTenure.StartOfTenureDate);
             result.TenuredAsset.Should().BeEquivalentTo(domainTenure.TenuredAsset);
             result.TenureType.Should().BeEquivalentTo(domainTenure.TenureType);
+        }
+
+        private static void VerifyHouseholdMembers(List<QueryableHouseholdMember> actual, List<HouseholdMembers> expected)
+        {
+            actual.Count.Should().Be(expected.Count);
+            actual.Select(x => x.Id).Should().BeEquivalentTo(expected.Select(y => y.Id));
+            foreach (var esHm in actual)
+            {
+                var domainHm = expected.First(x => x.Id == esHm.Id);
+                esHm.DateOfBirth.Should().Be(domainHm.DateOfBirth);
+                esHm.FullName.Should().Be(domainHm.FullName);
+                esHm.Id.Should().Be(domainHm.Id);
+                esHm.IsResponsible.Should().Be(domainHm.IsResponsible);
+                esHm.PersonTenureType.Should().Be(domainHm.PersonTenureType);
+                esHm.Type.Should().Be(domainHm.Type);
+            }
         }
     }
 }

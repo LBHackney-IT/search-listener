@@ -6,6 +6,7 @@ using Moq;
 using Nest;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -22,6 +23,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
 
         private readonly ElasticSearchFixture _testFixture;
         private readonly List<Action> _cleanup = new List<Action>();
+        private const string DateFormat = "yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ";
 
         public EsGatewayTests(ElasticSearchFixture testFixture)
         {
@@ -65,8 +67,14 @@ namespace HousingSearchListener.Tests.V1.Gateway
         private QueryableTenure CreateQueryableTenure()
         {
             return _fixture.Build<QueryableTenure>()
+                           .With(x => x.Id, Guid.NewGuid().ToString())
                            .With(x => x.StartOfTenureDate, DateTime.UtcNow.AddMonths(-10).ToString())
                            .With(x => x.EndOfTenureDate, (string)null)
+                           .With(x => x.HouseholdMembers, _fixture.Build<QueryableHouseholdMember>()
+                                                                  .With(x => x.Id, Guid.NewGuid().ToString())
+                                                                  .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-40).ToString(DateFormat))
+                                                                  .With(x => x.PersonTenureType, "Tenant")
+                                                                  .CreateMany(3).ToList())
                            .Create();
         }
 
