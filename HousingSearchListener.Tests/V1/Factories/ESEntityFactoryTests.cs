@@ -71,6 +71,22 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.TenureType.Should().BeEquivalentTo(domainTenure.TenureType);
         }
 
+        [Fact]
+        public void CreateQueryableHouseholdMembersTestNoInput()
+        {
+            var result = _sut.CreateQueryableHouseholdMembers(null);
+            result.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void CreateQueryableHouseholdMembersTestHasInput()
+        {
+            var domainHms = _fixture.CreateMany<HouseholdMembers>(5).ToList();
+
+            var result = _sut.CreateQueryableHouseholdMembers(domainHms);
+            VerifyHouseholdMembers(result, domainHms);
+        }
+
         private static void VerifyHouseholdMembers(List<QueryableHouseholdMember> actual, List<HouseholdMembers> expected)
         {
             actual.Count.Should().Be(expected.Count);
