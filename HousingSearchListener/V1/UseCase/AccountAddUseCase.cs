@@ -45,13 +45,13 @@ namespace HousingSearchListener.V1.UseCase
             // Can we be sure that we will find only one record with IsResponsible = true? 
             // If it is, we should change FirstOrDefault to SingleOrDefault.
             // 2. Searching a person
-            var personInfo = tenure.HouseholdMembers.Where(m => m.IsResponsible).FirstOrDefault();
-            if (personInfo == null)
+            var responsibleMember = tenure.HouseholdMembers.Where(m => m.IsResponsible).FirstOrDefault();
+            if (responsibleMember == null)
             {
                 throw new MissedEntityDataException($"Tenure with id {message.EntityId} does not have any responsible household member.");
             }
 
-            if (!Guid.TryParse(personInfo.Id, out Guid personId))
+            if (!Guid.TryParse(responsibleMember.Id, out Guid personId))
             {
                 throw new FormatException(nameof(personId));
             }
