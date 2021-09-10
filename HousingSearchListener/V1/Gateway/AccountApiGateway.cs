@@ -33,7 +33,7 @@ namespace HousingSearchListener.V1.Gateway
             }
 
             _getAccountApiToken = configuration.GetValue<string>(AccountApiToken);
-            
+
             if (string.IsNullOrEmpty(_getAccountApiToken))
             {
                 throw new ArgumentException($"Configuration does not contain a setting value for the key {AccountApiToken}.");
@@ -45,7 +45,7 @@ namespace HousingSearchListener.V1.Gateway
         {
             var client = _httpClientFactory.CreateClient();
             var getAccountRoute = $"{_getAccountApiRoute}/residents/{id}";
-            
+
             client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(_getAccountApiToken);
 
             var response = await RetryService.DoAsync(client.GetAsync(new Uri(getAccountRoute)), maxAttemptCount: 5, delay: TimeSpan.FromSeconds(2)).ConfigureAwait(false);

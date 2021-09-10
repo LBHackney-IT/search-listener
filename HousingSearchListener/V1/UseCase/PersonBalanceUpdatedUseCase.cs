@@ -20,7 +20,7 @@ namespace HousingSearchListener.V1.UseCase
         private readonly IAccountApiGateway _accountApiGateway;
         private readonly IESEntityFactory _esEntityFactory;
 
-        public PersonBalanceUpdatedUseCase(IEsGateway esGateway, ITenureApiGateway tenureApiGateway, IPersonApiGateway personApiGateway, 
+        public PersonBalanceUpdatedUseCase(IEsGateway esGateway, ITenureApiGateway tenureApiGateway, IPersonApiGateway personApiGateway,
             IAccountApiGateway accountApiGateway, IESEntityFactory esPersonFactory)
         {
             _esGateway = esGateway;
