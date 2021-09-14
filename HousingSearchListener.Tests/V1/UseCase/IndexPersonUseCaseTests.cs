@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using HousingSearchListener.V1.Boundary;
-using HousingSearchListener.V1.Domain.ElasticSearch;
+using HousingSearchListener.V1.Domain.ElasticSearch.Person;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
@@ -59,7 +59,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
-        private bool VerifyPersonIndexed(ESPerson esPerson)
+        private bool VerifyPersonIndexed(QueryablePerson esPerson)
         {
             esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(_person));
             return true;
@@ -99,7 +99,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             var exMsg = "This is the last error";
             _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId))
                                        .ReturnsAsync(_person);
-            _mockEsGateway.Setup(x => x.IndexPerson(It.IsAny<ESPerson>()))
+            _mockEsGateway.Setup(x => x.IndexPerson(It.IsAny<QueryablePerson>()))
                           .ThrowsAsync(new Exception(exMsg));
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -118,7 +118,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<ESPerson>(y => VerifyPersonIndexed(y))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y))), Times.Once);
         }
     }
 }

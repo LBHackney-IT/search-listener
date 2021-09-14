@@ -1,10 +1,9 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using HousingSearchListener.V1.Domain.ElasticSearch;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -17,16 +16,12 @@ namespace HousingSearchListener.Tests.V1.Factories
         private readonly ESEntityFactory _sut = new ESEntityFactory();
 
         [Theory]
-        [InlineData(false, false)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(true, true)]
-        public void CreatePersonTest(bool hasIds, bool hasTenures)
+        [InlineData(false)]
+        [InlineData(true)]
+        public void CreatePersonTest(bool hasTenures)
         {
-            var ids = hasIds ? _fixture.CreateMany<Identification>(5).ToList() : null;
             var tenures = hasTenures ? _fixture.CreateMany<Tenure>(5).ToList() : null;
             var domainPerson = _fixture.Build<Person>()
-                    .With(x => x.Identifications, ids)
                     .With(x => x.Tenures, tenures)
                     .Create();
 
@@ -35,10 +30,6 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.DateOfBirth.Should().Be(domainPerson.DateOfBirth);
             result.Firstname.Should().Be(domainPerson.FirstName);
             result.Id.Should().Be(domainPerson.Id);
-            if (hasIds)
-                result.Identifications.Should().BeEquivalentTo(domainPerson.Identifications);
-            else
-                result.Identifications.Should().BeEmpty();
             //result.IsPersonCautionaryAlerted.Should().Be();
             //result.IsTenureCautionaryAlerted.Should().Be();            
             result.MiddleName.Should().Be(domainPerson.MiddleName);

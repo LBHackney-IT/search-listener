@@ -2,7 +2,8 @@
 using FluentAssertions;
 using Force.DeepCloner;
 using HousingSearchListener.V1.Boundary;
-using HousingSearchListener.V1.Domain.ElasticSearch;
+using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -113,7 +114,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             return personId;
         }
 
-        private bool VerifyPersonIndexed(ESPerson esPerson, Person person)
+        private bool VerifyPersonIndexed(QueryablePerson esPerson, Person person)
         {
             esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(person));
             return true;
@@ -193,7 +194,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
 
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<ESPerson>(y => VerifyPersonIndexed(y, person))), Times.Never);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person))), Times.Never);
         }
 
         [Fact]
@@ -204,14 +205,14 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId.Value))
                                        .ReturnsAsync(person);
             var exMsg = "This is the last error";
-            _mockEsGateway.Setup(x => x.IndexPerson(It.IsAny<ESPerson>()))
+            _mockEsGateway.Setup(x => x.IndexPerson(It.IsAny<QueryablePerson>()))
                           .ThrowsAsync(new Exception(exMsg));
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
 
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<ESPerson>(y => VerifyPersonIndexed(y, person))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person))), Times.Once);
         }
 
         [Theory]
@@ -237,7 +238,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<ESPerson>(y => VerifyPersonIndexed(y, person))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person))), Times.Once);
         }
     }
 }

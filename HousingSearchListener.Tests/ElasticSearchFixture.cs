@@ -1,5 +1,6 @@
 ﻿using Elasticsearch.Net;
-using HousingSearchListener.V1.Domain.ElasticSearch;
+using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -130,8 +131,8 @@ namespace HousingSearchListener.Tests
             var esPerson = _esEntityFactory.CreatePerson(person);
             esPerson.Firstname = "Old";
             esPerson.Surname = "Macdonald";
-            esPerson.Tenures = new List<ESTenure>();
-            var request = new IndexRequest<ESPerson>(esPerson, IndexNamePersons);
+            esPerson.Tenures = new List<QueryablePersonTenure>();
+            var request = new IndexRequest<QueryablePerson>(esPerson, IndexNamePersons);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
         }
 

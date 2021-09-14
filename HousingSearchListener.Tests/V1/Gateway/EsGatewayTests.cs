@@ -1,7 +1,9 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using HousingSearchListener.V1.Domain.ElasticSearch;
+using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Gateway;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Nest;
 using System;
@@ -10,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace HousingSearchListener.Tests.V1.Gateway
 {
@@ -19,6 +22,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         private readonly Fixture _fixture = new Fixture();
 
         private readonly Mock<IElasticClient> _mockEsClient;
+        private readonly Mock<ILogger<EsGateway>> _mockLogger;
         private readonly EsGateway _sut;
 
         private readonly ElasticSearchFixture _testFixture;
@@ -30,7 +34,8 @@ namespace HousingSearchListener.Tests.V1.Gateway
             _testFixture = testFixture;
 
             _mockEsClient = new Mock<IElasticClient>();
-            _sut = new EsGateway(_mockEsClient.Object);
+            _mockLogger = new Mock<ILogger<EsGateway>>();
+            _sut = new EsGateway(_mockEsClient.Object, _mockLogger.Object);
         }
 
         public void Dispose()
@@ -57,9 +62,9 @@ namespace HousingSearchListener.Tests.V1.Gateway
             return true;
         }
 
-        private ESPerson CreatePerson()
+        private QueryablePerson CreatePerson()
         {
-            return _fixture.Build<ESPerson>()
+            return _fixture.Build<QueryablePerson>()
                            .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30).ToString())
                            .Create();
         }
@@ -90,19 +95,20 @@ namespace HousingSearchListener.Tests.V1.Gateway
         {
             var indexResponse = _fixture.Create<IndexResponse>();
             var person = CreatePerson();
-            _mockEsClient.Setup(x => x.IndexAsync(It.IsAny<IndexRequest<ESPerson>>(), default(CancellationToken)))
+            _mockEsClient.Setup(x => x.IndexAsync(It.IsAny<IndexRequest<QueryablePerson>>(), default(CancellationToken)))
                          .ReturnsAsync(indexResponse);
             var response = await _sut.IndexPerson(person).ConfigureAwait(false);
 
             response.Should().Be(indexResponse);
-            _mockEsClient.Verify(x => x.IndexAsync(It.Is<IndexRequest<ESPerson>>(y => ValidateIndexRequest<ESPerson>(y, person)),
+            _mockEsClient.Verify(x => x.IndexAsync(It.Is<IndexRequest<QueryablePerson>>(y => ValidateIndexRequest<QueryablePerson>(y, person)),
                                                    default(CancellationToken)), Times.Once);
+            _mockLogger.VerifyExact(LogLevel.Debug, $"Updating 'persons' index for person id {person.Id}", Times.Once());
         }
 
         [Fact]
         public async Task IndexPersonTestCallsEsClient()
         {
-            var sut = new EsGateway(_testFixture.ElasticSearchClient);
+            var sut = new EsGateway(_testFixture.ElasticSearchClient,_mockLogger.Object);
             var person = CreatePerson();
             var response = await sut.IndexPerson(person).ConfigureAwait(false);
 
@@ -110,7 +116,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             response.Result.Should().Be(Result.Created);
 
             var result = await _testFixture.ElasticSearchClient
-                                           .GetAsync<ESPerson>(person.Id, g => g.Index("persons"))
+                                           .GetAsync<QueryablePerson>(person.Id, g => g.Index("persons"))
                                            .ConfigureAwait(false);
             result.Source.Should().BeEquivalentTo(person);
 
@@ -137,12 +143,13 @@ namespace HousingSearchListener.Tests.V1.Gateway
             response.Should().Be(indexResponse);
             _mockEsClient.Verify(x => x.IndexAsync(It.Is<IndexRequest<QueryableTenure>>(y => ValidateIndexRequest(y, tenure)),
                                                    default(CancellationToken)), Times.Once);
+            _mockLogger.VerifyExact(LogLevel.Debug, $"Updating 'tenures' index for tenure id {tenure.Id}", Times.Once());
         }
 
         [Fact]
         public async Task IndexTenureTestCallsEsClient()
         {
-            var sut = new EsGateway(_testFixture.ElasticSearchClient);
+            var sut = new EsGateway(_testFixture.ElasticSearchClient, _mockLogger.Object);
             var tenure = CreateQueryableTenure();
             var response = await sut.IndexTenure(tenure).ConfigureAwait(false);
 

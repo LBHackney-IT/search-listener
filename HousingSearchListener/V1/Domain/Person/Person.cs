@@ -13,17 +13,9 @@ namespace HousingSearchListener.V1.Domain.Person
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string Surname { get; set; }
-        public string Ethinicity { get; set; }
-        public string Nationality { get; set; }
-        public string NationalInsuranceNo { get; set; }
         public string PlaceOfBirth { get; set; }
         public string DateOfBirth { get; set; }
-        public string Gender { get; set; }
-        public List<Identification> Identifications { get; set; }
-        public List<LanguageClass> Languages { get; set; }
-        public List<string> CommunicationRequirements { get; set; }
         public List<string> PersonType { get; set; }
         public List<Tenure> Tenures { get; set; }
-        public List<Link> Links { get; set; }
     }
 }
