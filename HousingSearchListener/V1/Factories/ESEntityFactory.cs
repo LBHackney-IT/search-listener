@@ -73,7 +73,7 @@ namespace HousingSearchListener.V1.Factories
             };
         }
 
-        private List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers)
+        public List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers)
         {
             if (householdMembers is null) return new List<QueryableHouseholdMember>();
 
