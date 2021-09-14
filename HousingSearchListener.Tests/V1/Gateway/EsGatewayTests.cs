@@ -108,7 +108,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         [Fact]
         public async Task IndexPersonTestCallsEsClient()
         {
-            var sut = new EsGateway(_testFixture.ElasticSearchClient,_mockLogger.Object);
+            var sut = new EsGateway(_testFixture.ElasticSearchClient, _mockLogger.Object);
             var person = CreatePerson();
             var response = await sut.IndexPerson(person).ConfigureAwait(false);
 
