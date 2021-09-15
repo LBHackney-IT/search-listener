@@ -46,6 +46,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
 
         [Theory]
         [InlineData(EventTypes.TenureCreatedEvent)]
+        [InlineData(EventTypes.TenureUpdatedEvent)]
         public void TenureNotFound(string eventType)
         {
             var id = Guid.NewGuid();
@@ -62,6 +63,17 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureApiFixture.GivenTheTenureExists(id))
                 .And(h => _esFixture.GivenATenureIsNotIndexed(TenureApiFixture.ResponseObject))
                 .When(w => _steps.WhenTheFunctionIsTriggered(id, EventTypes.TenureCreatedEvent))
+                .Then(t => _steps.ThenTheIndexIsUpdatedWithTheTenure(TenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
+                .BDDfy();
+        }
+
+        [Fact]
+        public void TenureUpdatedInIndex()
+        {
+            var id = Guid.NewGuid();
+            this.Given(g => _tenureApiFixture.GivenTheTenureExists(id))
+                .And(h => _esFixture.GivenATenureIsIndexedWithDifferentInfo(TenureApiFixture.ResponseObject))
+                .When(w => _steps.WhenTheFunctionIsTriggered(id, EventTypes.TenureUpdatedEvent))
                 .Then(t => _steps.ThenTheIndexIsUpdatedWithTheTenure(TenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
         }

@@ -142,6 +142,16 @@ namespace HousingSearchListener.Tests
             var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
         }
+
+        public async Task GivenATenureIsIndexedWithDifferentInfo(TenureInformation tenure)
+        {
+            var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+            esTenure.EndOfTenureDate = null;
+            esTenure.PaymentReference = null;
+            esTenure.TenuredAsset.FullAddress = "Somewhere";
+            var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
+            await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+        }
     }
 
     [CollectionDefinition("ElasticSearch collection", DisableParallelization = true)]
