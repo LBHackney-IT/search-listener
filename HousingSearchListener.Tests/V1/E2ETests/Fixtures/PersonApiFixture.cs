@@ -36,7 +36,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
                                      .With(x => x.Id, id.ToString())
                                      .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ"))
                                      .With(x => x.Tenures, _fixture.CreateMany<Tenure>(1).ToList())
-                                     .With(x => x.Identifications, _fixture.CreateMany<Identification>(2).ToList())
                                      .Create();
             return ResponseObject;
         }

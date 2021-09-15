@@ -4,7 +4,8 @@ using Amazon.Lambda.TestUtilities;
 using AutoFixture;
 using FluentAssertions;
 using HousingSearchListener.V1.Boundary;
-using HousingSearchListener.V1.Domain.ElasticSearch;
+using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -75,7 +76,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public async Task ThenTheIndexIsUpdatedWithThePerson(
             Person person, IElasticClient esClient)
         {
-            var result = await esClient.GetAsync<ESPerson>(person.Id, g => g.Index("persons"))
+            var result = await esClient.GetAsync<QueryablePerson>(person.Id, g => g.Index("persons"))
                                        .ConfigureAwait(false);
 
             var personInIndex = result.Source;
