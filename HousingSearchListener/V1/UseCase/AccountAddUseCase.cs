@@ -57,8 +57,8 @@ namespace HousingSearchListener.V1.UseCase
 
             var person = await _personApiGateway.GetPersonByIdAsync(personId).ConfigureAwait(false);
             if (person is null)
-            { 
-                throw new EntityNotFoundException<Person>(personId); 
+            {
+                throw new EntityNotFoundException<Person>(personId);
             }
 
             // 3. Update the ES index

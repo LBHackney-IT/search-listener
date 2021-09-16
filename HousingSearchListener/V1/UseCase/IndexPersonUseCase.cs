@@ -32,7 +32,7 @@ namespace HousingSearchListener.V1.UseCase
 
             // 1. Get Person from Person service API
             var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId).ConfigureAwait(false);
-            if (person is null) 
+            if (person is null)
             {
                 throw new EntityNotFoundException<Person>(message.EntityId);
             }

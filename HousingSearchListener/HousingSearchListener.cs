@@ -92,7 +92,7 @@ namespace HousingSearchListener
             }
         }
 
-        private MessageHandlerFactory GetMessageHandlerFactory() 
+        private MessageHandlerFactory GetMessageHandlerFactory()
             => ServiceProvider.GetService<MessageHandlerFactory>();
     }
 }
