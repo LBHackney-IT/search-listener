@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase
 {
-    public class IndexPersonUseCase : IIndexPersonUseCase
+    public class IndexPersonUseCase : IMessageProcessing
     {
         private readonly IEsGateway _esGateway;
         private readonly IPersonApiGateway _personApiGateway;
@@ -25,12 +25,17 @@ namespace HousingSearchListener.V1.UseCase
 
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
-            if (message is null) throw new ArgumentNullException(nameof(message));
+            if (message is null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
 
             // 1. Get Person from Person service API
-            var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId)
-                                         .ConfigureAwait(false);
-            if (person is null) throw new EntityNotFoundException<Person>(message.EntityId);
+            var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId).ConfigureAwait(false);
+            if (person is null) 
+            {
+                throw new EntityNotFoundException<Person>(message.EntityId);
+            }
 
             // 2. Update the ES index
             var esPerson = _esPersonFactory.CreatePerson(person);

@@ -56,6 +56,16 @@ namespace HousingSearchListener.V1.Gateway
         [LogCall]
         public async Task<UpdateResponse<Person>> UpdatePersonAccountAsync(ESPerson esPerson, ESPersonTenure tenure)
         {
+            if (esPerson is null)
+            {
+                throw new ArgumentNullException(nameof(esPerson));
+            }
+
+            if (tenure is null)
+            {
+                throw new ArgumentNullException(nameof(tenure));
+            }
+
             var esTenure = esPerson.Tenures.Where(t => t.Id.Equals(tenure.Id)).FirstOrDefault();
             if (esTenure is null)
             {
@@ -77,8 +87,18 @@ namespace HousingSearchListener.V1.Gateway
         /// <param name="esTenure"></param>
         /// <returns></returns>
         [LogCall]
-        public async Task<UpdateResponse<Person>> AddTenureToPersonIndexAsync(ESPerson esPerson, ESPersonTenure esTenure)
+        public async Task<UpdateResponse<Person>> AddTenureToPersonAsync(ESPerson esPerson, ESPersonTenure esTenure)
         {
+            if (esPerson is null)
+            {
+                throw new ArgumentNullException(nameof(esPerson));
+            }
+
+            if (esTenure is null)
+            {
+                throw new ArgumentNullException(nameof(esTenure));
+            }
+
             if (esPerson.Tenures.Any(t => t.Id.Equals(esTenure.Id)))
             {
                 throw new ArgumentException($"Tenure with id: {esTenure.Id} already exist!");
@@ -101,6 +121,16 @@ namespace HousingSearchListener.V1.Gateway
         [LogCall]
         public async Task<UpdateResponse<Person>> UpdatePersonBalanceAsync(ESPerson esPerson, Account account)
         {
+            if (esPerson is null)
+            {
+                throw new ArgumentNullException(nameof(esPerson));
+            }
+
+            if (account is null)
+            {
+                throw new ArgumentNullException(nameof(account));
+            }
+
             return await _elasticClient.UpdateAsync<Person, object>(esPerson.Id, descriptor => descriptor
                 .Index(IndexNamePersons)
                 .Doc(new { totalBalance = account.AccountBalance })

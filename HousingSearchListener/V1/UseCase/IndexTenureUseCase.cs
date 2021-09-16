@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase
 {
-    public class IndexTenureUseCase : IIndexTenureUseCase
+    public class IndexTenureUseCase : IMessageProcessing
     {
         private readonly IEsGateway _esGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
@@ -25,12 +25,17 @@ namespace HousingSearchListener.V1.UseCase
 
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
-            if (message is null) throw new ArgumentNullException(nameof(message));
+            if (message is null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
 
             // 1. Get Tenure from Tenure service API
-            var tenure = await _tenureApiGateway.GetTenureByIdAsync(message.EntityId)
-                                         .ConfigureAwait(false);
-            if (tenure is null) throw new EntityNotFoundException<TenureInformation>(message.EntityId);
+            var tenure = await _tenureApiGateway.GetTenureByIdAsync(message.EntityId).ConfigureAwait(false);
+            if (tenure is null)
+            {
+                throw new EntityNotFoundException<TenureInformation>(message.EntityId);
+            }
 
             // 2. Update the ES index
             var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);

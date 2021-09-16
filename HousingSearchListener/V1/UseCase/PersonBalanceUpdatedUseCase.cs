@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase
 {
-    public class PersonBalanceUpdatedUseCase : IPersonBalanceUpdatedUseCase
+    public class PersonBalanceUpdatedUseCase : IMessageProcessing
     {
         private readonly IEsGateway _esGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
@@ -54,8 +54,7 @@ namespace HousingSearchListener.V1.UseCase
             }
 
             // Hanna Holasava
-            // Can we be sure that we will find only one record with IsResponsible = true? 
-            // If it is, we should change FirstOrDefault to SingleOrDefault.
+            // HouseHoldMembers can contains multiple responsible members
             // 3. Searching a person
             var responsibleMember = tenure.HouseholdMembers.Where(m => m.IsResponsible).FirstOrDefault();
             if (responsibleMember == null)
@@ -69,7 +68,10 @@ namespace HousingSearchListener.V1.UseCase
             }
 
             var person = await _personApiGateway.GetPersonByIdAsync(personId).ConfigureAwait(false);
-            if (person is null) throw new EntityNotFoundException<Person>(personId);
+            if (person is null)
+            {
+                throw new EntityNotFoundException<Person>(personId);
+            }
 
             // 4. Update the ES index
             var esPerson = _esEntityFactory.CreatePerson(person);

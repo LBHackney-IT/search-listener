@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase
 {
-    public class AccountUpdateUseCase : IAccountUpdateUseCase
+    public class AccountUpdateUseCase : IMessageProcessing
     {
         private readonly IEsGateway _esGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
@@ -42,8 +42,7 @@ namespace HousingSearchListener.V1.UseCase
             }
 
             // Hanna Holasava
-            // Can we be sure that we will find only one record with IsResponsible = true? 
-            // If it is, we should change FirstOrDefault to SingleOrDefault.
+            // HouseHoldMembers can contains multiple responsible members
             // 2. Searching a person
             var responsibleMember = tenure.HouseholdMembers.Where(m => m.IsResponsible).FirstOrDefault();
             if (responsibleMember == null)

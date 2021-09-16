@@ -14,7 +14,7 @@ namespace HousingSearchListener.V1.Gateway
 
         Task<UpdateResponse<Person>> UpdatePersonAccountAsync(ESPerson esPerson, ESPersonTenure tenure);
 
-        Task<UpdateResponse<Person>> AddTenureToPersonIndexAsync(ESPerson esPerson, ESPersonTenure esTenure);
+        Task<UpdateResponse<Person>> AddTenureToPersonAsync(ESPerson esPerson, ESPersonTenure esTenure);
 
         Task<UpdateResponse<Person>> UpdatePersonBalanceAsync(ESPerson esPerson, Account account);
     }

@@ -45,11 +45,13 @@ namespace HousingSearchListener
 
             services.ConfigureElasticSearch(Configuration);
 
-            services.AddScoped<IIndexPersonUseCase, IndexPersonUseCase>();
-            services.AddScoped<IIndexTenureUseCase, IndexTenureUseCase>();
-            services.AddScoped<IAccountUpdateUseCase, AccountUpdateUseCase>();
-            services.AddScoped<IAccountAddUseCase, AccountAddUseCase>();
-            services.AddScoped<IPersonBalanceUpdatedUseCase, PersonBalanceUpdatedUseCase>();
+            services.AddScoped<MessageHandlerFactory>();
+
+            services.AddScoped<IndexPersonUseCase>();
+            services.AddScoped<IndexTenureUseCase>();
+            services.AddScoped<AccountUpdateUseCase>();
+            services.AddScoped<AccountAddUseCase>();
+            services.AddScoped<PersonBalanceUpdatedUseCase>();
 
             base.ConfigureServices(services);
         }
@@ -74,39 +76,12 @@ namespace HousingSearchListener
             {
                 try
                 {
-                    IMessageProcessing processor = null;
-                    switch (entityEvent.EventType)
+                    if (!Enum.TryParse(entityEvent.EventType, out EventTypes eventType))
                     {
-                        case EventTypes.PersonCreatedEvent:
-                        case EventTypes.PersonUpdatedEvent:
-                            {
-                                processor = ServiceProvider.GetService<IIndexPersonUseCase>();
-                                break;
-                            }
-                        case EventTypes.TenureCreatedEvent:
-                            {
-                                processor = ServiceProvider.GetService<IIndexTenureUseCase>();
-                                break;
-                            }
-                        case EventTypes.AccountCreatedEvent:
-                            {
-                                processor = ServiceProvider.GetService<IAccountAddUseCase>();
-                                break;
-                            }
-                        case EventTypes.AccountUpdatedEvent:
-                            {
-                                processor = ServiceProvider.GetService<IAccountUpdateUseCase>();
-                                break;
-                            }
-                        case EventTypes.PersonBalanceUpdatedEvent:
-                            {
-                                processor = ServiceProvider.GetService<IPersonBalanceUpdatedUseCase>();
-                                break;
-                            }
-                        default:
-                            throw new ArgumentException($"Unknown event type: {entityEvent.EventType} on message id: {message.MessageId}");
+                        throw new Exception($"The {eventType} does not exist.");
                     }
 
+                    IMessageProcessing processor = GetMessageHandlerFactory().ToMessageProcessor(eventType);
                     await processor.ProcessMessageAsync(entityEvent).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -116,5 +91,8 @@ namespace HousingSearchListener
                 }
             }
         }
+
+        private MessageHandlerFactory GetMessageHandlerFactory() 
+            => ServiceProvider.GetService<MessageHandlerFactory>();
     }
 }
