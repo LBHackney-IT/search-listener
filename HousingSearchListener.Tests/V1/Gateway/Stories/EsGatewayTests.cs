@@ -7,7 +7,7 @@ using Xunit;
 namespace HousingSearchListener.Tests.V1.Gateway.Stories
 {
     [Story(
-           AsA = "Some UseCases",
+           AsA = "User",
            IWant = "A function to process the person and the tenure created and updated actions",
            SoThat = "The person and the tenure details are set in the index")]
     [Collection("ElasticSearch collection")]
@@ -170,8 +170,5 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
                 .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
                 .BDDfy();
         }
-
-        //add AddTenureToPersonIndexAsync
-
     }
 }

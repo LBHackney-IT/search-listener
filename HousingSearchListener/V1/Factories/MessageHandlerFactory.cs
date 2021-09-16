@@ -9,32 +9,39 @@ namespace HousingSearchListener.V1.Factories
 {
     public class MessageHandlerFactory
     {
-        private readonly Dictionary<EventTypes, IMessageProcessing> _eventServices;
+        private readonly Dictionary<EventTypes, Type> _eventServices;
         private readonly IServiceProvider _services;
 
         public MessageHandlerFactory(IServiceProvider services)
         {
             _services = services;
 
-            _eventServices = new Dictionary<EventTypes, IMessageProcessing>(6)
+            _eventServices = new Dictionary<EventTypes, Type>(6)
             {
-                { EventTypes.PersonCreatedEvent, _services.GetService<IndexPersonUseCase>() },
-                { EventTypes.PersonUpdatedEvent, _services.GetService<IndexPersonUseCase>() },
-                { EventTypes.TenureCreatedEvent, _services.GetService<IndexTenureUseCase>() },
-                { EventTypes.AccountCreatedEvent, _services.GetService<AccountAddUseCase>() },
-                { EventTypes.AccountUpdatedEvent, _services.GetService<AccountUpdateUseCase>() },
-                { EventTypes.PersonBalanceUpdatedEvent, _services.GetService<PersonBalanceUpdatedUseCase>() }
+                { EventTypes.PersonCreatedEvent, typeof(IndexPersonUseCase) },
+                { EventTypes.PersonUpdatedEvent, typeof(IndexPersonUseCase) },
+                { EventTypes.TenureCreatedEvent, typeof(IndexTenureUseCase) },
+                { EventTypes.AccountCreatedEvent, typeof(AccountAddUseCase) },
+                { EventTypes.AccountUpdatedEvent, typeof(AccountUpdateUseCase) },
+                { EventTypes.PersonBalanceUpdatedEvent, typeof(PersonBalanceUpdatedUseCase) }
             };
         }
 
         public IMessageProcessing ToMessageProcessor(EventTypes eventType)
         {
-            if (!_eventServices.TryGetValue(eventType, out IMessageProcessing processor))
+            if (!_eventServices.TryGetValue(eventType, out Type processorType))
             {
                 throw new ArgumentException($"The requested service for the {eventType} was not found.");
             }
 
-            return processor;
+            var processor = _services.GetService(processorType);
+            if (processor == null || !(processor is IMessageProcessing))
+            {
+                // ToDo - create unit test to check that all types from _eventServices dictionary can be resolved from services container
+                throw new ArgumentException($"The  service with the time {processorType} cannot be created.");
+            }
+
+            return processor as IMessageProcessing;
         }
     }
 }

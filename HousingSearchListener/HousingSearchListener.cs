@@ -81,7 +81,9 @@ namespace HousingSearchListener
                         throw new Exception($"The {eventType} does not exist.");
                     }
 
-                    IMessageProcessing processor = GetMessageHandlerFactory().ToMessageProcessor(eventType);
+                    MessageHandlerFactory messageHandlerFactory = ServiceProvider.GetService<MessageHandlerFactory>();
+                    IMessageProcessing processor = messageHandlerFactory.ToMessageProcessor(eventType);
+
                     await processor.ProcessMessageAsync(entityEvent).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -91,8 +93,5 @@ namespace HousingSearchListener
                 }
             }
         }
-
-        private MessageHandlerFactory GetMessageHandlerFactory()
-            => ServiceProvider.GetService<MessageHandlerFactory>();
     }
 }
