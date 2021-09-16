@@ -47,7 +47,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         [Theory]
         [InlineData(EventTypes.PersonCreatedEvent)]
         [InlineData(EventTypes.PersonUpdatedEvent)]
-        public void PersonNotFound(string eventType)
+        public void PersonNotFound(EventTypes eventType)
         {
             var personId = Guid.NewGuid();
             this.Given(g => _personApiFixture.GivenThePersonDoesNotExist(personId))

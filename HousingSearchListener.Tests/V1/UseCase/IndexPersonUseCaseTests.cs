@@ -42,10 +42,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _person = CreatePerson(_message.EntityId);
         }
 
-        private EntityEventSns CreateMessage(string eventType = EventTypes.PersonCreatedEvent)
+        private EntityEventSns CreateMessage(EventTypes eventType = EventTypes.PersonCreatedEvent)
         {
             return _fixture.Build<EntityEventSns>()
-                           .With(x => x.EventType, eventType)
+                           .With(x => x.EventType, eventType.ToString())
                            .Create();
         }
 
@@ -109,9 +109,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
         [Theory]
         [InlineData(EventTypes.PersonCreatedEvent)]
         [InlineData(EventTypes.PersonUpdatedEvent)]
-        public async Task ProcessMessageAsyncTestIndexPersonSuccess(string eventType)
+        public async Task ProcessMessageAsyncTestIndexPersonSuccess(EventTypes eventType)
         {
-            _message.EventType = eventType;
+            _message.EventType = eventType.ToString();
 
             _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId))
                                        .ReturnsAsync(_person);

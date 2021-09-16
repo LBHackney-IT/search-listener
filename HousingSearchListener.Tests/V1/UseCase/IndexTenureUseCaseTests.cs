@@ -42,10 +42,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _tenure = CreateTenure(_message.EntityId);
         }
 
-        private EntityEventSns CreateMessage(string eventType = EventTypes.TenureCreatedEvent)
+        private EntityEventSns CreateMessage(EventTypes eventType = EventTypes.TenureCreatedEvent)
         {
             return _fixture.Build<EntityEventSns>()
-                           .With(x => x.EventType, eventType)
+                           .With(x => x.EventType, eventType.ToString())
                            .Create();
         }
 
@@ -107,9 +107,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         [Theory]
         [InlineData(EventTypes.TenureCreatedEvent)]
-        public async Task ProcessMessageAsyncTestIndexTenureSuccess(string eventType)
+        public async Task ProcessMessageAsyncTestIndexTenureSuccess(EventTypes eventType)
         {
-            _message.EventType = eventType;
+            _message.EventType = eventType.ToString();
 
             _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
                                        .ReturnsAsync(_tenure);

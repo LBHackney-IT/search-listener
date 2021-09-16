@@ -46,7 +46,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
 
         [Theory]
         [InlineData(EventTypes.TenureCreatedEvent)]
-        public void TenureNotFound(string eventType)
+        public void TenureNotFound(EventTypes eventType)
         {
             var id = Guid.NewGuid();
             this.Given(g => _tenureApiFixture.GivenTheTenureDoesNotExist(id))

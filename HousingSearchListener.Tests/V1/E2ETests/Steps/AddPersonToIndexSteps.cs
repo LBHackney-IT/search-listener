@@ -27,11 +27,11 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public AddPersonToIndexSteps()
         { }
 
-        private SQSEvent.SQSMessage CreateMessage(Guid personId, string eventType = EventTypes.PersonCreatedEvent)
+        private SQSEvent.SQSMessage CreateMessage(Guid personId, EventTypes eventType = EventTypes.PersonCreatedEvent)
         {
             var personSns = _fixture.Build<EntityEventSns>()
                                     .With(x => x.EntityId, personId)
-                                    .With(x => x.EventType, eventType)
+                                    .With(x => x.EventType, eventType.ToString())
                                     .Create();
 
             var msgBody = JsonSerializer.Serialize(personSns, _jsonOptions);
@@ -41,7 +41,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                            .Create();
         }
 
-        public async Task WhenTheFunctionIsTriggered(Guid personId, string eventType)
+        public async Task WhenTheFunctionIsTriggered(Guid personId, EventTypes eventType)
         {
             var mockLambdaLogger = new Mock<ILambdaLogger>();
             ILambdaContext lambdaContext = new TestLambdaContext()

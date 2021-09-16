@@ -27,11 +27,11 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public AddTenureToIndexSteps()
         { }
 
-        private SQSEvent.SQSMessage CreateMessage(Guid tenureId, string eventType = EventTypes.TenureCreatedEvent)
+        private SQSEvent.SQSMessage CreateMessage(Guid tenureId, EventTypes eventType = EventTypes.TenureCreatedEvent)
         {
             var tenureSns = _fixture.Build<EntityEventSns>()
                                     .With(x => x.EntityId, tenureId)
-                                    .With(x => x.EventType, eventType)
+                                    .With(x => x.EventType, eventType.ToString())
                                     .Create();
 
             var msgBody = JsonSerializer.Serialize(tenureSns, _jsonOptions);
@@ -41,7 +41,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                            .Create();
         }
 
-        public async Task WhenTheFunctionIsTriggered(Guid tenureId, string eventType)
+        public async Task WhenTheFunctionIsTriggered(Guid tenureId, EventTypes eventType)
         {
             var mockLambdaLogger = new Mock<ILambdaLogger>();
             ILambdaContext lambdaContext = new TestLambdaContext()
