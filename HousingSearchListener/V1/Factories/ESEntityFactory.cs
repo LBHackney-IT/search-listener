@@ -52,7 +52,7 @@ namespace HousingSearchListener.V1.Factories
                 PreferredSurname = person.PreferredSurname,
                 Identifications = person.Identifications != null ? CreateIdentifications(person.Identifications) : new List<ESIdentification>(),
                 PersonTypes = person.PersonType,
-                Tenures = CreateTenures(person.Tenures) ?? new List<ESPersonTenure>()
+                Tenures = person.Tenures != null ? CreateTenures(person.Tenures) : new List<ESPersonTenure>()
             };
         }
 

@@ -20,6 +20,8 @@ functions:
     role: lambdaExecutionRole
     environment:            
       ELASTICSEARCH_DOMAIN_URL: ${ssm:/housing-search-api/${self:provider.stage}/elasticsearch-domain}
+      AccountApiUrl: ${ssm:/housing-tl/${self:provider.stage}/account-api-url}
+      AccountApiToken: ${ssm:/housing-tl/${self:provider.stage}/account-api-token}
       PersonApiUrl: ${ssm:/housing-tl/${self:provider.stage}/person-api-url}
       PersonApiToken: ${ssm:/housing-tl/${self:provider.stage}/person-api-token}
       TenureApiUrl: ${ssm:/housing-tl/${self:provider.stage}/tenure-api-url}
