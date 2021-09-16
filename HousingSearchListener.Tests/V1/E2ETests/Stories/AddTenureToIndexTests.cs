@@ -56,13 +56,29 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         }
 
         [Fact]
+        public void TenureCreatedAssetNotFoundInIndexThrowsException()
+        {
+            var id = Guid.NewGuid();
+            this.Given(g => _tenureApiFixture.GivenTheTenureExists(id))
+                .And(h => _esFixture.GivenATenureIsNotIndexed(TenureApiFixture.ResponseObject))
+                .And(ih => _esFixture.GivenAnAssetIsNotIndexed(TenureApiFixture.ResponseObject.TenuredAsset.Id))
+                .When(w => _steps.WhenTheFunctionIsTriggered(id, EventTypes.TenureCreatedEvent))
+                .Then(t => _steps.ThenAnAssetNotIndexedExceptionIsThrown(TenureApiFixture.ResponseObject.TenuredAsset.Id))
+                .BDDfy();
+        }
+
+        [Fact]
         public void TenureCreatedAddedToIndex()
         {
             var id = Guid.NewGuid();
             this.Given(g => _tenureApiFixture.GivenTheTenureExists(id))
                 .And(h => _esFixture.GivenATenureIsNotIndexed(TenureApiFixture.ResponseObject))
+                .And(i => _esFixture.GivenAnAssetIsIndexed(TenureApiFixture.ResponseObject.TenuredAsset.Id))
                 .When(w => _steps.WhenTheFunctionIsTriggered(id, EventTypes.TenureCreatedEvent))
-                .Then(t => _steps.ThenTheIndexIsUpdatedWithTheTenure(TenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
+                .Then(t => _steps.ThenTheTenureIndexIsUpdated(TenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
+                .Then(t => _steps.ThenTheAssetIndexIsUpdatedWithTheTenure(TenureApiFixture.ResponseObject,
+                                                                          _esFixture.AssetInIndex, 
+                                                                          _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
     }

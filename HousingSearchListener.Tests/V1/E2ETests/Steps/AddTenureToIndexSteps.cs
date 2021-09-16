@@ -4,7 +4,7 @@ using Amazon.Lambda.TestUtilities;
 using AutoFixture;
 using FluentAssertions;
 using HousingSearchListener.V1.Boundary;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
+using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
+using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
+using QueryableTenuredAsset = HousingSearchListener.V1.Domain.ElasticSearch.Asset.QueryableTenuredAsset;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
@@ -62,6 +64,13 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             _lastException = await Record.ExceptionAsync(func);
         }
 
+        public void ThenAnAssetNotIndexedExceptionIsThrown(string id)
+        {
+            _lastException.Should().NotBeNull();
+            _lastException.Should().BeOfType(typeof(AssetNotIndexedException));
+            (_lastException as AssetNotIndexedException).Id.Should().Be(id);
+        }
+
         public void ThenATenureNotFoundExceptionIsThrown(Guid id)
         {
             _lastException.Should().NotBeNull();
@@ -69,7 +78,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             (_lastException as EntityNotFoundException<TenureInformation>).Id.Should().Be(id);
         }
 
-        public async Task ThenTheIndexIsUpdatedWithTheTenure(
+        public async Task ThenTheTenureIndexIsUpdated(
             TenureInformation tenure, IElasticClient esClient)
         {
             var result = await esClient.GetAsync<QueryableTenure>(tenure.Id, g => g.Index("tenures"))
@@ -77,9 +86,28 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
             var tenureInIndex = result.Source;
             tenureInIndex.Should().BeEquivalentTo(_entityFactory.CreateQueryableTenure(tenure));
+        }
 
-            _cleanup.Add(async () => await esClient.DeleteAsync(new DeleteRequest("tenures", tenureInIndex.Id))
-                                                   .ConfigureAwait(false));
+        public async Task ThenTheAssetIndexIsUpdatedWithTheTenure(
+            TenureInformation tenure, QueryableAsset asset, IElasticClient esClient)
+        {
+            var result = await esClient.GetAsync<QueryableAsset>(tenure.TenuredAsset.Id, g => g.Index("assets"))
+                                       .ConfigureAwait(false);
+
+            var assetInIndex = result.Source;
+            assetInIndex.Should().BeEquivalentTo(asset, c => c.Excluding(x => x.Tenure));
+            assetInIndex.Tenure.EndOfTenureDate.Should().Be(tenure.EndOfTenureDate);
+            assetInIndex.Tenure.Id.Should().Be(tenure.Id);
+            assetInIndex.Tenure.PaymentReference.Should().Be(tenure.PaymentReference);
+            assetInIndex.Tenure.StartOfTenureDate.Should().Be(tenure.StartOfTenureDate);
+            assetInIndex.Tenure.TenuredAsset.Should().BeEquivalentTo(new QueryableTenuredAsset()
+            {
+                FullAddress = tenure.TenuredAsset.FullAddress,
+                Id = tenure.TenuredAsset.Id,
+                Type = tenure.TenuredAsset.Type,
+                Uprn = tenure.TenuredAsset.Uprn,
+            });
+            assetInIndex.Tenure.Type.Should().Be(tenure.TenureType.Description);
         }
     }
 }

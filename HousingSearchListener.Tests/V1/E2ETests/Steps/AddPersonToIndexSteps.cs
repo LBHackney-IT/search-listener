@@ -77,9 +77,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
             var personInIndex = result.Source;
             personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person));
-
-            _cleanup.Add(async () => await esClient.DeleteAsync(new DeleteRequest("persons", personInIndex.Id))
-                                                   .ConfigureAwait(false));
         }
     }
 }

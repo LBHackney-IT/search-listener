@@ -1,6 +1,6 @@
 ﻿using Hackney.Core.Logging;
+using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
 using HousingSearchListener.V1.Domain.ElasticSearch.Person;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using Microsoft.Extensions.Logging;
 using Nest;
 using System;
@@ -13,8 +13,9 @@ namespace HousingSearchListener.V1.Gateway
         private readonly IElasticClient _elasticClient;
         private readonly ILogger<EsGateway> _logger;
 
-        private const string IndexNamePersons = "persons";
-        private const string IndexNameTenures = "tenures";
+        public const string IndexNamePersons = "persons";
+        public const string IndexNameTenures = "tenures";
+        public const string IndexNameAssets = "assets";
 
         public EsGateway(IElasticClient elasticClient, ILogger<EsGateway> logger)
         {
@@ -28,6 +29,12 @@ namespace HousingSearchListener.V1.Gateway
             return await _elasticClient.IndexAsync(new IndexRequest<T>(esObject, indexName));
         }
 
+        private async Task<T> GetById<T>(string id, string indexName) where T : class
+        {
+            var getResponse = await _elasticClient.GetAsync<T>(new GetRequest<T>(indexName, id));
+            return getResponse.Found ? getResponse.Source : null;
+        }
+
         [LogCall]
         public async Task<IndexResponse> IndexPerson(QueryablePerson esPerson)
         {
@@ -38,12 +45,28 @@ namespace HousingSearchListener.V1.Gateway
         }
 
         [LogCall]
-        public async Task<IndexResponse> IndexTenure(QueryableTenure esTenure)
+        public async Task<IndexResponse> IndexTenure(Domain.ElasticSearch.Tenure.QueryableTenure esTenure)
         {
             if (esTenure is null) throw new ArgumentNullException(nameof(esTenure));
 
             _logger.LogDebug($"Updating '{IndexNameTenures}' index for tenure id {esTenure.Id}");
             return await ESIndex(esTenure, IndexNameTenures);
+        }
+
+        [LogCall]
+        public async Task<IndexResponse> IndexAsset(QueryableAsset esAsset)
+        {
+            if (esAsset is null) throw new ArgumentNullException(nameof(esAsset));
+
+            _logger.LogDebug($"Updating '{IndexNameAssets}' index for asset id {esAsset.Id}");
+            return await ESIndex(esAsset, IndexNameAssets);
+        }
+
+        [LogCall]
+        public async Task<QueryableAsset> GetAssetById(string id)
+        {
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+            return await GetById<QueryableAsset>(id, IndexNameAssets);
         }
     }
 }
