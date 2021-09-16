@@ -117,7 +117,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
                 .Then(t => _steps.ThenAPersonAccountUpdated(EsGatewayFixture.EsPerson, EsGatewayFixture.EsPersonTenure))
                 .BDDfy();
         }
-        
+
         [Fact]
         public void UpdatePersonAccountPersonIsNullThrowsArgumentNullException()
         {
@@ -127,7 +127,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
                 .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
                 .BDDfy();
         }
-        
+
         [Fact]
         public void UpdatePersonAccountTenureIsNullThrowsArgumentNullException()
         {
@@ -149,7 +149,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
                 .Then(t => _steps.ThenAPersonAccountAdded(EsGatewayFixture.EsPerson, EsGatewayFixture.EsPersonTenure))
                 .BDDfy();
         }
-        
+
         [Fact]
         public void AddTenureToPersonIndexPersonIsNullThrowsArgumentNullException()
         {
@@ -159,7 +159,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
                 .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
                 .BDDfy();
         }
-        
+
         [Fact]
         public void AddTenureToPersonIndexTenureIsNullThrowsArgumentNullException()
         {

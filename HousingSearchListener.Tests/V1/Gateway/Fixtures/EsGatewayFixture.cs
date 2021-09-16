@@ -17,7 +17,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Fixtures
         public static Account PersonAccount { get; private set; }
         public static ESPersonTenure EsPersonTenure { get; private set; }
 
-        public EsGatewayFixture() 
+        public EsGatewayFixture()
         {
             _fixture = new Fixture();
         }
