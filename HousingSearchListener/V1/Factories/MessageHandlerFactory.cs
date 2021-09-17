@@ -39,7 +39,7 @@ namespace HousingSearchListener.V1.Factories
             {
                 throw new ArgumentException($"The service with the type {processorType} cannot be created.");
             }
-            
+
             return processor as IMessageProcessing;
         }
     }

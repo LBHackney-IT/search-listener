@@ -70,7 +70,7 @@ namespace HousingSearchListener.Tests.V1.Factories
         {
             Mock<IPersonApiGateway> mockPersonApiGateway = new Mock<IPersonApiGateway>();
             Mock<ITenureApiGateway> mockTenureApiGateway = new Mock<ITenureApiGateway>();
-            AccountAddUseCase AccountAddUseCase = new AccountAddUseCase(_mockEsGateway.Object, mockTenureApiGateway.Object, 
+            AccountAddUseCase AccountAddUseCase = new AccountAddUseCase(_mockEsGateway.Object, mockTenureApiGateway.Object,
                 mockPersonApiGateway.Object, _mockEsEntityFactory.Object);
 
             _mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>()))
@@ -85,13 +85,13 @@ namespace HousingSearchListener.Tests.V1.Factories
             var processor = Convert.ChangeType(result, typeof(AccountAddUseCase));
             processor.Should().NotBeNull();
         }
-        
+
         [Fact]
         public void ToMessageProcessorAccountUpdateUseCase()
         {
             Mock<IPersonApiGateway> mockPersonApiGateway = new Mock<IPersonApiGateway>();
             Mock<ITenureApiGateway> mockTenureApiGateway = new Mock<ITenureApiGateway>();
-            AccountUpdateUseCase accountUpdateUseCase = new AccountUpdateUseCase(_mockEsGateway.Object, mockTenureApiGateway.Object, 
+            AccountUpdateUseCase accountUpdateUseCase = new AccountUpdateUseCase(_mockEsGateway.Object, mockTenureApiGateway.Object,
                 mockPersonApiGateway.Object, _mockEsEntityFactory.Object);
 
             _mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>()))
@@ -106,7 +106,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             var processor = Convert.ChangeType(result, typeof(AccountUpdateUseCase));
             processor.Should().NotBeNull();
         }
-        
+
         [Fact]
         public void ToMessageProcessorPersonBalanceUpdatedUseCase()
         {
