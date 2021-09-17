@@ -2,7 +2,6 @@
 using Elasticsearch.Net;
 using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
 using HousingSearchListener.V1.Domain.ElasticSearch.Person;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;

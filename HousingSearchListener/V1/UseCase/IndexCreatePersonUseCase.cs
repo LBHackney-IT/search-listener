@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase
 {
-    public class IndexPersonUseCase : IIndexPersonUseCase
+    public class IndexCreatePersonUseCase : IIndexCreatePersonUseCase
     {
         private readonly IEsGateway _esGateway;
         private readonly IPersonApiGateway _personApiGateway;
         private readonly IESEntityFactory _esPersonFactory;
 
-        public IndexPersonUseCase(IEsGateway esGateway, IPersonApiGateway personApiGateway,
+        public IndexCreatePersonUseCase(IEsGateway esGateway, IPersonApiGateway personApiGateway,
             IESEntityFactory esPersonFactory)
         {
             _esGateway = esGateway;

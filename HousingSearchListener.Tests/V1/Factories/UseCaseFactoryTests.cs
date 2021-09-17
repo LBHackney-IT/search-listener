@@ -69,7 +69,7 @@ namespace HousingSearchListener.Tests.V1.Factories
         public void CreateUseCaseForMessageTestPersonEvents(string eventType)
         {
             _event = ConstructEvent(eventType);
-            TestMessageProcessingCreation<IIndexPersonUseCase>(_event);
+            TestMessageProcessingCreation<IIndexCreatePersonUseCase>(_event);
         }
 
         [Theory]

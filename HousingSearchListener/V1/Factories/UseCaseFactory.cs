@@ -16,9 +16,13 @@ namespace HousingSearchListener.V1.Factories
             switch (entityEvent.EventType)
             {
                 case EventTypes.PersonCreatedEvent:
+                    {
+                        processor = serviceProvider.GetService<IIndexCreatePersonUseCase>();
+                        break;
+                    }
                 case EventTypes.PersonUpdatedEvent:
                     {
-                        processor = serviceProvider.GetService<IIndexPersonUseCase>();
+                        processor = serviceProvider.GetService<IIndexUpdatePersonUseCase>();
                         break;
                     }
                 case EventTypes.TenureCreatedEvent:
