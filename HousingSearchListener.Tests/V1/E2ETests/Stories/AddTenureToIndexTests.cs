@@ -80,7 +80,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
                 .When(w => _steps.WhenTheFunctionIsTriggered(id, EventTypes.TenureCreatedEvent))
                 .Then(t => _steps.ThenTheTenureIndexIsUpdated(TenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .Then(t => _steps.ThenTheAssetIndexIsUpdatedWithTheTenure(TenureApiFixture.ResponseObject,
-                                                                          _esFixture.AssetInIndex, 
+                                                                          _esFixture.AssetInIndex,
                                                                           _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
