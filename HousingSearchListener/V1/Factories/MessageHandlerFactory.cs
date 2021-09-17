@@ -37,10 +37,9 @@ namespace HousingSearchListener.V1.Factories
             var processor = _services.GetService(processorType);
             if (processor == null || !(processor is IMessageProcessing))
             {
-                // ToDo - create unit test to check that all types from _eventServices dictionary can be resolved from services container
-                throw new ArgumentException($"The  service with the time {processorType} cannot be created.");
+                throw new ArgumentException($"The service with the type {processorType} cannot be created.");
             }
-
+            
             return processor as IMessageProcessing;
         }
     }
