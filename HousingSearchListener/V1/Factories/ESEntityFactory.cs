@@ -2,6 +2,7 @@ using HousingSearchListener.V1.Domain.ElasticSearch.Person;
 using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -76,6 +77,27 @@ namespace HousingSearchListener.V1.Factories
                 PersonTenureType = x.PersonTenureType,
                 Type = x.Type
             }).ToList();
+        }
+
+        public Domain.ElasticSearch.Asset.QueryableTenure CreateAssetQueryableTenure(TenureInformation tenure)
+        {
+            if (tenure is null) throw new ArgumentNullException(nameof(tenure));
+
+            return new Domain.ElasticSearch.Asset.QueryableTenure()
+            {
+                Id = tenure.Id,
+                EndOfTenureDate = tenure.EndOfTenureDate,
+                PaymentReference = tenure.PaymentReference,
+                StartOfTenureDate = tenure.StartOfTenureDate,
+                TenuredAsset = new Domain.ElasticSearch.Asset.QueryableTenuredAsset()
+                {
+                    FullAddress = tenure.TenuredAsset.FullAddress,
+                    Id = tenure.TenuredAsset.Id,
+                    Type = tenure.TenuredAsset.Type,
+                    Uprn = tenure.TenuredAsset.Uprn,
+                },
+                Type = tenure.TenureType.Description
+            };
         }
     }
 }

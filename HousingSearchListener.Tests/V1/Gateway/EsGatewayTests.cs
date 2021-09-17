@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
+using QueryableAsset = HousingSearchListener.V1.Domain.ElasticSearch.Asset.QueryableAsset;
 
 namespace HousingSearchListener.Tests.V1.Gateway
 {
@@ -80,6 +81,13 @@ namespace HousingSearchListener.Tests.V1.Gateway
                                                                   .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-40).ToString(DateFormat))
                                                                   .With(x => x.PersonTenureType, "Tenant")
                                                                   .CreateMany(3).ToList())
+                           .Create();
+        }
+
+        private QueryableAsset CreateQueryableAsset()
+        {
+            return _fixture.Build<QueryableAsset>()
+                           .With(x => x.Id, Guid.NewGuid().ToString())
                            .Create();
         }
 
@@ -162,6 +170,73 @@ namespace HousingSearchListener.Tests.V1.Gateway
             result.Source.Should().BeEquivalentTo(tenure);
 
             _cleanup.Add(async () => await _testFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("tenures", tenure.Id))
+                                                                           .ConfigureAwait(false));
+        }
+
+        [Fact]
+        public void IndexAssetTestNullTenureThrows()
+        {
+            Func<Task<IndexResponse>> func = async () => await _sut.IndexAsset(null).ConfigureAwait(false);
+            func.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task IndexAssetTestCallsEsClientUsingMocks()
+        {
+            var indexResponse = _fixture.Create<IndexResponse>();
+            var asset = CreateQueryableAsset();
+            _mockEsClient.Setup(x => x.IndexAsync(It.IsAny<IndexRequest<QueryableAsset>>(), default(CancellationToken)))
+                         .ReturnsAsync(indexResponse);
+            var response = await _sut.IndexAsset(asset).ConfigureAwait(false);
+
+            response.Should().Be(indexResponse);
+            _mockEsClient.Verify(x => x.IndexAsync(It.Is<IndexRequest<QueryableAsset>>(y => ValidateIndexRequest(y, asset)),
+                                                   default(CancellationToken)), Times.Once);
+            _mockLogger.VerifyExact(LogLevel.Debug, $"Updating 'assets' index for asset id {asset.Id}", Times.Once());
+        }
+
+        [Fact]
+        public async Task IndexAssetTestCallsEsClient()
+        {
+            var sut = new EsGateway(_testFixture.ElasticSearchClient, _mockLogger.Object);
+            var asset = CreateQueryableAsset();
+            var response = await sut.IndexAsset(asset).ConfigureAwait(false);
+
+            response.Should().NotBeNull();
+            response.Result.Should().Be(Result.Created);
+
+            var result = await _testFixture.ElasticSearchClient
+                                           .GetAsync<QueryableAsset>(asset.Id, g => g.Index("assets"))
+                                           .ConfigureAwait(false);
+            result.Source.Should().BeEquivalentTo(asset);
+
+            _cleanup.Add(async () => await _testFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("assets", asset.Id))
+                                                                           .ConfigureAwait(false));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void GetAssetByIdTestInvalidInputThrows(string id)
+        {
+            Func<Task<QueryableAsset>> func = async () => await _sut.GetAssetById(id).ConfigureAwait(false);
+            func.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task GetAssetByIdTestCallsEsClient()
+        {
+            var sut = new EsGateway(_testFixture.ElasticSearchClient, _mockLogger.Object);
+            var asset = CreateQueryableAsset();
+            var request = new IndexRequest<QueryableAsset>(asset, "assets");
+            await _testFixture.ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+
+            var response = await sut.GetAssetById(asset.Id).ConfigureAwait(false);
+
+            response.Should().NotBeNull();
+            response.Should().BeEquivalentTo(asset);
+
+            _cleanup.Add(async () => await _testFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("assets", asset.Id))
                                                                            .ConfigureAwait(false));
         }
     }

@@ -81,9 +81,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
             var personInIndex = result.Source;
             personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person));
-
-            _cleanup.Add(async () => await esClient.DeleteAsync(new DeleteRequest("persons", personInIndex.Id))
-                                                   .ConfigureAwait(false));
         }
 
         public void ThenATenureNotFoundExceptionIsThrown(Guid id)
@@ -101,9 +98,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
             var tenureInIndex = result.Source;
             tenureInIndex.Should().BeEquivalentTo(_entityFactory.CreateQueryableTenure(tenure));
-
-            _cleanup.Add(async () => await esClient.DeleteAsync(new DeleteRequest("tenures", tenureInIndex.Id))
-                                                   .ConfigureAwait(false));
         }
     }
 }
