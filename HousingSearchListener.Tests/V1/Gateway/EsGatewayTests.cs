@@ -223,34 +223,6 @@ namespace HousingSearchListener.Tests.V1.Gateway
             func.Should().ThrowAsync<ArgumentNullException>();
         }
 
-        // The test below will not work because the ElasticSearchClient GetAsync call returns an un-mockable concrete class with readonly properties
-        // so it cannot be set up correctly for testing purposes.
-        //[Fact]
-        //public async Task GetAssetByIdTestCallsEsClientUsingMocks()
-        //{
-        //    var asset = CreateQueryableAsset();
-        //    var getResponse = _fixture.Build<GetResponse<QueryableAsset>>()
-        //        .With(x => x.Id, asset.Id)
-        //        .With(x => x.Source, asset)
-        //        .With(x => x.Found, true)
-        //        .Create();
-
-        //    _mockEsClient.Setup(x => x.GetAsync<QueryableAsset>(It.IsAny<IGetRequest<QueryableAsset>>(),
-        //                                        default(CancellationToken)))
-        //                 .ReturnsAsync(getResponse);
-        //    var response = await _sut.GetAssetById(asset.Id).ConfigureAwait(false);
-
-        //    response.Should().Be(getResponse);
-        //    _mockEsClient.Verify(x => x.GetAsync<QueryableAsset>(It.Is<IGetRequest<QueryableAsset>>(x => VerifyGetAssetRequest(x as GetRequest<QueryableAsset>, asset.Id)),
-        //                                         default(CancellationToken)), 
-        //                         Times.Once);
-        //}
-        //private bool VerifyGetAssetRequest(GetRequest<QueryableAsset> request, string id)
-        //{
-        //    request.Should().BeEquivalentTo(new GetRequest<QueryableAsset>("assets", id));
-        //    return true;
-        //}
-
         [Fact]
         public async Task GetAssetByIdTestCallsEsClient()
         {
