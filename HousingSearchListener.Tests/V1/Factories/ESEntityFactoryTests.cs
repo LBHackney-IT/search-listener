@@ -4,6 +4,7 @@ using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -92,6 +93,27 @@ namespace HousingSearchListener.Tests.V1.Factories
                 esHm.PersonTenureType.Should().Be(domainHm.PersonTenureType);
                 esHm.Type.Should().Be(domainHm.Type);
             }
+        }
+
+        [Fact]
+        public void CreateAssetQueryableTenureTestNullInputThrows()
+        {
+            Action act = () => _sut.CreateAssetQueryableTenure(null);
+            act.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void CreateAssetQueryableTenureTest()
+        {
+            var domainTenure = _fixture.Create<TenureInformation>();
+
+            var result = _sut.CreateAssetQueryableTenure(domainTenure);
+            result.EndOfTenureDate.Should().Be(domainTenure.EndOfTenureDate);
+            result.Id.Should().Be(domainTenure.Id);
+            result.PaymentReference.Should().Be(domainTenure.PaymentReference);
+            result.StartOfTenureDate.Should().Be(domainTenure.StartOfTenureDate);
+            result.TenuredAsset.Should().BeEquivalentTo(domainTenure.TenuredAsset);
+            result.Type.Should().Be(domainTenure.TenureType.Description);
         }
     }
 }

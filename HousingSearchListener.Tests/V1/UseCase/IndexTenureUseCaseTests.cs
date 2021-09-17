@@ -59,6 +59,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .With(x => x.Id, entityId.ToString())
                            .With(x => x.StartOfTenureDate, DateTime.UtcNow.AddMonths(-6).ToString(DateFormat))
                            .With(x => x.EndOfTenureDate, DateTime.UtcNow.AddYears(6).ToString(DateFormat))
+                           .With(x => x.TenuredAsset, _fixture.Build<TenuredAsset>()
+                                                              .With(x => x.Id, Guid.NewGuid().ToString())
+                                                              .Create())
                            .Create();
         }
 
@@ -136,6 +139,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         [Theory]
         [InlineData(EventTypes.TenureCreatedEvent)]
+        [InlineData(EventTypes.TenureUpdatedEvent)]
         public void ProcessMessageAsyncTestIndexTenureNoAssetThrows(string eventType)
         {
             _message.EventType = eventType;
@@ -152,6 +156,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         [Theory]
         [InlineData(EventTypes.TenureCreatedEvent)]
+        [InlineData(EventTypes.TenureUpdatedEvent)]
         public async Task ProcessMessageAsyncTestIndexTenureSuccess(string eventType)
         {
             _message.EventType = eventType;
