@@ -134,10 +134,11 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
         }
 
-        [Fact]
-        public void ProcessCreatedMessageAsyncTestIndexTenureNoAssetThrows()
+        [Theory]
+        [InlineData(EventTypes.TenureCreatedEvent)]
+        public void ProcessMessageAsyncTestIndexTenureNoAssetThrows(string eventType)
         {
-            _message.EventType = EventTypes.TenureCreatedEvent;
+            _message.EventType = eventType;
 
             _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
                                        .ReturnsAsync(_tenure);
@@ -149,10 +150,11 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockEsGateway.Verify(x => x.IndexAsset(It.IsAny<QueryableAsset>()), Times.Never);
         }
 
-        [Fact]
-        public async Task ProcessCreatedMessageAsyncTestIndexTenureSuccess()
+        [Theory]
+        [InlineData(EventTypes.TenureCreatedEvent)]
+        public async Task ProcessMessageAsyncTestIndexTenureSuccess(string eventType)
         {
-            _message.EventType = EventTypes.TenureCreatedEvent;
+            _message.EventType = eventType;
 
             _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
                                        .ReturnsAsync(_tenure);

@@ -34,19 +34,14 @@ namespace HousingSearchListener.V1.UseCase
             if (tenure is null) throw new EntityNotFoundException<TenureInformation>(message.EntityId);
 
             // 2. Get the asset for the tenure from the index if needed
-            QueryableAsset queryableAsset = null;
-            if (message.EventType == EventTypes.TenureCreatedEvent)
-            {
-                queryableAsset = await _esGateway.GetAssetById(tenure.TenuredAsset.Id);
-                if (queryableAsset is null) throw new AssetNotIndexedException(tenure.TenuredAsset.Id);
-            }
+            QueryableAsset queryableAsset = await _esGateway.GetAssetById(tenure.TenuredAsset.Id);
+            if (queryableAsset is null) throw new AssetNotIndexedException(tenure.TenuredAsset.Id);
 
             // 3. Update the ES index
             var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
             await _esGateway.IndexTenure(esTenure);
 
-            if (queryableAsset != null)
-                await UpdateAssetForTenure(tenure, queryableAsset);
+            await UpdateAssetForTenure(tenure, queryableAsset);
         }
 
         private async Task UpdateAssetForTenure(TenureInformation tenure, QueryableAsset queryableAsset)
