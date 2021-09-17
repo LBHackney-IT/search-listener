@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using HousingSearchListener.V1.Boundary;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
+using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
@@ -11,6 +11,8 @@ using Moq;
 using System;
 using System.Threading.Tasks;
 using Xunit;
+using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
+using QueryableTenuredAsset = HousingSearchListener.V1.Domain.ElasticSearch.Asset.QueryableTenuredAsset;
 
 namespace HousingSearchListener.Tests.V1.UseCase
 {
@@ -24,6 +26,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private readonly EntityEventSns _message;
         private readonly TenureInformation _tenure;
+        private readonly QueryableAsset _asset;
 
         private readonly Fixture _fixture;
         private const string DateFormat = "yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ";
@@ -40,6 +43,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             _message = CreateMessage();
             _tenure = CreateTenure(_message.EntityId);
+            _asset = CreateAsset(_tenure.TenuredAsset.Id);
         }
 
         private EntityEventSns CreateMessage(string eventType = EventTypes.TenureCreatedEvent)
@@ -58,9 +62,34 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
+        private QueryableAsset CreateAsset(string id)
+        {
+            return _fixture.Build<QueryableAsset>()
+                           .With(x => x.Id, id)
+                           .Create();
+        }
+
         private bool VerifyTenureIndexed(QueryableTenure esTenure)
         {
             esTenure.Should().BeEquivalentTo(_esEntityFactory.CreateQueryableTenure(_tenure));
+            return true;
+        }
+
+        private bool VerifyAssetIndexed(QueryableAsset asset)
+        {
+            asset.Should().BeEquivalentTo(_asset, c => c.Excluding(x => x.Tenure));
+            asset.Tenure.EndOfTenureDate.Should().Be(_tenure.EndOfTenureDate);
+            asset.Tenure.Id.Should().Be(_tenure.Id);
+            asset.Tenure.PaymentReference.Should().Be(_tenure.PaymentReference);
+            asset.Tenure.StartOfTenureDate.Should().Be(_tenure.StartOfTenureDate);
+            asset.Tenure.TenuredAsset.Should().BeEquivalentTo(new QueryableTenuredAsset()
+            {
+                FullAddress = _tenure.TenuredAsset.FullAddress,
+                Id = _tenure.TenuredAsset.Id,
+                Type = _tenure.TenuredAsset.Type,
+                Uprn = _tenure.TenuredAsset.Uprn,
+            });
+            asset.Tenure.Type.Should().Be(_tenure.TenureType.Description);
             return true;
         }
 
@@ -107,16 +136,34 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         [Theory]
         [InlineData(EventTypes.TenureCreatedEvent)]
-        public async Task ProcessMessageAsyncTestIndexTenureSuccess(string eventType)
+        public void ProcessMessageAsyncTestIndexTenureNoAssetThrows(string eventType)
         {
             _message.EventType = eventType;
 
             _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
                                        .ReturnsAsync(_tenure);
 
+            Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
+            func.Should().ThrowAsync<AssetNotIndexedException>();
+
+            _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Never);
+            _mockEsGateway.Verify(x => x.IndexAsset(It.IsAny<QueryableAsset>()), Times.Never);
+        }
+
+        [Theory]
+        [InlineData(EventTypes.TenureCreatedEvent)]
+        public async Task ProcessMessageAsyncTestIndexTenureSuccess(string eventType)
+        {
+            _message.EventType = eventType;
+
+            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
+                                       .ReturnsAsync(_tenure);
+            _mockEsGateway.Setup(x => x.GetAssetById(_tenure.TenuredAsset.Id)).ReturnsAsync(_asset);
+
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexAsset(It.Is<QueryableAsset>(y => VerifyAssetIndexed(y))), Times.Once);
         }
     }
 }
