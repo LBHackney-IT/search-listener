@@ -37,6 +37,9 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
                                      .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ"))
                                      .With(x => x.Tenures, _fixture.CreateMany<Tenure>(1).ToList())
                                      .Create();
+
+            ResponseObject.Tenures.First().Id = Guid.NewGuid().ToString();
+
             return ResponseObject;
         }
     }
