@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using HousingSearchListener.V1.Boundary;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
+using HousingSearchListener.V1.UseCase.Interfaces;
 
-namespace HousingSearchListener.V1.UseCase.Interfaces
+namespace HousingSearchListener.V1.UseCase
 {
     public class IndexUpdatePersonUseCase : IIndexUpdatePersonUseCase
     {
