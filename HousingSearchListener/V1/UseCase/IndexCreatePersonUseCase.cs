@@ -15,6 +15,8 @@ namespace HousingSearchListener.V1.UseCase
         private readonly IPersonApiGateway _personApiGateway;
         private readonly IESEntityFactory _esPersonFactory;
 
+        public Person Person { get; set; }
+
         public IndexCreatePersonUseCase(IEsGateway esGateway, IPersonApiGateway personApiGateway,
             IESEntityFactory esPersonFactory)
         {
@@ -28,12 +30,12 @@ namespace HousingSearchListener.V1.UseCase
             if (message is null) throw new ArgumentNullException(nameof(message));
 
             // 1. Get Person from Person service API
-            var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId)
+            Person = await _personApiGateway.GetPersonByIdAsync(message.EntityId)
                                          .ConfigureAwait(false);
-            if (person is null) throw new EntityNotFoundException<Person>(message.EntityId);
+            if (Person is null) throw new EntityNotFoundException<Person>(message.EntityId);
 
             // 2. Update the ES index
-            var esPerson = _esPersonFactory.CreatePerson(person);
+            var esPerson = _esPersonFactory.CreatePerson(Person);
             await _esGateway.IndexPerson(esPerson);
         }
     }
