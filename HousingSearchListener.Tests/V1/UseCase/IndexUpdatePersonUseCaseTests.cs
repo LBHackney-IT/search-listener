@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using HousingSearchListener.V1.Boundary;
-using HousingSearchListener.V1.Domain.ElasticSearch.Person;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
@@ -49,27 +48,6 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _tenure = CreateTenure(_message.EntityId);
         }
 
-        private EntityEventSns CreateMessage(string eventType = EventTypes.PersonCreatedEvent)
-        {
-            return _fixture.Build<EntityEventSns>()
-                           .With(x => x.EventType, eventType)
-                           .Create();
-        }
-
-        private TenureInformation CreateTenure(Guid entityId)
-        {
-            var tenures = _fixture.CreateMany<Tenure>(1).ToList();
-            return _fixture.Build<TenureInformation>()
-                           .With(x => x.Id, entityId.ToString())
-                           .Create();
-        }
-
-        private bool VerifyPersonIndexed(QueryableTenure esTenure)
-        {
-            esTenure.Should().BeEquivalentTo(_esEntityFactory.CreateQueryableTenure(_tenure));
-            return true;
-        }
-
         [Fact]
         public void ProcessMessageAsyncTestNullMessageThrows()
         {
@@ -78,7 +56,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         }
 
         [Fact]
-        public void ProcessMessageAsyncTestGetPersonExceptionThrown()
+        public void ProcessMessageAsyncTestGetTenureExceptionThrown()
         {
             var exMsg = "This is an error";
             _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
@@ -89,17 +67,17 @@ namespace HousingSearchListener.Tests.V1.UseCase
         }
 
         [Fact]
-        public void ProcessMessageAsyncTestGetPersonReturnsNullThrows()
+        public void ProcessMessageAsyncTestGetTenureReturnsNullThrows()
         {
             _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
                                        .ReturnsAsync((TenureInformation)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<EntityNotFoundException<Person>>();
+            func.Should().ThrowAsync<EntityNotFoundException<Tenure>>();
         }
 
         [Fact]
-        public void ProcessMessageAsyncTestIndexPersonExceptionThrows()
+        public void ProcessMessageAsyncTestIndexTenureExceptionThrows()
         {
             var exMsg = "This is the last error";
             _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
@@ -112,8 +90,8 @@ namespace HousingSearchListener.Tests.V1.UseCase
         }
 
         [Theory]
-        [InlineData(EventTypes.PersonCreatedEvent)]
-        public async Task ProcessMessageAsyncTestIndexPersonSuccess(string eventType)
+        [InlineData(EventTypes.TenureCreatedEvent)]
+        public async Task ProcessMessageAsyncTestIndexTenureSuccess(string eventType)
         {
             _message.EventType = eventType;
 
@@ -129,7 +107,28 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
-            _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyPersonIndexed(y))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
+        }
+
+        private EntityEventSns CreateMessage(string eventType = EventTypes.PersonCreatedEvent)
+        {
+            return _fixture.Build<EntityEventSns>()
+                .With(x => x.EventType, eventType)
+                .Create();
+        }
+
+        private TenureInformation CreateTenure(Guid entityId)
+        {
+            var tenures = _fixture.CreateMany<Tenure>(1).ToList();
+            return _fixture.Build<TenureInformation>()
+                .With(x => x.Id, entityId.ToString())
+                .Create();
+        }
+
+        private bool VerifyTenureIndexed(QueryableTenure esTenure)
+        {
+            esTenure.Should().BeEquivalentTo(_esEntityFactory.CreateQueryableTenure(_tenure));
+            return true;
         }
     }
 }
