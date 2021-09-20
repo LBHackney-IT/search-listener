@@ -1,7 +1,6 @@
 ﻿using HousingSearchListener.V1.Boundary;
 using HousingSearchListener.V1.UseCase;
 using HousingSearchListener.V1.UseCase.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 
@@ -22,8 +21,7 @@ namespace HousingSearchListener.V1.Factories
                 { EventTypes.PersonUpdatedEvent, typeof(IndexPersonUseCase) },
                 { EventTypes.TenureCreatedEvent, typeof(IndexTenureUseCase) },
                 { EventTypes.AccountCreatedEvent, typeof(AccountAddUseCase) },
-                { EventTypes.AccountUpdatedEvent, typeof(AccountUpdateUseCase) },
-                { EventTypes.PersonBalanceUpdatedEvent, typeof(PersonBalanceUpdatedUseCase) }
+                { EventTypes.AccountUpdatedEvent, typeof(AccountUpdateUseCase) }
             };
         }
 

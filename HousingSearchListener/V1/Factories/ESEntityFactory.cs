@@ -45,7 +45,6 @@ namespace HousingSearchListener.V1.Factories
                 DateOfBirth = person.DateOfBirth,
                 Title = person.Title,
                 Firstname = person.FirstName,
-                TotalBalance = person.TotalBalance,
                 Surname = person.Surname,
                 MiddleName = person.MiddleName,
                 PreferredFirstname = person.PreferredFirstName,

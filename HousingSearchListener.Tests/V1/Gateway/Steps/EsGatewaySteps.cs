@@ -1,9 +1,6 @@
-﻿using AutoFixture;
-using FluentAssertions;
-using HousingSearchListener.V1.Domain.Account;
+﻿using FluentAssertions;
 using HousingSearchListener.V1.Domain.ElasticSearch;
 using HousingSearchListener.V1.Domain.Person;
-using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
 using Nest;
 using System;
@@ -15,8 +12,6 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
 {
     public class EsGatewaySteps : BaseSteps
     {
-        private readonly Fixture _fixture = new Fixture();
-        private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
         private readonly ElasticSearchFixture _elasticSearchFixture;
         private readonly EsGateway _esGateway;
         private Exception _lastException;
@@ -82,16 +77,6 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
             _lastException = await Record.ExceptionAsync(func);
         }
 
-        public async Task WhenUpdatePersonBalanceIsTriggered(ESPerson esPerson, Account account)
-        {
-            async Task<UpdateResponse<Person>> func()
-            {
-                return await _esGateway.UpdatePersonBalanceAsync(esPerson, account).ConfigureAwait(false);
-            }
-
-            _lastException = await Record.ExceptionAsync(func);
-        }
-
         public void ThenArgumentNullExceptionIsThrown()
         {
             _lastException.Should().NotBeNull();
@@ -122,18 +107,6 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
 
             _cleanup.Add(async () => await _elasticSearchFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("tenures", tenure.Id))
                                                                                     .ConfigureAwait(false));
-        }
-
-        public async Task ThenAPersonBalanceUpdated(ESPerson person, Account account)
-        {
-            var result = await _elasticSearchFixture.ElasticSearchClient
-                                           .GetAsync<ESPerson>(person.Id, g => g.Index("persons"))
-                                           .ConfigureAwait(false);
-
-            result.Should().NotBeNull();
-            result.Source.Should().BeEquivalentTo(person, options => options.Excluding(_ => _.TotalBalance));
-
-            result.Source.TotalBalance.Should().Be(account.AccountBalance);
         }
 
         public async Task ThenAPersonAccountUpdated(ESPerson person, ESPersonTenure tenure)

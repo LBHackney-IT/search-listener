@@ -1,5 +1,4 @@
 ﻿using Hackney.Core.Logging;
-using HousingSearchListener.V1.Domain.Account;
 using HousingSearchListener.V1.Domain.ElasticSearch;
 using HousingSearchListener.V1.Domain.Person;
 using Nest;
@@ -109,31 +108,6 @@ namespace HousingSearchListener.V1.Gateway
             return await _elasticClient.UpdateAsync<Person, object>(esPerson.Id, descriptor => descriptor
                 .Index(IndexNamePersons)
                 .Doc(new { tenures = esPerson.Tenures })
-                .DocAsUpsert(true));
-        }
-
-        /// <summary>
-        /// Update the person balance
-        /// </summary>
-        /// <param name="esPerson"></param>
-        /// <param name="account"></param>
-        /// <returns></returns>
-        [LogCall]
-        public async Task<UpdateResponse<Person>> UpdatePersonBalanceAsync(ESPerson esPerson, Account account)
-        {
-            if (esPerson is null)
-            {
-                throw new ArgumentNullException(nameof(esPerson));
-            }
-
-            if (account is null)
-            {
-                throw new ArgumentNullException(nameof(account));
-            }
-
-            return await _elasticClient.UpdateAsync<Person, object>(esPerson.Id, descriptor => descriptor
-                .Index(IndexNamePersons)
-                .Doc(new { totalBalance = account.AccountBalance })
                 .DocAsUpsert(true));
         }
     }

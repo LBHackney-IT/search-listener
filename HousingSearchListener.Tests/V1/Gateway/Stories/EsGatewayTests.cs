@@ -76,38 +76,6 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
         }
 
         [Fact]
-        public void PersonExistsPersonBalanceUpdated()
-        {
-            this.Given(g => _esGatewayFixture.GivenTheEsPersonExists())
-                .Given(g => _esGatewayFixture.GivenTheAccountExists())
-                .When(w => _steps.WhenPersonAlreadyExists(EsGatewayFixture.EsPerson))
-                .When(w => _steps.WhenUpdatePersonBalanceIsTriggered(EsGatewayFixture.EsPerson, EsGatewayFixture.PersonAccount))
-                .Then(t => _steps.ThenAPersonBalanceUpdated(EsGatewayFixture.EsPerson, EsGatewayFixture.PersonAccount))
-                .BDDfy();
-        }
-
-        [Fact]
-        public void PersonBalanceUpdatePersonIsNullThrowsArgumentNullException()
-        {
-            this.Given(g => _esGatewayFixture.GivenTheEsPersonDoesNotExist())
-                .Given(g => _esGatewayFixture.GivenTheAccountExists())
-                .When(w => _steps.WhenUpdatePersonBalanceIsTriggered(null, EsGatewayFixture.PersonAccount))
-                .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
-                .BDDfy();
-        }
-
-        [Fact]
-        public void PersonBalanceUpdateAccountIsNullThrowsArgumentNullException()
-        {
-            this.Given(g => _esGatewayFixture.GivenTheEsPersonExists())
-                .Given(g => _esGatewayFixture.GivenTheAccountDoesNotExist())
-                .When(w => _steps.WhenPersonAlreadyExists(EsGatewayFixture.EsPerson))
-                .When(w => _steps.WhenUpdatePersonBalanceIsTriggered(EsGatewayFixture.EsPerson, null))
-                .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
-                .BDDfy();
-        }
-
-        [Fact]
         public void UpdatePersonAccountPersonExists()
         {
             this.Given(g => _esGatewayFixture.GivenTheEsPersonExists())

@@ -19,7 +19,6 @@ namespace HousingSearchListener.V1.Domain.Person
         public string PlaceOfBirth { get; set; }
         public string DateOfBirth { get; set; }
         public string Gender { get; set; }
-        public decimal TotalBalance { get; set; }
         public List<Identification> Identifications { get; set; }
         public List<LanguageClass> Languages { get; set; }
         public List<string> CommunicationRequirements { get; set; }

@@ -51,7 +51,6 @@ namespace HousingSearchListener
             services.AddScoped<IndexTenureUseCase>();
             services.AddScoped<AccountUpdateUseCase>();
             services.AddScoped<AccountAddUseCase>();
-            services.AddScoped<PersonBalanceUpdatedUseCase>();
 
             base.ConfigureServices(services);
         }
