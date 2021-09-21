@@ -69,11 +69,11 @@ namespace HousingSearchListener.V1.UseCase
                 {
                     householdMember.FullName = person.FullName;
                     householdMember.DateOfBirth = person.DateOfBirth;
+
+                    var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+
+                    listOfUpdateTenureIndexTasks.Add(_esGateway.IndexTenure(esTenure));
                 }
-
-                var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
-
-                listOfUpdateTenureIndexTasks.Add(_esGateway.IndexTenure(esTenure));
             }
 
             //4.  Wait for all tenures to update
