@@ -31,6 +31,8 @@ namespace HousingSearchListener.V1.UseCase
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
             // Same as Create Person
+            if (message is null) throw new ArgumentNullException(nameof(message));
+
             var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId)
                 .ConfigureAwait(false);
             if (person is null) throw new EntityNotFoundException<Person>(message.EntityId);
@@ -65,7 +67,6 @@ namespace HousingSearchListener.V1.UseCase
 
                 if (householdMember != null)
                 {
-                    householdMember.Id = person.Id;
                     householdMember.FullName = person.FullName;
                     householdMember.DateOfBirth = person.DateOfBirth;
                 }
