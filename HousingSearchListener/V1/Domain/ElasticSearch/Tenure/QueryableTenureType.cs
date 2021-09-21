@@ -1,4 +1,4 @@
-﻿namespace HousingSearchListener.V1.Domain.ElasticSearch
+﻿namespace HousingSearchListener.V1.Domain.ElasticSearch.Tenure
 {
     public class QueryableTenureType
     {

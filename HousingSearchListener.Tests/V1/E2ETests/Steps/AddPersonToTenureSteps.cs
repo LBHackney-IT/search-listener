@@ -4,7 +4,9 @@ using Amazon.Lambda.TestUtilities;
 using AutoFixture;
 using FluentAssertions;
 using HousingSearchListener.V1.Boundary;
-using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
+using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
+using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
@@ -15,35 +17,34 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
-using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
-using QueryableTenuredAsset = HousingSearchListener.V1.Domain.ElasticSearch.Asset.QueryableTenuredAsset;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
-    public class AddTenureToIndexSteps : BaseSteps
+    public class AddPersonToTenureSteps : BaseSteps
     {
         private readonly Fixture _fixture = new Fixture();
         private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
         private Exception _lastException;
 
-        public AddTenureToIndexSteps()
+        public AddPersonToTenureSteps()
         { }
 
-        private SQSEvent.SQSMessage CreateMessage(Guid tenureId, string eventType = EventTypes.TenureCreatedEvent)
+        private SQSEvent.SQSMessage CreateMessage(Guid personId, EventData eventData, string eventType = EventTypes.PersonAddedToTenureEvent)
         {
-            var tenureSns = _fixture.Build<EntityEventSns>()
-                                    .With(x => x.EntityId, tenureId)
+            var personSns = _fixture.Build<EntityEventSns>()
+                                    .With(x => x.EntityId, personId)
                                     .With(x => x.EventType, eventType)
+                                    .With(x => x.EventData, eventData)
                                     .Create();
 
-            var msgBody = JsonSerializer.Serialize(tenureSns, _jsonOptions);
+            var msgBody = JsonSerializer.Serialize(personSns, _jsonOptions);
             return _fixture.Build<SQSEvent.SQSMessage>()
                            .With(x => x.Body, msgBody)
                            .With(x => x.MessageAttributes, new Dictionary<string, SQSEvent.MessageAttribute>())
                            .Create();
         }
 
-        public async Task WhenTheFunctionIsTriggered(Guid tenureId, string eventType)
+        public async Task WhenTheFunctionIsTriggered(Guid tenureId, EventData eventData, string eventType)
         {
             var mockLambdaLogger = new Mock<ILambdaLogger>();
             ILambdaContext lambdaContext = new TestLambdaContext()
@@ -51,8 +52,9 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                 Logger = mockLambdaLogger.Object
             };
 
+            var msg = CreateMessage(tenureId, eventData, eventType);
             var sqsEvent = _fixture.Build<SQSEvent>()
-                                   .With(x => x.Records, new List<SQSEvent.SQSMessage> { CreateMessage(tenureId, eventType) })
+                                   .With(x => x.Records, new List<SQSEvent.SQSMessage> { msg })
                                    .Create();
 
             Func<Task> func = async () =>
@@ -64,11 +66,21 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             _lastException = await Record.ExceptionAsync(func);
         }
 
-        public void ThenAnAssetNotIndexedExceptionIsThrown(string id)
+        public void ThenAPersonNotFoundExceptionIsThrown(Guid id)
         {
             _lastException.Should().NotBeNull();
-            _lastException.Should().BeOfType(typeof(AssetNotIndexedException));
-            (_lastException as AssetNotIndexedException).Id.Should().Be(id);
+            _lastException.Should().BeOfType(typeof(EntityNotFoundException<Person>));
+            (_lastException as EntityNotFoundException<Person>).Id.Should().Be(id);
+        }
+
+        public async Task ThenTheIndexIsUpdatedWithThePerson(
+            Person person, IElasticClient esClient)
+        {
+            var result = await esClient.GetAsync<QueryablePerson>(person.Id, g => g.Index("persons"))
+                                       .ConfigureAwait(false);
+
+            var personInIndex = result.Source;
+            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person));
         }
 
         public void ThenATenureNotFoundExceptionIsThrown(Guid id)
@@ -78,7 +90,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             (_lastException as EntityNotFoundException<TenureInformation>).Id.Should().Be(id);
         }
 
-        public async Task ThenTheTenureIndexIsUpdated(
+        public async Task ThenTheIndexIsUpdatedWithTheTenure(
             TenureInformation tenure, IElasticClient esClient)
         {
             var result = await esClient.GetAsync<QueryableTenure>(tenure.Id, g => g.Index("tenures"))
@@ -86,28 +98,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
             var tenureInIndex = result.Source;
             tenureInIndex.Should().BeEquivalentTo(_entityFactory.CreateQueryableTenure(tenure));
-        }
-
-        public async Task ThenTheAssetIndexIsUpdatedWithTheTenure(
-            TenureInformation tenure, QueryableAsset asset, IElasticClient esClient)
-        {
-            var result = await esClient.GetAsync<QueryableAsset>(tenure.TenuredAsset.Id, g => g.Index("assets"))
-                                       .ConfigureAwait(false);
-
-            var assetInIndex = result.Source;
-            assetInIndex.Should().BeEquivalentTo(asset, c => c.Excluding(x => x.Tenure));
-            assetInIndex.Tenure.EndOfTenureDate.Should().Be(tenure.EndOfTenureDate);
-            assetInIndex.Tenure.Id.Should().Be(tenure.Id);
-            assetInIndex.Tenure.PaymentReference.Should().Be(tenure.PaymentReference);
-            assetInIndex.Tenure.StartOfTenureDate.Should().Be(tenure.StartOfTenureDate);
-            assetInIndex.Tenure.TenuredAsset.Should().BeEquivalentTo(new QueryableTenuredAsset()
-            {
-                FullAddress = tenure.TenuredAsset.FullAddress,
-                Id = tenure.TenuredAsset.Id,
-                Type = tenure.TenuredAsset.Type,
-                Uprn = tenure.TenuredAsset.Uprn,
-            });
-            assetInIndex.Tenure.Type.Should().Be(tenure.TenureType.Description);
         }
     }
 }

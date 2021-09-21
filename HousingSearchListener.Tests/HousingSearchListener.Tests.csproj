@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+    <NoWarn>CA1307;CA1051;CA1822;CA1001;CA1062;CA2000;S2699;S1764</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +22,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="DeepCloner" Version="0.10.2" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="coverlet.msbuild" Version="3.0.3">
         <PrivateAssets>all</PrivateAssets>
@@ -44,6 +46,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="data\indexes\assetIndex.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="data\indexes\personIndex.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
