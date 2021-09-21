@@ -1,6 +1,8 @@
-using HousingSearchListener.V1.Domain.ElasticSearch;
+using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,20 +10,9 @@ namespace HousingSearchListener.V1.Factories
 {
     public class ESEntityFactory : IESEntityFactory
     {
-        private List<ESIdentification> CreateIdentifications(List<Identification> identifications)
+        private List<QueryablePersonTenure> CreatePersonTenures(List<Tenure> tenures)
         {
-            return identifications.Select(x => new ESIdentification
-            {
-                IdentificationType = x.IdentificationType,
-                IsOriginalDocumentSeen = x.IsOriginalDocumentSeen,
-                LinkToDocument = x.LinkToDocument,
-                Value = x.Value
-            }).ToList();
-        }
-
-        private List<ESTenure> CreateTenures(List<Tenure> tenures)
-        {
-            return tenures.Select(x => new ESTenure
+            return tenures.Select(x => new QueryablePersonTenure
             {
                 AssetFullAddress = x.AssetFullAddress,
                 EndDate = x.EndDate,
@@ -31,21 +22,21 @@ namespace HousingSearchListener.V1.Factories
             }).ToList();
         }
 
-        public ESPerson CreatePerson(Person person)
+        public QueryablePerson CreatePerson(Person person)
         {
-            return new ESPerson
+            return new QueryablePerson
             {
                 Id = person.Id,
                 DateOfBirth = person.DateOfBirth,
+                PlaceOfBirth = person.PlaceOfBirth,
                 Title = person.Title,
                 Firstname = person.FirstName,
                 Surname = person.Surname,
                 MiddleName = person.MiddleName,
                 PreferredFirstname = person.PreferredFirstName,
                 PreferredSurname = person.PreferredSurname,
-                Identifications = person.Identifications != null ? CreateIdentifications(person.Identifications) : new List<ESIdentification>(),
                 PersonTypes = person.PersonType,
-                Tenures = person.Tenures != null ? CreateTenures(person.Tenures) : new List<ESTenure>()
+                Tenures = person.Tenures != null ? CreatePersonTenures(person.Tenures) : new List<QueryablePersonTenure>()
             };
         }
 
@@ -68,12 +59,12 @@ namespace HousingSearchListener.V1.Factories
                     FullAddress = tenure.TenuredAsset?.FullAddress,
                     Id = tenure.TenuredAsset?.Id,
                     Type = tenure.TenuredAsset?.Type,
-                    Uprn = tenure.TenuredAsset?.Uprn,
+                    Uprn = tenure.TenuredAsset?.Uprn
                 }
             };
         }
 
-        private List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers)
+        public List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers)
         {
             if (householdMembers is null) return new List<QueryableHouseholdMember>();
 
@@ -86,6 +77,27 @@ namespace HousingSearchListener.V1.Factories
                 PersonTenureType = x.PersonTenureType,
                 Type = x.Type
             }).ToList();
+        }
+
+        public Domain.ElasticSearch.Asset.QueryableTenure CreateAssetQueryableTenure(TenureInformation tenure)
+        {
+            if (tenure is null) throw new ArgumentNullException(nameof(tenure));
+
+            return new Domain.ElasticSearch.Asset.QueryableTenure()
+            {
+                Id = tenure.Id,
+                EndOfTenureDate = tenure.EndOfTenureDate,
+                PaymentReference = tenure.PaymentReference,
+                StartOfTenureDate = tenure.StartOfTenureDate,
+                TenuredAsset = new Domain.ElasticSearch.Asset.QueryableTenuredAsset()
+                {
+                    FullAddress = tenure.TenuredAsset.FullAddress,
+                    Id = tenure.TenuredAsset.Id,
+                    Type = tenure.TenuredAsset.Type,
+                    Uprn = tenure.TenuredAsset.Uprn,
+                },
+                Type = tenure.TenureType.Description
+            };
         }
     }
 }
