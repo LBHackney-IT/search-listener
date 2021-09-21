@@ -77,5 +77,16 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
                 .Then(t => _steps.ThenTheIndexIsUpdatedWithThePerson(PersonApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
+
+        [Fact]
+        public void TenureUpdateInIndex()
+        {
+            var personId = Guid.NewGuid();
+            this.Given(g => _personApiFixture.GivenThePersonExists(personId))
+                .And(h => _esFixture.GivenAPersonIsIndexedWithDifferentInfo(PersonApiFixture.ResponseObject))
+                .When(w => _steps.WhenTheFunctionIsTriggered(personId, EventTypes.PersonUpdatedEvent))
+                .Then(t => _steps.ThenTheIndexIsUpdatedWithTheUpdatedPersonTenure(PersonApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
+                .BDDfy();
+        }
     }
 }

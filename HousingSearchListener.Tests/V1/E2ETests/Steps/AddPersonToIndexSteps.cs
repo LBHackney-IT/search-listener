@@ -12,8 +12,10 @@ using Moq;
 using Nest;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using Xunit;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Steps
@@ -77,6 +79,17 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
             var personInIndex = result.Source;
             personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person));
+        }
+
+        public async Task ThenTheIndexIsUpdatedWithTheUpdatedPersonTenure(
+            Person person, IElasticClient esClient)
+        {
+            var result = await esClient.GetAsync<QueryableTenure>(person.Tenures.First().Id, g => g.Index("tenures"))
+                .ConfigureAwait(false);
+
+            var tenureInIndex = result.Source;
+            tenureInIndex.HouseholdMembers.First().Id.Should().Be(person.Id);
+            tenureInIndex.HouseholdMembers.First().FullName.Should().Be(person.FullName);
         }
     }
 }

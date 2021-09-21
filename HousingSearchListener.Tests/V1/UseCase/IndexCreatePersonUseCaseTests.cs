@@ -16,26 +16,26 @@ using Xunit;
 namespace HousingSearchListener.Tests.V1.UseCase
 {
     [Collection("LogCall collection")]
-    public class IndexPersonUseCaseTests
+    public class IndexCreatePersonUseCaseTests
     {
         private readonly Mock<IPersonApiGateway> _mockPersonApi;
         private readonly Mock<IEsGateway> _mockEsGateway;
         private readonly IESEntityFactory _esEntityFactory;
-        private readonly IndexPersonUseCase _sut;
+        private readonly IndexCreatePersonUseCase _sut;
 
         private readonly EntityEventSns _message;
         private readonly Person _person;
 
         private readonly Fixture _fixture;
 
-        public IndexPersonUseCaseTests()
+        public IndexCreatePersonUseCaseTests()
         {
             _fixture = new Fixture();
 
             _mockPersonApi = new Mock<IPersonApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
             _esEntityFactory = new ESEntityFactory();
-            _sut = new IndexPersonUseCase(_mockEsGateway.Object,
+            _sut = new IndexCreatePersonUseCase(_mockEsGateway.Object,
                 _mockPersonApi.Object, _esEntityFactory);
 
             _message = CreateMessage();
@@ -108,7 +108,6 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         [Theory]
         [InlineData(EventTypes.PersonCreatedEvent)]
-        [InlineData(EventTypes.PersonUpdatedEvent)]
         public async Task ProcessMessageAsyncTestIndexPersonSuccess(string eventType)
         {
             _message.EventType = eventType;
