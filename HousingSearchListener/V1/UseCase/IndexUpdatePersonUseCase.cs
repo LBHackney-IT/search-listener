@@ -43,43 +43,43 @@ namespace HousingSearchListener.V1.UseCase
             var esPerson = _esEntityFactory.CreatePerson(person);
             await _esGateway.IndexPerson(esPerson);
 
-            ////3.  Get tenures for person
-            //var listOfTenureTasks = new List<Task<Domain.Tenure.TenureInformation>>();
-            //foreach (var tenure in person.Tenures)
-            //{
-            //    listOfTenureTasks.Add(_tenureApiGateway.GetTenureByIdAsync(new Guid(tenure.Id)));
-            //}
+            //3.  Get tenures for person
+            var listOfTenureTasks = new List<Task<Domain.Tenure.TenureInformation>>();
+            foreach (var tenure in person.Tenures)
+            {
+                listOfTenureTasks.Add(_tenureApiGateway.GetTenureByIdAsync(new Guid(tenure.Id)));
+            }
 
-            //await Task.WhenAll(listOfTenureTasks).ConfigureAwait(false);
+            await Task.WhenAll(listOfTenureTasks).ConfigureAwait(false);
 
-            //var listOfTenures = new List<TenureInformation>();
+            var listOfTenures = new List<TenureInformation>();
 
-            //foreach (var tenureTask in listOfTenureTasks)
-            //{
-            //    listOfTenures.Add(tenureTask.Result);
-            //}
+            foreach (var tenureTask in listOfTenureTasks)
+            {
+                listOfTenures.Add(tenureTask.Result);
+            }
 
-            //var listOfUpdateTenureIndexTasks = new List<Task<Nest.IndexResponse>>();
+            var listOfUpdateTenureIndexTasks = new List<Task<Nest.IndexResponse>>();
 
-            ////3.  Update each tenure and reindex
-            //foreach (var tenure in listOfTenures)
-            //{
-            //    var householdMember = tenure.HouseholdMembers.SingleOrDefault(x =>
-            //        x.Id == person.Id);
+            //3.  Update each tenure and reindex
+            foreach (var tenure in listOfTenures)
+            {
+                var householdMember = tenure.HouseholdMembers.SingleOrDefault(x =>
+                    x.Id == person.Id);
 
-            //    if (householdMember != null)
-            //    {
-            //        householdMember.FullName = person.FullName;
-            //        householdMember.DateOfBirth = person.DateOfBirth;
+                if (householdMember != null)
+                {
+                    householdMember.FullName = person.FullName;
+                    householdMember.DateOfBirth = person.DateOfBirth;
 
-            //        var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+                    var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
 
-            //        listOfUpdateTenureIndexTasks.Add(_esGateway.IndexTenure(esTenure));
-            //    }
-            //}
+                    listOfUpdateTenureIndexTasks.Add(_esGateway.IndexTenure(esTenure));
+                }
+            }
 
-            ////4.  Wait for all tenures to update
-            //await Task.WhenAll(listOfUpdateTenureIndexTasks);
+            //4.  Wait for all tenures to update
+            await Task.WhenAll(listOfUpdateTenureIndexTasks);
         }
     }
 }
