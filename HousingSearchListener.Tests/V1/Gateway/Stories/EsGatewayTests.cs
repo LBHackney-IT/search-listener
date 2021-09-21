@@ -76,38 +76,6 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
         }
 
         [Fact]
-        public void UpdatePersonAccountPersonExists()
-        {
-            this.Given(g => _esGatewayFixture.GivenTheEsPersonExists())
-                .Given(g => _esGatewayFixture.GivenTheEsPersonTenureExists())
-                .When(w => _steps.WhenPersonAlreadyExists(EsGatewayFixture.EsPerson))
-                .When(w => _steps.WhenUpdatePersonAccountIsTriggered(EsGatewayFixture.EsPerson, EsGatewayFixture.EsPersonTenure))
-                .Then(t => _steps.ThenAPersonAccountUpdated(EsGatewayFixture.EsPerson, EsGatewayFixture.EsPersonTenure))
-                .BDDfy();
-        }
-
-        [Fact]
-        public void UpdatePersonAccountPersonIsNullThrowsArgumentNullException()
-        {
-            this.Given(g => _esGatewayFixture.GivenTheEsPersonDoesNotExist())
-                .Given(g => _esGatewayFixture.GivenTheEsPersonTenureExists())
-                .When(w => _steps.WhenUpdatePersonAccountIsTriggered(null, EsGatewayFixture.EsPersonTenure))
-                .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
-                .BDDfy();
-        }
-
-        [Fact]
-        public void UpdatePersonAccountTenureIsNullThrowsArgumentNullException()
-        {
-            this.Given(g => _esGatewayFixture.GivenTheEsPersonExists())
-                .Given(g => _esGatewayFixture.GivenTheEsPersonTenureDoesNotExists())
-                .When(w => _steps.WhenPersonAlreadyExists(EsGatewayFixture.EsPerson))
-                .When(w => _steps.WhenUpdatePersonAccountIsTriggered(EsGatewayFixture.EsPerson, null))
-                .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
-                .BDDfy();
-        }
-
-        [Fact]
         public void AddTenureToPersonIndexPersonExists()
         {
             this.Given(g => _esGatewayFixture.GivenTheEsPersonExists())

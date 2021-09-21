@@ -21,7 +21,6 @@ namespace HousingSearchListener.V1.Factories
                 { EventTypes.PersonUpdatedEvent, typeof(IndexPersonUseCase) },
                 { EventTypes.TenureCreatedEvent, typeof(IndexTenureUseCase) },
                 { EventTypes.AccountCreatedEvent, typeof(AccountAddUseCase) },
-                { EventTypes.AccountUpdatedEvent, typeof(AccountUpdateUseCase) }
             };
         }
 

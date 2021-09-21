@@ -1,171 +1,73 @@
 ﻿using FluentAssertions;
 using HousingSearchListener.V1.Boundary;
 using HousingSearchListener.V1.Factories;
-using HousingSearchListener.V1.Gateway;
-using HousingSearchListener.V1.UseCase;
 using HousingSearchListener.V1.UseCase.Interfaces;
-using Moq;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using Xunit;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
-    public class MessageHandlerFactoryTests
+    /// <summary>
+    /// This test class is created to ensure that handlers for all <see cref="EventTypes"/> enum items are registered and can be resolved  
+    /// This will prevent run-time errors if we forgot some registration
+    /// </summary>
+    public class MessageHandlerFactoryTests : HousingSearchListener
     {
-        private readonly Mock<IEsGateway> _mockEsGateway;
-        private readonly Mock<IESEntityFactory> _mockEsEntityFactory;
-        private readonly Mock<IServiceProvider> _mockServiceProvider;
-        private readonly MessageHandlerFactory _sut;
+        private static void EnsureEnvVarConfigured(string name, string defaultValue)
+        {
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name)))
+            {
+                Environment.SetEnvironmentVariable(name, defaultValue);
+            }
+        }
+
+        // Hanna Holasava 
+        // We need to hide this inherited members because we eant to configure API urls befire creating Configuration object
+        protected IConfigurationRoot Configuration { get; }
+        protected IServiceProvider ServiceProvider { get; }
 
         public MessageHandlerFactoryTests()
         {
-            _mockServiceProvider = new Mock<IServiceProvider>();
-            _mockEsGateway = new Mock<IEsGateway>();
-            _mockEsEntityFactory = new Mock<IESEntityFactory>();
-            _sut = new MessageHandlerFactory(_mockServiceProvider.Object);
-        }
+            var services = new ServiceCollection();
+            var builder = new ConfigurationBuilder();
 
-        [Theory]
-        [InlineData(EventTypes.PersonCreatedEvent)]
-        [InlineData(EventTypes.PersonUpdatedEvent)]
-        public void ToMessageProcessorIndexPersonUseCase(EventTypes eventType)
-        {
-            Mock<IPersonApiGateway> mockPersonApiGateway = new Mock<IPersonApiGateway>();
-            IndexPersonUseCase indexPersonUseCase = new IndexPersonUseCase(_mockEsGateway.Object, mockPersonApiGateway.Object, _mockEsEntityFactory.Object);
+            EnsureEnvVarConfigured("PersonApiUrl", "http://localhost:5000");
+            EnsureEnvVarConfigured("PersonApiToken", "PersonApiToken");
+            EnsureEnvVarConfigured("TenureApiUrl", "http://localhost:5001");
+            EnsureEnvVarConfigured("TenureApiToken", "TenureApiToken");
 
-            _mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>()))
-                .Returns(indexPersonUseCase);
+            // Hanna Holasava
+            // We need to repeat configuration here after adding missed API urls to environment configurations
+            Configure(builder);
+            Configuration = builder.Build();
+            services.AddSingleton<IConfiguration>(Configuration);
 
-            var result = _sut.ToMessageProcessor(eventType);
-            result.Should().NotBeNull();
-
-            var isIMessageProcessing = result is IMessageProcessing;
-            isIMessageProcessing.Should().BeTrue();
-
-            var processor = Convert.ChangeType(result, typeof(IndexPersonUseCase));
-            processor.Should().NotBeNull();
+            ConfigureServices(services);
+            ServiceProvider = services.BuildServiceProvider();
         }
 
         [Fact]
-        public void ToMessageProcessorIndexTenureUseCase()
+        public void EnsureAllTypesCanBeResolved()
         {
-            Mock<ITenureApiGateway> mockTenureApiGateway = new Mock<ITenureApiGateway>();
-            IndexTenureUseCase indexTenureUseCase = new IndexTenureUseCase(_mockEsGateway.Object, mockTenureApiGateway.Object, _mockEsEntityFactory.Object);
+            MessageHandlerFactory messageHandlerFactory = ServiceProvider.GetService<MessageHandlerFactory>();
+            var values = Enum.GetValues(typeof(EventTypes)).Cast<EventTypes>();
 
-            _mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>()))
-                .Returns(indexTenureUseCase);
+            foreach(var eventType in values)
+            {
+                try
+                {
+                    IMessageProcessing processor = messageHandlerFactory.ToMessageProcessor(eventType);
 
-            var result = _sut.ToMessageProcessor(EventTypes.TenureCreatedEvent);
-            result.Should().NotBeNull();
-
-            var isIMessageProcessing = result is IMessageProcessing;
-            isIMessageProcessing.Should().BeTrue();
-
-            var processor = Convert.ChangeType(result, typeof(IndexTenureUseCase));
-            processor.Should().NotBeNull();
-        }
-
-        [Fact]
-        public void ToMessageProcessorAccountAddUseCase()
-        {
-            Mock<IPersonApiGateway> mockPersonApiGateway = new Mock<IPersonApiGateway>();
-            Mock<ITenureApiGateway> mockTenureApiGateway = new Mock<ITenureApiGateway>();
-            AccountAddUseCase AccountAddUseCase = new AccountAddUseCase(_mockEsGateway.Object, mockTenureApiGateway.Object,
-                mockPersonApiGateway.Object, _mockEsEntityFactory.Object);
-
-            _mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>()))
-                .Returns(AccountAddUseCase);
-
-            var result = _sut.ToMessageProcessor(EventTypes.AccountCreatedEvent);
-            result.Should().NotBeNull();
-
-            var isIMessageProcessing = result is IMessageProcessing;
-            isIMessageProcessing.Should().BeTrue();
-
-            var processor = Convert.ChangeType(result, typeof(AccountAddUseCase));
-            processor.Should().NotBeNull();
-        }
-
-        [Fact]
-        public void ToMessageProcessorAccountUpdateUseCase()
-        {
-            Mock<IPersonApiGateway> mockPersonApiGateway = new Mock<IPersonApiGateway>();
-            Mock<ITenureApiGateway> mockTenureApiGateway = new Mock<ITenureApiGateway>();
-            AccountUpdateUseCase accountUpdateUseCase = new AccountUpdateUseCase(_mockEsGateway.Object, mockTenureApiGateway.Object,
-                mockPersonApiGateway.Object, _mockEsEntityFactory.Object);
-
-            _mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>()))
-                .Returns(accountUpdateUseCase);
-
-            var result = _sut.ToMessageProcessor(EventTypes.AccountUpdatedEvent);
-            result.Should().NotBeNull();
-
-            var isIMessageProcessing = result is IMessageProcessing;
-            isIMessageProcessing.Should().BeTrue();
-
-            var processor = Convert.ChangeType(result, typeof(AccountUpdateUseCase));
-            processor.Should().NotBeNull();
-        }
-
-        [Fact]
-        public void ToMessageProcessorPersonBalanceUpdatedUseCase()
-        {
-            Mock<IPersonApiGateway> mockPersonApiGateway = new Mock<IPersonApiGateway>();
-            Mock<ITenureApiGateway> mockTenureApiGateway = new Mock<ITenureApiGateway>();
-            Mock<IAccountApiGateway> mockAccountApiGateway = new Mock<IAccountApiGateway>();
-            PersonBalanceUpdatedUseCase accountUpdateUseCase = new PersonBalanceUpdatedUseCase(_mockEsGateway.Object, mockTenureApiGateway.Object,
-                mockPersonApiGateway.Object, mockAccountApiGateway.Object, _mockEsEntityFactory.Object);
-
-            _mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>()))
-                .Returns(accountUpdateUseCase);
-
-            var result = _sut.ToMessageProcessor(EventTypes.PersonBalanceUpdatedEvent);
-            result.Should().NotBeNull();
-
-            var isIMessageProcessing = result is IMessageProcessing;
-            isIMessageProcessing.Should().BeTrue();
-
-            var processor = Convert.ChangeType(result, typeof(PersonBalanceUpdatedUseCase));
-            processor.Should().NotBeNull();
-        }
-
-        [Theory]
-        [InlineData((EventTypes)42)]
-        [InlineData((EventTypes)13)]
-        public void ToMessageProcessorInvalidEventTypeThrowsArgumentException(EventTypes eventType)
-        {
-            Func<IMessageProcessing> func = () => _sut.ToMessageProcessor(eventType);
-            func.Should().Throw<ArgumentException>();
-        }
-
-        [Fact]
-        public void ToMessageProcessorGetServiceReturnsNullThrowsArgumentException()
-        {
-            _mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>()))
-                .Returns(null);
-
-            Func<IMessageProcessing> func = () => _sut.ToMessageProcessor(EventTypes.AccountCreatedEvent);
-            func.Should().Throw<ArgumentException>();
-        }
-
-        [Fact]
-        public void ToMessageProcessorGetServiceReturnsInvalidTypeThrowsArgumentException()
-        {
-            _mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>()))
-                .Returns(new object { });
-
-            Func<IMessageProcessing> func = () => _sut.ToMessageProcessor(EventTypes.AccountCreatedEvent);
-            func.Should().Throw<ArgumentException>();
-        }
-
-        [Fact]
-        public void ToMessageProcessorGetServiceThrowsException()
-        {
-            _mockServiceProvider.Setup(x => x.GetService(It.IsAny<Type>()))
-                .Throws(new Exception());
-
-            Func<IMessageProcessing> func = () => _sut.ToMessageProcessor(EventTypes.AccountCreatedEvent);
-            func.Should().Throw<Exception>();
+                    processor.Should().NotBeNull($"The event handler use case for the event [{eventType}] cannot be created.");
+                }
+                catch (Exception ex)
+                {
+                    Assert.True(false, $"The event handler use case for the event [{eventType}] cannot be created. The reason: {ex.Message}. InnerException: {ex.InnerException?.Message}");
+                }
+            }
         }
     }
 }

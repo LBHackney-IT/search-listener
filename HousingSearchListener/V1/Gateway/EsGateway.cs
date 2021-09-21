@@ -47,39 +47,6 @@ namespace HousingSearchListener.V1.Gateway
         }
 
         /// <summary>
-        /// Update the account
-        /// </summary>
-        /// <param name="esPerson"></param>
-        /// <param name="tenure"></param>
-        /// <returns></returns>
-        [LogCall]
-        public async Task<UpdateResponse<Person>> UpdatePersonAccountAsync(ESPerson esPerson, ESPersonTenure tenure)
-        {
-            if (esPerson is null)
-            {
-                throw new ArgumentNullException(nameof(esPerson));
-            }
-
-            if (tenure is null)
-            {
-                throw new ArgumentNullException(nameof(tenure));
-            }
-
-            var esTenure = esPerson.Tenures.Where(t => t.Id.Equals(tenure.Id)).FirstOrDefault();
-            if (esTenure is null)
-            {
-                throw new ArgumentException($"Tenure with id: {tenure.Id} does not exist!");
-            }
-
-            esTenure.TotalBalance = tenure.TotalBalance;
-
-            return await _elasticClient.UpdateAsync<Person, object>(esPerson.Id, descriptor => descriptor
-                .Index(IndexNamePersons)
-                .Doc(new { tenures = esPerson.Tenures })
-                .DocAsUpsert(true));
-        }
-
-        /// <summary>
         /// Add a new account
         /// </summary>
         /// <param name="esPerson"></param>

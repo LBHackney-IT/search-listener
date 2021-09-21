@@ -67,16 +67,6 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
             _lastException = await Record.ExceptionAsync(func);
         }
 
-        public async Task WhenUpdatePersonAccountIsTriggered(ESPerson esPerson, ESPersonTenure tenure)
-        {
-            async Task<UpdateResponse<Person>> func()
-            {
-                return await _esGateway.UpdatePersonAccountAsync(esPerson, tenure).ConfigureAwait(false);
-            }
-
-            _lastException = await Record.ExceptionAsync(func);
-        }
-
         public void ThenArgumentNullExceptionIsThrown()
         {
             _lastException.Should().NotBeNull();

@@ -4,9 +4,7 @@
     {
         PersonCreatedEvent,
         PersonUpdatedEvent,
-        PersonBalanceUpdatedEvent,
         TenureCreatedEvent,
-        AccountUpdatedEvent,
         AccountCreatedEvent
     }
 }
