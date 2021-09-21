@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Hackney.Core.Logging;
 using HousingSearchListener.V1.Boundary;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
@@ -28,16 +29,17 @@ namespace HousingSearchListener.V1.UseCase
             _esEntityFactory = esEntityFactory;
         }
 
+        [LogCall]
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
-            // Same as Create Person
             if (message is null) throw new ArgumentNullException(nameof(message));
 
+            // 1. Get Person from Person service API
             var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId)
                 .ConfigureAwait(false);
             if (person is null) throw new EntityNotFoundException<Person>(message.EntityId);
 
-            // 2. Update the ES Person index
+            // 2. Update the ES index
             var esPerson = _esEntityFactory.CreatePerson(person);
             await _esGateway.IndexPerson(esPerson);
 

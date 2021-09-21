@@ -6,6 +6,7 @@ using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
+using Hackney.Core.Logging;
 
 namespace HousingSearchListener.V1.UseCase
 {
@@ -23,6 +24,7 @@ namespace HousingSearchListener.V1.UseCase
             _esPersonFactory = esPersonFactory;
         }
 
+        [LogCall]
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
             if (message is null) throw new ArgumentNullException(nameof(message));
