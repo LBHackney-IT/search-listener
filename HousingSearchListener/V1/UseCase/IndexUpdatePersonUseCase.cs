@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HousingSearchListener.V1.Boundary;
 using HousingSearchListener.V1.Domain.Person;
+using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
@@ -34,7 +35,11 @@ namespace HousingSearchListener.V1.UseCase
                 .ConfigureAwait(false);
             if (person is null) throw new EntityNotFoundException<Person>(message.EntityId);
 
-            // Get tenures
+            // 2. Update the ES Person index
+            var esPerson = _esEntityFactory.CreatePerson(person);
+            await _esGateway.IndexPerson(esPerson);
+
+            //3.  Get tenures for person
             var listOfTenureTasks = new List<Task<Domain.Tenure.TenureInformation>>();
             foreach (var tenure in person.Tenures)
             {
@@ -43,28 +48,34 @@ namespace HousingSearchListener.V1.UseCase
 
             await Task.WhenAll(listOfTenureTasks).ConfigureAwait(false);
 
-            // For each tenure update the right householdmember with the new person details
+            var listOfTenures = new List<TenureInformation>();
+
             foreach (var tenureTask in listOfTenureTasks)
             {
-                var tenureInformation = tenureTask.Result;
-                var householdMember = tenureInformation.HouseholdMembers.SingleOrDefault(x =>
+                listOfTenures.Add(tenureTask.Result);
+            }
+
+            var listOfUpdateTenureIndexTasks = new List<Task<Nest.IndexResponse>>();
+
+            //3.  Update each tenure and reindex
+            foreach (var tenure in listOfTenures)
+            {
+                var householdMember = tenure.HouseholdMembers.SingleOrDefault(x =>
                     x.Id == person.Id);
+
                 if (householdMember != null)
                 {
                     householdMember.Id = person.Id;
                     householdMember.FullName = person.FullName;
                     householdMember.DateOfBirth = person.DateOfBirth;
                 }
-            }
 
-            var listOfUpdateTenureIndexTasks = new List<Task<Nest.IndexResponse>>();
-
-            foreach (var tenure in listOfTenureTasks.Select(x => x.Result))
-            {
                 var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+
                 listOfUpdateTenureIndexTasks.Add(_esGateway.IndexTenure(esTenure));
             }
 
+            //4.  Wait for all tenures to update
             await Task.WhenAll(listOfUpdateTenureIndexTasks);
         }
     }
