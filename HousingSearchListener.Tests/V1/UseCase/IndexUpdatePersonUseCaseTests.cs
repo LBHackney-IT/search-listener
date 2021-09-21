@@ -22,6 +22,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
     public class IndexUpdatePersonUseCaseTests
     {
         private readonly Mock<ITenureApiGateway> _mockTenureApi;
+        private readonly Mock<IPersonApiGateway> _mockPersonApi;
         private readonly Mock<IEsGateway> _mockEsGateway;
         private readonly Mock<IIndexCreatePersonUseCase> _mockCreatePersonUseCase;
         private readonly IESEntityFactory _esEntityFactory;
@@ -37,12 +38,13 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _fixture = new Fixture();
 
             _mockTenureApi = new Mock<ITenureApiGateway>();
+            _mockPersonApi = new Mock<IPersonApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
             _mockCreatePersonUseCase = new Mock<IIndexCreatePersonUseCase>();
             _esEntityFactory = new ESEntityFactory();
 
-            _sut = new IndexUpdatePersonUseCase(_mockEsGateway.Object,
-                _mockTenureApi.Object, _esEntityFactory, _mockCreatePersonUseCase.Object);
+            _sut = new IndexUpdatePersonUseCase(_mockEsGateway.Object, _mockPersonApi.Object,
+                _mockTenureApi.Object, _esEntityFactory);
 
             _message = CreateMessage();
             _tenure = CreateTenure(_message.EntityId);
@@ -103,7 +105,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockTenureApi.Setup(x => x.GetTenureByIdAsync(Guid.Parse(_tenure.Id)))
                 .ReturnsAsync(_tenure);
 
-            _mockCreatePersonUseCase.Setup(x => x.Person).Returns(mockPerson);
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(It.IsAny<Guid>())).ReturnsAsync(mockPerson);
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 

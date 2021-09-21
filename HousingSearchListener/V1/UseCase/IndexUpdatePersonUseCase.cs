@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HousingSearchListener.V1.Boundary;
+using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
+using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
 
 namespace HousingSearchListener.V1.UseCase
@@ -12,27 +14,29 @@ namespace HousingSearchListener.V1.UseCase
     public class IndexUpdatePersonUseCase : IIndexUpdatePersonUseCase
     {
         private readonly IEsGateway _esGateway;
+        private readonly IPersonApiGateway _personApiGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
         private readonly IESEntityFactory _esEntityFactory;
-        private readonly IIndexCreatePersonUseCase _createPersonUseCase;
 
-        public IndexUpdatePersonUseCase(IEsGateway esGateway, ITenureApiGateway tenureApiGateway,
-            IESEntityFactory esEntityFactory, IIndexCreatePersonUseCase createPersonUseCase)
+        public IndexUpdatePersonUseCase(IEsGateway esGateway, IPersonApiGateway personApiGateway, ITenureApiGateway tenureApiGateway,
+            IESEntityFactory esEntityFactory)
         {
             _esGateway = esGateway;
+            _personApiGateway = personApiGateway;
             _tenureApiGateway = tenureApiGateway;
             _esEntityFactory = esEntityFactory;
-            _createPersonUseCase = createPersonUseCase;
         }
 
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
             // Same as Create Person
-            await _createPersonUseCase.ProcessMessageAsync(message);
+            var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId)
+                .ConfigureAwait(false);
+            if (person is null) throw new EntityNotFoundException<Person>(message.EntityId);
 
             // Get tenures
             var listOfTenureTasks = new List<Task<Domain.Tenure.TenureInformation>>();
-            foreach (var tenure in _createPersonUseCase.Person.Tenures)
+            foreach (var tenure in person.Tenures)
             {
                 listOfTenureTasks.Add(_tenureApiGateway.GetTenureByIdAsync(new Guid(tenure.Id)));
             }
@@ -44,12 +48,12 @@ namespace HousingSearchListener.V1.UseCase
             {
                 var tenureInformation = tenureTask.Result;
                 var householdMember = tenureInformation.HouseholdMembers.SingleOrDefault(x =>
-                    x.Id == _createPersonUseCase.Person.Id);
+                    x.Id == person.Id);
                 if (householdMember != null)
                 {
-                    householdMember.Id = _createPersonUseCase.Person.Id;
-                    householdMember.FullName = _createPersonUseCase.Person.FullName;
-                    householdMember.DateOfBirth = _createPersonUseCase.Person.DateOfBirth;
+                    householdMember.Id = person.Id;
+                    householdMember.FullName = person.FullName;
+                    householdMember.DateOfBirth = person.DateOfBirth;
                 }
             }
 
