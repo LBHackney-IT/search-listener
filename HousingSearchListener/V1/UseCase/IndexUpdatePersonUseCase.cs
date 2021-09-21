@@ -57,27 +57,27 @@ namespace HousingSearchListener.V1.UseCase
                 listOfTenures.Add(tenureTask.Result);
             }
 
-            var listOfUpdateTenureIndexTasks = new List<Task<Nest.IndexResponse>>();
+            //var listOfUpdateTenureIndexTasks = new List<Task<Nest.IndexResponse>>();
 
-            //3.  Update each tenure and reindex
-            foreach (var tenure in listOfTenures)
-            {
-                var householdMember = tenure.HouseholdMembers.SingleOrDefault(x =>
-                    x.Id == person.Id);
+            ////3.  Update each tenure and reindex
+            //foreach (var tenure in listOfTenures)
+            //{
+            //    var householdMember = tenure.HouseholdMembers.SingleOrDefault(x =>
+            //        x.Id == person.Id);
 
-                if (householdMember != null)
-                {
-                    householdMember.FullName = person.FullName;
-                    householdMember.DateOfBirth = person.DateOfBirth;
+            //    if (householdMember != null)
+            //    {
+            //        householdMember.FullName = person.FullName;
+            //        householdMember.DateOfBirth = person.DateOfBirth;
 
-                    var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+            //        var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
 
-                    listOfUpdateTenureIndexTasks.Add(_esGateway.IndexTenure(esTenure));
-                }
-            }
+            //        listOfUpdateTenureIndexTasks.Add(_esGateway.IndexTenure(esTenure));
+            //    }
+            //}
 
-            //4.  Wait for all tenures to update
-            await Task.WhenAll(listOfUpdateTenureIndexTasks);
+            ////4.  Wait for all tenures to update
+            //await Task.WhenAll(listOfUpdateTenureIndexTasks);
         }
     }
 }
