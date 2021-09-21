@@ -41,21 +41,21 @@ namespace HousingSearchListener.V1.UseCase
             var esPerson = _esEntityFactory.CreatePerson(person);
             await _esGateway.IndexPerson(esPerson);
 
-            //3.  Get tenures for person
-            var listOfTenureTasks = new List<Task<Domain.Tenure.TenureInformation>>();
-            foreach (var tenure in person.Tenures)
-            {
-                listOfTenureTasks.Add(_tenureApiGateway.GetTenureByIdAsync(new Guid(tenure.Id)));
-            }
+            ////3.  Get tenures for person
+            //var listOfTenureTasks = new List<Task<Domain.Tenure.TenureInformation>>();
+            //foreach (var tenure in person.Tenures)
+            //{
+            //    listOfTenureTasks.Add(_tenureApiGateway.GetTenureByIdAsync(new Guid(tenure.Id)));
+            //}
 
-            await Task.WhenAll(listOfTenureTasks).ConfigureAwait(false);
+            //await Task.WhenAll(listOfTenureTasks).ConfigureAwait(false);
 
-            var listOfTenures = new List<TenureInformation>();
+            //var listOfTenures = new List<TenureInformation>();
 
-            foreach (var tenureTask in listOfTenureTasks)
-            {
-                listOfTenures.Add(tenureTask.Result);
-            }
+            //foreach (var tenureTask in listOfTenureTasks)
+            //{
+            //    listOfTenures.Add(tenureTask.Result);
+            //}
 
             //var listOfUpdateTenureIndexTasks = new List<Task<Nest.IndexResponse>>();
 
