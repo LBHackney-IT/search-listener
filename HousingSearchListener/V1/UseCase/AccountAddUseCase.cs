@@ -20,8 +20,8 @@ namespace HousingSearchListener.V1.UseCase
         private readonly IAccountApiGateway _accountApiGateway;
         private readonly IESEntityFactory _esEntityFactory;
 
-        public AccountAddUseCase(IEsGateway esGateway, 
-            ITenureApiGateway tenureApiGateway, 
+        public AccountAddUseCase(IEsGateway esGateway,
+            ITenureApiGateway tenureApiGateway,
             IPersonApiGateway personApiGateway,
             IESEntityFactory esPersonFactory,
             IAccountApiGateway accountApiGateway)
@@ -73,7 +73,7 @@ namespace HousingSearchListener.V1.UseCase
                 {
                     throw new EntityNotFoundException<Person>(personId);
                 }
-                
+
                 var esTenure = _esEntityFactory.CreateTenure(tenure);
                 var esPerson = _esEntityFactory.CreatePerson(personModel);
 
