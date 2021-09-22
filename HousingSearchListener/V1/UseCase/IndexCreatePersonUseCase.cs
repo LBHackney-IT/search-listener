@@ -6,16 +6,17 @@ using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
+using Hackney.Core.Logging;
 
 namespace HousingSearchListener.V1.UseCase
 {
-    public class IndexPersonUseCase : IMessageProcessing
+    public class IndexCreatePersonUseCase : IIndexCreatePersonUseCase
     {
         private readonly IEsGateway _esGateway;
         private readonly IPersonApiGateway _personApiGateway;
         private readonly IESEntityFactory _esPersonFactory;
 
-        public IndexPersonUseCase(IEsGateway esGateway, IPersonApiGateway personApiGateway,
+        public IndexCreatePersonUseCase(IEsGateway esGateway, IPersonApiGateway personApiGateway,
             IESEntityFactory esPersonFactory)
         {
             _esGateway = esGateway;
@@ -23,6 +24,7 @@ namespace HousingSearchListener.V1.UseCase
             _esPersonFactory = esPersonFactory;
         }
 
+        [LogCall]
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
             if (message is null)

@@ -45,7 +45,10 @@ namespace HousingSearchListener
 
             services.ConfigureElasticSearch(Configuration);
 
-            services.AddScoped<MessageHandlerFactory>();
+            services.AddScoped<IIndexCreatePersonUseCase, IndexCreatePersonUseCase>();
+            services.AddScoped<IIndexUpdatePersonUseCase, IndexUpdatePersonUseCase>();
+            services.AddScoped<IIndexTenureUseCase, IndexTenureUseCase>();
+            services.AddScoped<IAddPersonToTenureUseCase, AddPersonToTenureUseCase>();
 
             services.AddScoped<IndexPersonUseCase>();
             services.AddScoped<IndexTenureUseCase>();
@@ -74,15 +77,12 @@ namespace HousingSearchListener
             {
                 try
                 {
-                    if (!Enum.TryParse(entityEvent.EventType, out EventTypes eventType))
-                    {
-                        throw new Exception($"The {eventType} does not exist.");
-                    }
-
-                    MessageHandlerFactory messageHandlerFactory = ServiceProvider.GetService<MessageHandlerFactory>();
-                    IMessageProcessing processor = messageHandlerFactory.ToMessageProcessor(eventType);
-
-                    await processor.ProcessMessageAsync(entityEvent).ConfigureAwait(false);
+                    IMessageProcessing processor = entityEvent.CreateUseCaseForMessage(ServiceProvider);
+                    if (processor != null)
+                        await processor.ProcessMessageAsync(entityEvent).ConfigureAwait(false);
+                    else
+                        Logger.LogInformation($"No processors available for message so it will be ignored. " +
+                            $"Message id: {message.MessageId}; type: {entityEvent.EventType}; version: {entityEvent.Version}; entity id: {entityEvent.EntityId}");
                 }
                 catch (Exception ex)
                 {

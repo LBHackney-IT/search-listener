@@ -1,5 +1,8 @@
-﻿using Elasticsearch.Net;
-using HousingSearchListener.V1.Domain.ElasticSearch;
+﻿using AutoFixture;
+using Elasticsearch.Net;
+using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
+using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -12,11 +15,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
 
 namespace HousingSearchListener.Tests
 {
     public class ElasticSearchFixture
     {
+        private readonly Fixture _fixture = new Fixture();
+
         public IElasticClient ElasticSearchClient => _factory?.ElasticSearchClient;
 
         private readonly MockApplicationFactory _factory;
@@ -25,11 +31,15 @@ namespace HousingSearchListener.Tests
 
         private static readonly string IndexNamePersons = "persons";
         private static readonly string IndexNameTenures = "tenures";
+        private static readonly string IndexNameAssets = "assets";
         private static readonly Dictionary<string, string> _indexes = new Dictionary<string, string>
         {
             { IndexNamePersons, "data/indexes/personIndex.json" },
-            { IndexNameTenures, "data/indexes/tenureIndex.json" }
+            { IndexNameTenures, "data/indexes/tenureIndex.json" },
+            { IndexNameAssets, "data/indexes/assetIndex.json" }
         };
+
+        public QueryableAsset AssetInIndex { get; private set; }
 
         public ElasticSearchFixture()
         {
@@ -140,6 +150,58 @@ namespace HousingSearchListener.Tests
             var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
             var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+        }
+
+        public async Task GivenATenureIsIndexedWithDifferentInfo(TenureInformation tenure)
+        {
+            var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+            esTenure.EndOfTenureDate = null;
+            esTenure.PaymentReference = null;
+            esTenure.TenuredAsset.FullAddress = "Somewhere";
+            var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
+            await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+        }
+
+        public void GivenAnAssetIsNotIndexed(string assetId)
+        {
+            // Nothing to do here
+        }
+
+        public async Task GivenAnAssetIsIndexed(string assetId)
+        {
+            var esAsset = _fixture.Build<QueryableAsset>()
+                                  .With(x => x.Id, assetId)
+                                  .With(x => x.AssetId, assetId)
+                                  .Create();
+            var request = new IndexRequest<QueryableAsset>(esAsset, IndexNameAssets);
+            await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+            AssetInIndex = esAsset;
+        }
+
+        public async Task GivenATenureIsIndexedWithDifferentInfo(TenureInformation tenure)
+        {
+            var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+            esTenure.EndOfTenureDate = null;
+            esTenure.PaymentReference = null;
+            esTenure.TenuredAsset.FullAddress = "Somewhere";
+            var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
+            await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+        }
+
+        public void GivenAnAssetIsNotIndexed(string assetId)
+        {
+            // Nothing to do here
+        }
+
+        public async Task GivenAnAssetIsIndexed(string assetId)
+        {
+            var esAsset = _fixture.Build<QueryableAsset>()
+                                  .With(x => x.Id, assetId)
+                                  .With(x => x.AssetId, assetId)
+                                  .Create();
+            var request = new IndexRequest<QueryableAsset>(esAsset, IndexNameAssets);
+            await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+            AssetInIndex = esAsset;
         }
     }
 

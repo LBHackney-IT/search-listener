@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using HousingSearchListener.V1.Boundary;
-using HousingSearchListener.V1.Domain.ElasticSearch;
+using HousingSearchListener.V1.Domain.ElasticSearch.Person;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
@@ -16,26 +16,26 @@ using Xunit;
 namespace HousingSearchListener.Tests.V1.UseCase
 {
     [Collection("LogCall collection")]
-    public class IndexPersonUseCaseTests
+    public class IndexCreatePersonUseCaseTests
     {
         private readonly Mock<IPersonApiGateway> _mockPersonApi;
         private readonly Mock<IEsGateway> _mockEsGateway;
         private readonly IESEntityFactory _esEntityFactory;
-        private readonly IndexPersonUseCase _sut;
+        private readonly IndexCreatePersonUseCase _sut;
 
         private readonly EntityEventSns _message;
         private readonly Person _person;
 
         private readonly Fixture _fixture;
 
-        public IndexPersonUseCaseTests()
+        public IndexCreatePersonUseCaseTests()
         {
             _fixture = new Fixture();
 
             _mockPersonApi = new Mock<IPersonApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
             _esEntityFactory = new ESEntityFactory();
-            _sut = new IndexPersonUseCase(_mockEsGateway.Object,
+            _sut = new IndexCreatePersonUseCase(_mockEsGateway.Object,
                 _mockPersonApi.Object, _esEntityFactory);
 
             _message = CreateMessage();
@@ -59,7 +59,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
-        private bool VerifyPersonIndexed(ESPerson esPerson)
+        private bool VerifyPersonIndexed(QueryablePerson esPerson)
         {
             esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(_person));
             return true;
@@ -99,7 +99,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             var exMsg = "This is the last error";
             _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId))
                                        .ReturnsAsync(_person);
-            _mockEsGateway.Setup(x => x.IndexPerson(It.IsAny<ESPerson>()))
+            _mockEsGateway.Setup(x => x.IndexPerson(It.IsAny<QueryablePerson>()))
                           .ThrowsAsync(new Exception(exMsg));
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -108,8 +108,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         [Theory]
         [InlineData(EventTypes.PersonCreatedEvent)]
-        [InlineData(EventTypes.PersonUpdatedEvent)]
-        public async Task ProcessMessageAsyncTestIndexPersonSuccess(EventTypes eventType)
+        public async Task ProcessMessageAsyncTestIndexPersonSuccess(string eventType)
         {
             _message.EventType = eventType.ToString();
 
@@ -118,7 +117,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<ESPerson>(y => VerifyPersonIndexed(y))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y))), Times.Once);
         }
     }
 }

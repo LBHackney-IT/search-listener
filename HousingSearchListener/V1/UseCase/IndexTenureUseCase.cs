@@ -1,4 +1,5 @@
 ﻿using HousingSearchListener.V1.Boundary;
+using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
@@ -37,9 +38,22 @@ namespace HousingSearchListener.V1.UseCase
                 throw new EntityNotFoundException<TenureInformation>(message.EntityId);
             }
 
-            // 2. Update the ES index
+            // 2. Get the asset for the tenure from the index
+            // TODO - The asset info should really be retrieved directly from the Asset Api and then a QueryableAsset rebuilt
+            // rather than just getting the current entry in the index.
+            QueryableAsset queryableAsset = await _esGateway.GetAssetById(tenure.TenuredAsset.Id);
+            if (queryableAsset is null) throw new AssetNotIndexedException(tenure.TenuredAsset.Id);
+
+            // 3. Update the ES indexes
             var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
             await _esGateway.IndexTenure(esTenure);
+            await UpdateAssetForTenure(tenure, queryableAsset);
+        }
+
+        private async Task UpdateAssetForTenure(TenureInformation tenure, QueryableAsset queryableAsset)
+        {
+            queryableAsset.Tenure = _esEntityFactory.CreateAssetQueryableTenure(tenure);
+            await _esGateway.IndexAsset(queryableAsset);
         }
     }
 }
