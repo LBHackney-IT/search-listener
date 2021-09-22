@@ -63,13 +63,18 @@ namespace HousingSearchListener.Tests.V1.Factories
             _mockServiceProvider.Verify(x => x.GetService(It.IsAny<Type>()), Times.Never);
         }
 
-        [Theory]
-        [InlineData(EventTypes.PersonCreatedEvent)]
-        [InlineData(EventTypes.PersonUpdatedEvent)]
-        public void CreateUseCaseForMessageTestPersonEvents(string eventType)
+        [Fact]
+        public void CreateUseCaseForMessageTestPersonCreatedEvent()
         {
-            _event = ConstructEvent(eventType);
+            _event = ConstructEvent(EventTypes.PersonCreatedEvent);
             TestMessageProcessingCreation<IIndexCreatePersonUseCase>(_event);
+        }
+
+        [Fact]
+        public void CreateUseCaseForMessageTestPersonUpdatedEvent()
+        {
+            _event = ConstructEvent(EventTypes.PersonUpdatedEvent);
+            TestMessageProcessingCreation<IIndexUpdatePersonUseCase>(_event);
         }
 
         [Theory]

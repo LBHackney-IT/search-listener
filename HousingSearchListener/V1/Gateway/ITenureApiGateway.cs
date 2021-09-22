@@ -6,6 +6,6 @@ namespace HousingSearchListener.V1.Gateway
 {
     public interface ITenureApiGateway
     {
-        Task<TenureInformation> GetTenureByIdAsync(Guid id);
+        Task<TenureInformation> GetTenureByIdAsync(Guid id, Guid correlationId);
     }
 }

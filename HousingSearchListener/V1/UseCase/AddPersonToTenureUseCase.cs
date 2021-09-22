@@ -35,7 +35,7 @@ namespace HousingSearchListener.V1.UseCase
             if (message is null) throw new ArgumentNullException(nameof(message));
 
             // 1. Get Tenure from Tenure service API
-            var tenure = await _tenureApiGateway.GetTenureByIdAsync(message.EntityId)
+            var tenure = await _tenureApiGateway.GetTenureByIdAsync(message.EntityId, message.CorrelationId)
                                                 .ConfigureAwait(false);
             if (tenure is null) throw new EntityNotFoundException<TenureInformation>(message.EntityId);
 
@@ -44,7 +44,7 @@ namespace HousingSearchListener.V1.UseCase
             var personId = Guid.Parse(householdMember.Id);
 
             // 3. Get Added person from Person service API
-            var person = await _personApiGateway.GetPersonByIdAsync(personId)
+            var person = await _personApiGateway.GetPersonByIdAsync(personId, message.CorrelationId)
                                                 .ConfigureAwait(false);
             if (person is null) throw new EntityNotFoundException<Person>(personId);
 

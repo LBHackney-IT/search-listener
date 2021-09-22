@@ -9,6 +9,7 @@ using Moq;
 using Moq.Protected;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -28,6 +29,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         private IConfiguration _configuration;
         private readonly static JsonSerializerOptions _jsonOptions = JsonOptions.CreateJsonOptions();
 
+        private static readonly Guid _correlationId = Guid.NewGuid();
         private const string TenureApiRoute = "https://some-domain.com/api/";
         private const string TenureApiToken = "dksfghjskueygfakseygfaskjgfsdjkgfdkjsgfdkjgf";
 
@@ -54,8 +56,10 @@ namespace HousingSearchListener.Tests.V1.Gateway
 
         private static bool ValidateRequest(string expectedRoute, HttpRequestMessage request)
         {
+            var correlationIdHeader = request.Headers.GetValues("x-correlation-id")?.FirstOrDefault();
             return (request.RequestUri.ToString() == expectedRoute)
-                && (request.Headers.Authorization.ToString() == TenureApiToken);
+                && (request.Headers.Authorization.ToString() == TenureApiToken)
+                && (correlationIdHeader == _correlationId.ToString());
         }
 
         private void SetupHttpClientResponse(string route, TenureInformation response)
@@ -140,7 +144,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             SetupHttpClientException(Route(id), new Exception(exMessage));
 
             Func<Task<TenureInformation>> func =
-                async () => await _sut.GetTenureByIdAsync(id).ConfigureAwait(false);
+                async () => await _sut.GetTenureByIdAsync(id, _correlationId).ConfigureAwait(false);
 
             func.Should().ThrowAsync<Exception>().WithMessage(exMessage);
         }
@@ -153,7 +157,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             SetupHttpClientErrorResponse(Route(id), error);
 
             Func<Task<TenureInformation>> func =
-                async () => await _sut.GetTenureByIdAsync(id).ConfigureAwait(false);
+                async () => await _sut.GetTenureByIdAsync(id, _correlationId).ConfigureAwait(false);
 
             func.Should().ThrowAsync<GetTenureException>()
                          .WithMessage($"Failed to get tenure details for id {id}. " +
@@ -166,7 +170,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             var id = Guid.NewGuid();
             SetupHttpClientResponse(Route(id), null);
 
-            var result = await _sut.GetTenureByIdAsync(id).ConfigureAwait(false);
+            var result = await _sut.GetTenureByIdAsync(id, _correlationId).ConfigureAwait(false);
 
             result.Should().BeNull();
         }
@@ -178,7 +182,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             var tenure = new Fixture().Create<TenureInformation>();
             SetupHttpClientResponse(Route(id), tenure);
 
-            var result = await _sut.GetTenureByIdAsync(id).ConfigureAwait(false);
+            var result = await _sut.GetTenureByIdAsync(id, _correlationId).ConfigureAwait(false);
 
             result.Should().BeEquivalentTo(tenure);
         }

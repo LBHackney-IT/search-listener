@@ -65,12 +65,19 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 
         public TenureInformation GivenTheTenureExists(Guid id)
         {
+            return GivenTheTenureExists(id, null);
+        }
+        public TenureInformation GivenTheTenureExists(Guid id, Guid? personId)
+        {
             ResponseObject = _fixture.Build<TenureInformation>()
                                      .With(x => x.Id, id.ToString())
                                      .With(x => x.StartOfTenureDate, DateTime.UtcNow.AddMonths(-6).ToString(DateFormat))
                                      .With(x => x.EndOfTenureDate, DateTime.UtcNow.AddYears(6).ToString(DateFormat))
                                      .With(x => x.HouseholdMembers, CreateHouseholdMembers())
                                      .Create();
+
+            if (personId.HasValue)
+                ResponseObject.HouseholdMembers.First().Id = personId.ToString();
 
             CreateMessageEventData(ResponseObject.HouseholdMembers);
             return ResponseObject;

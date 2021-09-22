@@ -25,6 +25,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         private readonly Fixture _fixture = new Fixture();
         private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
         private Exception _lastException;
+        protected readonly Guid _correlationId = Guid.NewGuid();
 
         public AddPersonToTenureSteps()
         { }
@@ -35,6 +36,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                     .With(x => x.EntityId, personId)
                                     .With(x => x.EventType, eventType)
                                     .With(x => x.EventData, eventData)
+                                    .With(x => x.CorrelationId, _correlationId)
                                     .Create();
 
             var msgBody = JsonSerializer.Serialize(personSns, _jsonOptions);
@@ -64,6 +66,11 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             };
 
             _lastException = await Record.ExceptionAsync(func);
+        }
+
+        public void ThenTheCorrelationIdWasUsedInTheApiCall(string receivedCorrelationId)
+        {
+            receivedCorrelationId.Should().Be(_correlationId.ToString());
         }
 
         public void ThenAPersonNotFoundExceptionIsThrown(Guid id)
