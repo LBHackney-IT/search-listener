@@ -55,7 +55,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             MessageHandlerFactory messageHandlerFactory = ServiceProvider.GetService<MessageHandlerFactory>();
             var values = Enum.GetValues(typeof(EventTypes)).Cast<EventTypes>();
 
-            foreach(var eventType in values)
+            foreach (var eventType in values)
             {
                 try
                 {
