@@ -6,6 +6,6 @@ namespace HousingSearchListener.V1.Gateway
 {
     public interface IPersonApiGateway
     {
-        Task<Person> GetPersonByIdAsync(Guid id);
+        Task<Person> GetPersonByIdAsync(Guid id, Guid correlationId);
     }
 }

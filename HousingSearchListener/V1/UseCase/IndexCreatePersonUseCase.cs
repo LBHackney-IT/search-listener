@@ -30,7 +30,7 @@ namespace HousingSearchListener.V1.UseCase
             if (message is null) throw new ArgumentNullException(nameof(message));
 
             // 1. Get Person from Person service API
-            var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId)
+            var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId, message.CorrelationId)
                                          .ConfigureAwait(false);
             if (person is null) throw new EntityNotFoundException<Person>(message.EntityId);
 

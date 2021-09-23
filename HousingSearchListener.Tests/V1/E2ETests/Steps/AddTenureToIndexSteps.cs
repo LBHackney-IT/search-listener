@@ -25,6 +25,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         private readonly Fixture _fixture = new Fixture();
         private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
         private Exception _lastException;
+        protected readonly Guid _correlationId = Guid.NewGuid();
 
         public AddTenureToIndexSteps()
         { }
@@ -34,6 +35,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             var tenureSns = _fixture.Build<EntityEventSns>()
                                     .With(x => x.EntityId, tenureId)
                                     .With(x => x.EventType, eventType)
+                                    .With(x => x.CorrelationId, _correlationId)
                                     .Create();
 
             var msgBody = JsonSerializer.Serialize(tenureSns, _jsonOptions);
@@ -62,6 +64,11 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             };
 
             _lastException = await Record.ExceptionAsync(func);
+        }
+
+        public void ThenTheCorrelationIdWasUsedInTheApiCall(string receivedCorrelationId)
+        {
+            receivedCorrelationId.Should().Be(_correlationId.ToString());
         }
 
         public void ThenAnAssetNotIndexedExceptionIsThrown(string id)
