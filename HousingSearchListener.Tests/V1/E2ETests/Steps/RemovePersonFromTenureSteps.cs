@@ -126,8 +126,12 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                        .ConfigureAwait(false);
 
             var personInIndex = result.Source;
-            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person), c => c.Excluding(y => y.Tenures));
+            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person), 
+                                                  c => c.Excluding(y => y.Tenures).Excluding(z => z.PersonTypes));
+            personInIndex.Tenures.Should().HaveCount(person.Tenures.Count - 1);
             personInIndex.Tenures.Should().NotContain(x => x.Id == tenureId.ToString());
+            personInIndex.PersonTypes.Should().HaveCount(person.PersonType.Count - 1);
+            personInIndex.PersonTypes.Should().NotContain("Freeholder");
         }
     }
 }

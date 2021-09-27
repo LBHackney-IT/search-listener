@@ -25,7 +25,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             _esFixture = esFixture;
             _personApiFixture = new PersonApiFixture();
             _tenureApiFixture = new TenureApiFixture();
-
             _steps = new RemovePersonFromTenureSteps();
         }
 
@@ -81,6 +80,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureApiFixture.GivenTheTenureExists(tenureId))
                 .And(g => _tenureApiFixture.GivenAPersonWasRemoved(removedPersonId))
                 .And(g => _personApiFixture.GivenThePersonExistsWithTenure(removedPersonId, tenureId))
+                .And(g => _esFixture.GivenTheOtherPersonTenuresExist(_personApiFixture.ResponseObject, tenureId))
                 .When(w => _steps.WhenTheFunctionIsTriggered(tenureId, _tenureApiFixture.MessageEventData, EventTypes.PersonRemovedFromTenureEvent))
                 .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationId))
                 .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationId))

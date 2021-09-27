@@ -1,4 +1,5 @@
 ﻿using HousingSearchListener.V1.Boundary;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -52,9 +53,27 @@ namespace HousingSearchListener.V1.UseCase
             if (person.Tenures.Any(x => x.Id == tenure.Id))
                 person.Tenures.Remove(person.Tenures.First(x => x.Id == tenure.Id));
 
-            // 5. Update the indexes
-            await UpdateTenureIndexAsync(tenure);
-            await UpdatePersonIndexAsync(person);
+            // 5. Update the person.PersonType list if necessary
+            UpdatePersonType(person);
+
+            // 6. Update the indexes
+            await UpdateTenureIndexAsync(tenure).ConfigureAwait(false);
+            await UpdatePersonIndexAsync(person).ConfigureAwait(false);
+        }
+
+        private void UpdatePersonType(Person person)
+        {
+            var getTenureFromIndexTasks = person.Tenures.Select(x => _esGateway.GetTenureById(x.Id)).ToArray();
+            Task.WaitAll(getTenureFromIndexTasks);
+
+            var personTypes = getTenureFromIndexTasks.Select(x => GetPersonTypeForTenure(x.Result, person.Id)).ToList();
+            person.PersonType = personTypes;
+        }
+
+        private string GetPersonTypeForTenure(QueryableTenure tenure, string personId)
+        {
+            var hm = tenure.HouseholdMembers.First(x => x.Id == personId);
+            return TenureTypes.GetPersonTenureType(tenure.TenureType.Code, hm.IsResponsible);
         }
 
         private async Task UpdateTenureIndexAsync(TenureInformation tenure)

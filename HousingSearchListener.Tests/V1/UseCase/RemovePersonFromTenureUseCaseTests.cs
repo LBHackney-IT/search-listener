@@ -75,6 +75,44 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
+        private QueryableTenureType ToQueryable(TenureType tt)
+        {
+            return new QueryableTenureType { Code = tt.Code, Description = tt.Description };
+        }
+
+        private QueryableTenure CreateQueryableTenureForPerson(string tenureId, string personId, string personType)
+        {
+            QueryableTenureType tt;
+            bool isResponsible;
+            switch (personType)
+            {
+                case "HouseholderMember":
+                    tt = ToQueryable(TenureTypes.Secure);
+                    isResponsible = false;
+                    break;
+                case "Freeholder":
+                    tt = ToQueryable(TenureTypes.Freehold);
+                    isResponsible = true;
+                    break;
+                default:
+                    tt = ToQueryable(TenureTypes.Secure);
+                    isResponsible = true;
+                    break;
+            }
+            var hms = _fixture.Build<QueryableHouseholdMember>()
+                              .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-40).ToString(DateFormat))
+                              .With(x => x.PersonTenureType, personType)
+                              .With(x => x.IsResponsible, isResponsible)
+                              .CreateMany(3).ToList();
+            hms.Last().Id = personId;
+
+            return _fixture.Build<QueryableTenure>()
+                           .With(x => x.Id, tenureId)
+                           .With(x => x.TenureType, tt)
+                           .With(x => x.HouseholdMembers, hms)
+                           .Create();
+        }
+
         private Person CreatePerson(Guid? entityId, bool hasThisTenure = true)
         {
             if (!entityId.HasValue) return null;
@@ -82,11 +120,23 @@ namespace HousingSearchListener.Tests.V1.UseCase
             var tenures = _fixture.CreateMany<Tenure>(3).ToList();
             if (hasThisTenure)
                 tenures.Last().Id = _tenure.Id;
-            return _fixture.Build<Person>()
+            var personTypes = new List<string> { "Tenant", "HouseholderMember", "Freeholder" };
+            var person =  _fixture.Build<Person>()
                            .With(x => x.Id, entityId.ToString())
                            .With(x => x.Tenures, tenures)
+                           .With(x => x.PersonType, personTypes)
                            .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ"))
                            .Create();
+            
+            for (int i = 0; i < tenures.Count; i++)
+            {
+                var personTenure = tenures[i];
+                var personType = personTypes[i];
+                var t = CreateQueryableTenureForPerson(personTenure.Id, person.Id, personType);
+                _mockEsGateway.Setup(x => x.GetTenureById(personTenure.Id)).ReturnsAsync(t);
+            }
+
+            return person;
         }
 
         private Guid SetMessageEventData(TenureInformation tenure, EntityEventSns message)
@@ -109,10 +159,13 @@ namespace HousingSearchListener.Tests.V1.UseCase
             return personId;
         }
 
-        private bool VerifyPersonIndexed(QueryablePerson esPerson, Person person)
+        private bool VerifyPersonIndexed(QueryablePerson esPerson, Person startingPerson)
         {
-            esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(person), c => c.Excluding(y => y.Tenures));
+            esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(startingPerson), 
+                                             c => c.Excluding(y => y.Tenures).Excluding(y => y.PersonTypes));
             esPerson.Tenures.Should().NotContain(x => x.Id == _tenure.Id);
+            esPerson.PersonTypes.Should().HaveCount(2);
+            esPerson.PersonTypes.Should().NotContain("Freeholder");
             return true;
         }
 
@@ -220,13 +273,15 @@ namespace HousingSearchListener.Tests.V1.UseCase
             var personId = SetMessageEventData(_tenure, _message);
 
             var person = CreatePerson(personId);
+            var startingPerson = person.DeepClone();
             _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId, _message.CorrelationId))
                                        .ReturnsAsync(person);
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
+            _mockEsGateway.Verify(x => x.GetTenureById(It.IsAny<string>()), Times.Exactly(startingPerson.Tenures.Count - 1));
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, startingPerson))), Times.Once);
         }
     }
 }

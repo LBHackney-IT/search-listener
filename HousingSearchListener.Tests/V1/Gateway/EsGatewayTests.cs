@@ -239,5 +239,31 @@ namespace HousingSearchListener.Tests.V1.Gateway
             _cleanup.Add(async () => await _testFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("assets", asset.Id))
                                                                            .ConfigureAwait(false));
         }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void GetTenureByIdTestInvalidInputThrows(string id)
+        {
+            Func<Task<QueryableTenure>> func = async () => await _sut.GetTenureById(id).ConfigureAwait(false);
+            func.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task GetTenureByIdTestCallsEsClient()
+        {
+            var sut = new EsGateway(_testFixture.ElasticSearchClient, _mockLogger.Object);
+            var tenure = CreateQueryableTenure();
+            var request = new IndexRequest<QueryableTenure>(tenure, "tenures");
+            await _testFixture.ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+
+            var response = await sut.GetTenureById(tenure.Id).ConfigureAwait(false);
+
+            response.Should().NotBeNull();
+            response.Should().BeEquivalentTo(tenure);
+
+            _cleanup.Add(async () => await _testFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("tenures", tenure.Id))
+                                                                           .ConfigureAwait(false));
+        }
     }
 }

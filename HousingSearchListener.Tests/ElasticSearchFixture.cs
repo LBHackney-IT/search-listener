@@ -40,6 +40,7 @@ namespace HousingSearchListener.Tests
         };
 
         public QueryableAsset AssetInIndex { get; private set; }
+        private const string DateFormat = "yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ";
 
         public ElasticSearchFixture()
         {
@@ -176,6 +177,57 @@ namespace HousingSearchListener.Tests
             var request = new IndexRequest<QueryableAsset>(esAsset, IndexNameAssets);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
             AssetInIndex = esAsset;
+        }
+
+        public async Task GivenTheOtherPersonTenuresExist(Person person, Guid tenureId)
+        {
+            for (int i = 0; i < person.Tenures.Count; i++)
+            {
+                var personTenure = person.Tenures[i];
+                var personType = person.PersonType[i];
+                var esTenure = CreateQueryableTenureForPerson(personTenure.Id, person.Id, personType);
+             
+                var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
+                await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+            }
+        }
+
+        private QueryableTenureType ToQueryable(TenureType tt)
+        {
+            return new QueryableTenureType { Code = tt.Code, Description = tt.Description };
+        }
+
+        private QueryableTenure CreateQueryableTenureForPerson(string tenureId, string personId, string personType)
+        {
+            QueryableTenureType tt;
+            bool isResponsible;
+            switch (personType)
+            {
+                case "HouseholderMember":
+                    tt = ToQueryable(TenureTypes.Secure);
+                    isResponsible = false;
+                    break;
+                case "Freeholder":
+                    tt = ToQueryable(TenureTypes.Freehold);
+                    isResponsible = true;
+                    break;
+                default:
+                    tt = ToQueryable(TenureTypes.Secure);
+                    isResponsible = true;
+                    break;
+            }
+            var hms = _fixture.Build<QueryableHouseholdMember>()
+                              .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-40).ToString(DateFormat))
+                              .With(x => x.PersonTenureType, personType)
+                              .With(x => x.IsResponsible, isResponsible)
+                              .CreateMany(3).ToList();
+            hms.Last().Id = personId;
+
+            return _fixture.Build<QueryableTenure>()
+                           .With(x => x.Id, tenureId)
+                           .With(x => x.TenureType, tt)
+                           .With(x => x.HouseholdMembers, hms)
+                           .Create();
         }
     }
 
