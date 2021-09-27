@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase
 {
-    public class IndexTenureUseCase : IMessageProcessing
+    public class IndexTenureUseCase : IIndexTenureUseCase
     {
         private readonly IEsGateway _esGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
@@ -26,17 +26,12 @@ namespace HousingSearchListener.V1.UseCase
 
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
-            if (message is null)
-            {
-                throw new ArgumentNullException(nameof(message));
-            }
+            if (message is null) throw new ArgumentNullException(nameof(message));
 
             // 1. Get Tenure from Tenure service API
-            var tenure = await _tenureApiGateway.GetTenureByIdAsync(message.EntityId).ConfigureAwait(false);
-            if (tenure is null)
-            {
-                throw new EntityNotFoundException<TenureInformation>(message.EntityId);
-            }
+            var tenure = await _tenureApiGateway.GetTenureByIdAsync(message.EntityId, message.CorrelationId)
+                                         .ConfigureAwait(false);
+            if (tenure is null) throw new EntityNotFoundException<TenureInformation>(message.EntityId);
 
             // 2. Get the asset for the tenure from the index
             // TODO - The asset info should really be retrieved directly from the Asset Api and then a QueryableAsset rebuilt

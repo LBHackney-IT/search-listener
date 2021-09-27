@@ -33,7 +33,6 @@ namespace HousingSearchListener.V1.Gateway
             }
 
             _accountApiToken = configuration.GetValue<string>(AccountApiKey);
-
             if (string.IsNullOrEmpty(_accountApiToken))
             {
                 throw new ArgumentException($"Configuration does not contain a setting value for the key {AccountApiKey}.");
@@ -41,14 +40,15 @@ namespace HousingSearchListener.V1.Gateway
         }
 
         [LogCall]
-        public async Task<Account> GetAccountByIdAsync(Guid id)
+        public async Task<Account> GetAccountByIdAsync(Guid id, Guid correlationId)
         {
             var client = _httpClientFactory.CreateClient();
-            var getAccountRoute = $"{_accountApiRoute}/accounts/{id}";
+            var getAccountRoute = $"{_accountApiRoute}/residents/{id}";
 
+            client.DefaultRequestHeaders.Add("x-correlation-id", correlationId.ToString());
             client.DefaultRequestHeaders.Add(ApiTokenHeaderName, _accountApiToken);
-
-            var response = await RetryService.DoAsync(client.GetAsync(new Uri(getAccountRoute)), maxAttemptCount: 5, delay: TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri(getAccountRoute))
+                                       .ConfigureAwait(false);
 
             if (response.StatusCode is HttpStatusCode.NotFound)
             {

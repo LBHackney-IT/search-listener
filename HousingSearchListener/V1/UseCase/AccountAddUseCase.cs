@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase
 {
-    public class AccountAddUseCase : IMessageProcessing
+    public class AccountAddUseCase : IAccountAddUseCase
     {
         private readonly IEsGateway _esGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
@@ -40,13 +40,13 @@ namespace HousingSearchListener.V1.UseCase
                 throw new ArgumentNullException(nameof(message));
             }
 
-            var account = await _accountApiGateway.GetAccountByIdAsync(message.EntityId).ConfigureAwait(false);
+            var account = await _accountApiGateway.GetAccountByIdAsync(message.EntityId, message.CorrelationId).ConfigureAwait(false);
             if (account is null)
             {
                 throw new EntityNotFoundException<Account>(message.EntityId);
             }
 
-            var tenure = await _tenureApiGateway.GetTenureByIdAsync(account.TargetId).ConfigureAwait(false);
+            var tenure = await _tenureApiGateway.GetTenureByIdAsync(account.TargetId, message.CorrelationId).ConfigureAwait(false);
             if (tenure is null)
             {
                 throw new EntityNotFoundException<TenureInformation>(account.TargetId);
@@ -68,13 +68,13 @@ namespace HousingSearchListener.V1.UseCase
                     throw new FormatException(nameof(personId));
                 }
 
-                var personModel = await _personApiGateway.GetPersonByIdAsync(personId).ConfigureAwait(false);
+                var personModel = await _personApiGateway.GetPersonByIdAsync(personId, message.CorrelationId).ConfigureAwait(false);
                 if (personModel is null)
                 {
                     throw new EntityNotFoundException<Person>(personId);
                 }
 
-                var esTenure = _esEntityFactory.CreateTenure(tenure);
+                var esTenure = _esEntityFactory.CreateQueryablePersonTenure(tenure);
                 var esPerson = _esEntityFactory.CreatePerson(personModel);
 
                 _ = await _esGateway.AddTenureToPersonAsync(esPerson, esTenure).ConfigureAwait(false);

@@ -1,3 +1,4 @@
+using HousingSearchListener.V1.Domain.ElasticSearch;
 using HousingSearchListener.V1.Domain.ElasticSearch.Person;
 using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
@@ -14,23 +15,31 @@ namespace HousingSearchListener.V1.Factories
         {
             return tenures.Select(x => new QueryablePersonTenure
             {
-                IdentificationType = x.IdentificationType,
-                IsOriginalDocumentSeen = x.IsOriginalDocumentSeen,
-                LinkToDocument = x.LinkToDocument,
-                Value = x.Value
-            }).ToList();
-        }
-
-        private List<ESPersonTenure> CreateTenures(List<Tenure> tenures)
-        {
-            return tenures.Select(x => new ESPersonTenure
-            {
                 AssetFullAddress = x.AssetFullAddress,
                 EndDate = x.EndDate,
                 Id = x.Id,
                 StartDate = x.StartDate,
                 Type = x.Type
             }).ToList();
+        }
+
+        public QueryablePersonTenure CreateQueryablePersonTenure(TenureInformation tenure)
+        {
+            if (tenure is null)
+            {
+                throw new ArgumentNullException(nameof(tenure));
+            }
+
+            return new QueryablePersonTenure
+            {
+                Id = tenure.Id,
+                Type = tenure.TenureType.Code,
+                TotalBalance = (decimal)tenure.TotalBalance,
+                StartDate = tenure.StartOfTenureDate,
+                EndDate = tenure.EndOfTenureDate,
+                AssetFullAddress = tenure.TenuredAsset.FullAddress,
+                PaymentReference = tenure.PaymentReference
+            };
         }
 
         public QueryablePerson CreatePerson(Person person)
@@ -40,7 +49,7 @@ namespace HousingSearchListener.V1.Factories
                 throw new ArgumentNullException(nameof(person));
             }
 
-            return new ESPerson
+            return new QueryablePerson
             {
                 Id = person.Id,
                 DateOfBirth = person.DateOfBirth,
@@ -52,7 +61,7 @@ namespace HousingSearchListener.V1.Factories
                 PreferredFirstname = person.PreferredFirstName,
                 PreferredSurname = person.PreferredSurname,
                 PersonTypes = person.PersonType,
-                Tenures = person.Tenures != null ? CreateTenures(person.Tenures) : new List<ESPersonTenure>()
+                Tenures = person.Tenures != null ? CreatePersonTenures(person.Tenures) : new List<QueryablePersonTenure>()
             };
         }
 
@@ -104,7 +113,7 @@ namespace HousingSearchListener.V1.Factories
             };
         }
 
-        private List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers)
+        public List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers)
         {
             if (householdMembers is null)
             {

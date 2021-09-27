@@ -6,6 +6,6 @@ namespace HousingSearchListener.V1.Gateway
 {
     public interface IAccountApiGateway
     {
-        Task<Account> GetAccountByIdAsync(Guid id);
+        Task<Account> GetAccountByIdAsync(Guid id, Guid correlationId);
     }
 }

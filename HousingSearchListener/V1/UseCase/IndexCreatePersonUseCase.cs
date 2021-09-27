@@ -27,17 +27,12 @@ namespace HousingSearchListener.V1.UseCase
         [LogCall]
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
-            if (message is null)
-            {
-                throw new ArgumentNullException(nameof(message));
-            }
+            if (message is null) throw new ArgumentNullException(nameof(message));
 
             // 1. Get Person from Person service API
-            var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId).ConfigureAwait(false);
-            if (person is null)
-            {
-                throw new EntityNotFoundException<Person>(message.EntityId);
-            }
+            var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId, message.CorrelationId)
+                                         .ConfigureAwait(false);
+            if (person is null) throw new EntityNotFoundException<Person>(message.EntityId);
 
             // 2. Update the ES index
             var esPerson = _esPersonFactory.CreatePerson(person);

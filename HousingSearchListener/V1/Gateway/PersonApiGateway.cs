@@ -27,37 +27,30 @@ namespace HousingSearchListener.V1.Gateway
             _httpClientFactory = httpClientFactory;
             _getPersonApiRoute = configuration.GetValue<string>(PersonApiUrl)?.TrimEnd('/');
             if (string.IsNullOrEmpty(_getPersonApiRoute) || !Uri.IsWellFormedUriString(_getPersonApiRoute, UriKind.Absolute))
-            {
                 throw new ArgumentException($"Configuration does not contain a setting value for the key {PersonApiUrl}.");
-            }
 
             _getPersonApiToken = configuration.GetValue<string>(PersonApiToken);
             if (string.IsNullOrEmpty(_getPersonApiToken))
-            {
                 throw new ArgumentException($"Configuration does not contain a setting value for the key {PersonApiToken}.");
-            }
         }
 
         [LogCall]
-        public async Task<Person> GetPersonByIdAsync(Guid id)
+        public async Task<Person> GetPersonByIdAsync(Guid id, Guid correlationId)
         {
             var client = _httpClientFactory.CreateClient();
             var getPersonRoute = $"{_getPersonApiRoute}/persons/{id}";
 
+            client.DefaultRequestHeaders.Add("x-correlation-id", correlationId.ToString());
             client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(_getPersonApiToken);
-
-            var response = await RetryService.DoAsync(client.GetAsync(new Uri(getPersonRoute)), maxAttemptCount: 5, delay: TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+            var response = await client.GetAsync(new Uri(getPersonRoute))
+                                       .ConfigureAwait(false);
 
             if (response.StatusCode is HttpStatusCode.NotFound)
-            {
                 return null;
-            }
 
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
-            {
                 return JsonSerializer.Deserialize<Person>(responseBody, _jsonOptions);
-            }
 
             throw new GetPersonException(id, response.StatusCode, responseBody);
         }

@@ -8,7 +8,6 @@ namespace HousingSearchListener.V1.Factories
 {
     public static class UseCaseFactory
     {
-        [LogCall]
         public static IMessageProcessing CreateUseCaseForMessage(this EntityEventSns entityEvent, IServiceProvider serviceProvider)
         {
             if (entityEvent is null) throw new ArgumentNullException(nameof(entityEvent));
@@ -38,7 +37,11 @@ namespace HousingSearchListener.V1.Factories
                         processor = serviceProvider.GetService<IAddPersonToTenureUseCase>();
                         break;
                     }
-
+                case EventTypes.AccountCreatedEvent:
+                    {
+                        processor = serviceProvider.GetService<IAccountAddUseCase>();
+                        break;
+                    }
                 default:
                     throw new ArgumentException($"Unknown event type: {entityEvent.EventType}");
             }

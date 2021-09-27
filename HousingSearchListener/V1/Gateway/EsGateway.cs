@@ -1,9 +1,8 @@
 ﻿using Hackney.Core.Logging;
 using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
 using HousingSearchListener.V1.Domain.ElasticSearch.Person;
-using Microsoft.Extensions.Logging;
-using HousingSearchListener.V1.Domain.ElasticSearch;
 using HousingSearchListener.V1.Domain.Person;
+using Microsoft.Extensions.Logging;
 using Nest;
 using System;
 using System.Linq;
@@ -63,7 +62,7 @@ namespace HousingSearchListener.V1.Gateway
         /// <param name="esTenure"></param>
         /// <returns></returns>
         [LogCall]
-        public async Task<UpdateResponse<Person>> AddTenureToPersonAsync(ESPerson esPerson, ESPersonTenure esTenure)
+        public async Task<UpdateResponse<QueryablePerson>> AddTenureToPersonAsync(QueryablePerson esPerson, QueryablePersonTenure esTenure)
         {
             if (esPerson is null)
             {
@@ -82,7 +81,9 @@ namespace HousingSearchListener.V1.Gateway
 
             esPerson.Tenures.Add(esTenure);
 
-            return await _elasticClient.UpdateAsync<Person, object>(esPerson.Id, descriptor => descriptor
+            _logger.LogDebug($"Updating '{IndexNamePersons}' index for person id {esPerson.Id}");
+
+            return await _elasticClient.UpdateAsync<QueryablePerson, object>(esPerson.Id, descriptor => descriptor
                 .Index(IndexNamePersons)
                 .Doc(new { tenures = esPerson.Tenures })
                 .DocAsUpsert(true));

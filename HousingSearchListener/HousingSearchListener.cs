@@ -45,14 +45,11 @@ namespace HousingSearchListener
 
             services.ConfigureElasticSearch(Configuration);
 
+            services.AddScoped<IAccountAddUseCase, AccountAddUseCase>();
             services.AddScoped<IIndexCreatePersonUseCase, IndexCreatePersonUseCase>();
             services.AddScoped<IIndexUpdatePersonUseCase, IndexUpdatePersonUseCase>();
             services.AddScoped<IIndexTenureUseCase, IndexTenureUseCase>();
             services.AddScoped<IAddPersonToTenureUseCase, AddPersonToTenureUseCase>();
-
-            services.AddScoped<IndexPersonUseCase>();
-            services.AddScoped<IndexTenureUseCase>();
-            services.AddScoped<AccountAddUseCase>();
 
             base.ConfigureServices(services);
         }
