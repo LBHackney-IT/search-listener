@@ -86,12 +86,18 @@ namespace HousingSearchListener.Tests.V1.Factories
             TestMessageProcessingCreation<IIndexTenureUseCase>(_event);
         }
 
-        [Theory]
-        [InlineData(EventTypes.PersonAddedToTenureEvent)]
-        public void CreateUseCaseForMessageTestPersonTenureEvents(string eventType)
+        [Fact]
+        public void CreateUseCaseForMessageTestAddPersonToTenureEvent()
         {
-            _event = ConstructEvent(eventType);
+            _event = ConstructEvent(EventTypes.PersonAddedToTenureEvent);
             TestMessageProcessingCreation<IAddPersonToTenureUseCase>(_event);
+        }
+
+        [Fact]
+        public void CreateUseCaseForMessageTestPersonRemovedFromTenureEvent()
+        {
+            _event = ConstructEvent(EventTypes.PersonRemovedFromTenureEvent);
+            TestMessageProcessingCreation<IRemovePersonFromTenureUseCase>(_event);
         }
     }
 }

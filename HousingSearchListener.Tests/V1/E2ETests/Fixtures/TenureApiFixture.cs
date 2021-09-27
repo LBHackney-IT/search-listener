@@ -14,6 +14,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 
         public EventData MessageEventData { get; private set; }
         public Guid AddedPersonId { get; private set; }
+        public Guid RemovedPersonId { get; private set; }
 
         public TenureApiFixture()
         {
@@ -42,7 +43,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
                            .CreateMany(count).ToList();
         }
 
-        private void CreateMessageEventData(List<HouseholdMembers> hms = null)
+        private void CreateMessageEventDataForPersonAdded(List<HouseholdMembers> hms = null)
         {
             var oldData = hms ?? CreateHouseholdMembers();
             var newData = oldData.DeepClone();
@@ -58,9 +59,31 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
             };
         }
 
+        private void CreateMessageEventDataForPersonRemoved(Guid id)
+        {
+            var oldData = CreateHouseholdMembers();
+            var newData = oldData.DeepClone();
+
+            var removedHm = CreateHouseholdMembers(1).First();
+            removedHm.Id = id.ToString();
+            oldData.Add(removedHm);
+            RemovedPersonId = id;
+
+            MessageEventData = new EventData()
+            {
+                OldData = new Dictionary<string, object> { { "householdMembers", oldData } },
+                NewData = new Dictionary<string, object> { { "householdMembers", newData } }
+            };
+        }
+
         public void GivenTheTenureDoesNotExist(Guid id)
         {
-            CreateMessageEventData();
+            CreateMessageEventDataForPersonAdded();
+        }
+
+        public void GivenAPersonWasRemoved(Guid id)
+        {
+            CreateMessageEventDataForPersonRemoved(id);
         }
 
         public TenureInformation GivenTheTenureExists(Guid id)
@@ -79,7 +102,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
             if (personId.HasValue)
                 ResponseObject.HouseholdMembers.First().Id = personId.ToString();
 
-            CreateMessageEventData(ResponseObject.HouseholdMembers);
+            CreateMessageEventDataForPersonAdded(ResponseObject.HouseholdMembers);
             return ResponseObject;
         }
     }

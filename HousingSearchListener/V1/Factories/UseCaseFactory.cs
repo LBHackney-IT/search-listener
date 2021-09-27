@@ -41,6 +41,12 @@ namespace HousingSearchListener.V1.Factories
                         processor = serviceProvider.GetService<IAccountAddUseCase>();
                         break;
                     }
+                case EventTypes.PersonRemovedFromTenureEvent:
+                    {
+                        processor = serviceProvider.GetService<IRemovePersonFromTenureUseCase>();
+                        break;
+                    }
+
                 default:
                     throw new ArgumentException($"Unknown event type: {entityEvent.EventType}");
             }

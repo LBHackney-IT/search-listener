@@ -15,6 +15,8 @@ namespace HousingSearchListener.V1.Gateway
 
         Task<QueryableAsset> GetAssetById(string id);
 
+        Task<Domain.ElasticSearch.Tenure.QueryableTenure> GetTenureById(string id);
+
         Task<UpdateResponse<QueryablePerson>> AddTenureToPersonAsync(QueryablePerson esPerson, QueryablePersonTenure esTenure);
     }
 }
