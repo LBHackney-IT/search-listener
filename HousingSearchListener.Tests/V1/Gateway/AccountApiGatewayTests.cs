@@ -9,6 +9,7 @@ using Moq;
 using Moq.Protected;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -28,8 +29,9 @@ namespace HousingSearchListener.Tests.V1.Gateway
         private IConfiguration _configuration;
         private readonly static JsonSerializerOptions _jsonOptions = JsonOptions.CreateJsonOptions();
 
+        private static readonly Guid _correlationId = Guid.NewGuid();
         private const string AccountApiRoute = "https://some-domain.com/api/";
-        private const string AccountApiToken = "dksfghjskueygfakseygfaskjgfsdjkgfdkjsgfdkjgf";
+        private const string AccountApiKey = "dksfghjskueygfakseygfaskjgfsdjkgfdkjsgfdkjgf";
 
         public AccountApiGatewayTests()
         {
@@ -41,7 +43,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
 
             var inMemorySettings = new Dictionary<string, string> {
                 { "AccountApiUrl", AccountApiRoute },
-                { "AccountApiToken", AccountApiToken }
+                { "AccountApiKey", AccountApiKey }
             };
             _configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
@@ -54,8 +56,11 @@ namespace HousingSearchListener.Tests.V1.Gateway
 
         private static bool ValidateRequest(string expectedRoute, HttpRequestMessage request)
         {
+            var correlationIdHeader = request.Headers.GetValues("x-correlation-id")?.FirstOrDefault();
+            var apiKey = request.Headers.GetValues("x-api-key")?.FirstOrDefault();
             return (request.RequestUri.ToString() == expectedRoute)
-                && (request.Headers.Authorization.ToString() == AccountApiToken);
+                && (apiKey == AccountApiKey)
+                && (correlationIdHeader == _correlationId.ToString());
         }
 
         private void SetupHttpClientResponse(string route, Account response)
@@ -105,13 +110,13 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public void ConstructorTestInvalidRouteConfigThrows(string invalidValue)
         {
             var inMemorySettings = new Dictionary<string, string> {
-                { "PersonApiUrl", invalidValue }
+                { "AccountApiUrl", invalidValue }
             };
             _configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
 
-            Action act = () => _ = new PersonApiGateway(_mockHttpClientFactory.Object, _configuration);
+            Action act = () => _ = new AccountApiGateway(_mockHttpClientFactory.Object, _configuration);
             act.Should().Throw<ArgumentException>();
         }
 
@@ -121,14 +126,14 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public void ConstructorTestInvalidTokenConfigThrows(string invalidValue)
         {
             var inMemorySettings = new Dictionary<string, string> {
-                { "TenureApiUrl", AccountApiRoute },
-                { "TenureApiToken", invalidValue }
+                { "AccountApiUrl", AccountApiRoute },
+                { "AccountApiKey", invalidValue }
             };
             _configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
 
-            Action act = () => _ = new TenureApiGateway(_mockHttpClientFactory.Object, _configuration);
+            Action act = () => _ = new AccountApiGateway(_mockHttpClientFactory.Object, _configuration);
             act.Should().Throw<ArgumentException>();
         }
 
@@ -140,7 +145,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             SetupHttpClientException(Route(id), new Exception(exMessage));
 
             Func<Task<Account>> func =
-                async () => await _sut.GetAccountByIdAsync(id).ConfigureAwait(false);
+                async () => await _sut.GetAccountByIdAsync(id, _correlationId).ConfigureAwait(false);
 
             func.Should().ThrowAsync<Exception>().WithMessage(exMessage);
         }
@@ -153,10 +158,10 @@ namespace HousingSearchListener.Tests.V1.Gateway
             SetupHttpClientErrorResponse(Route(id), error);
 
             Func<Task<Account>> func =
-                async () => await _sut.GetAccountByIdAsync(id).ConfigureAwait(false);
+                async () => await _sut.GetAccountByIdAsync(id, _correlationId).ConfigureAwait(false);
 
             func.Should().ThrowAsync<GetAccountException>()
-                         .WithMessage($"Failed to get person details for id {id}. " +
+                         .WithMessage($"Failed to get account details for id {id}. " +
                          $"Status code: {HttpStatusCode.InternalServerError}; Message: {error}");
         }
 
@@ -166,7 +171,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             var id = Guid.NewGuid();
             SetupHttpClientResponse(Route(id), null);
 
-            var result = await _sut.GetAccountByIdAsync(id).ConfigureAwait(false);
+            var result = await _sut.GetAccountByIdAsync(id, _correlationId).ConfigureAwait(false);
 
             result.Should().BeNull();
         }
@@ -178,7 +183,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             var account = new Fixture().Create<Account>();
             SetupHttpClientResponse(Route(id), account);
 
-            var result = await _sut.GetAccountByIdAsync(id).ConfigureAwait(false);
+            var result = await _sut.GetAccountByIdAsync(id, _correlationId).ConfigureAwait(false);
 
             result.Should().BeEquivalentTo(account);
         }

@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using HousingSearchListener.V1.Domain.Account;
-using HousingSearchListener.V1.Domain.ElasticSearch;
-using HousingSearchListener.V1.Gateway;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
+using HousingSearchListener.V1.Domain.ElasticSearch.Person;
 using System;
 using System.Collections.Generic;
 
@@ -12,10 +12,10 @@ namespace HousingSearchListener.Tests.V1.Gateway.Fixtures
         protected readonly List<Action> _cleanup = new List<Action>();
         protected readonly Fixture _fixture;
 
-        public static ESPerson EsPerson { get; private set; }
+        public static QueryablePerson EsPerson { get; private set; }
         public static QueryableTenure QueryableTenure { get; private set; }
         public static Account PersonAccount { get; private set; }
-        public static ESPersonTenure EsPersonTenure { get; private set; }
+        public static QueryablePersonTenure EsPersonTenure { get; private set; }
 
         public EsGatewayFixture()
         {
@@ -45,11 +45,11 @@ namespace HousingSearchListener.Tests.V1.Gateway.Fixtures
             // nothing to do here
         }
 
-        public ESPerson GivenTheEsPersonExists()
+        public QueryablePerson GivenTheEsPersonExists()
         {
-            var tenures = new List<ESPersonTenure> { GivenTheEsPersonTenureExists() };
+            var tenures = new List<QueryablePersonTenure> { GivenTheEsPersonTenureExists() };
 
-            EsPerson = _fixture.Build<ESPerson>()
+            EsPerson = _fixture.Build<QueryablePerson>()
                            .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30).ToString())
                            .With(x => x.Tenures, tenures)
                            .Create();
@@ -91,10 +91,10 @@ namespace HousingSearchListener.Tests.V1.Gateway.Fixtures
             // nothing to do here
         }
 
-        public ESPersonTenure GivenTheEsPersonTenureExists()
+        public QueryablePersonTenure GivenTheEsPersonTenureExists()
         {
             string tenureId = "ff40861c-5543-41fb-9f00-0a9586b5178b";
-            EsPersonTenure = new ESPersonTenure
+            EsPersonTenure = new QueryablePersonTenure
             {
                 Id = tenureId,
                 Type = "TenureType",

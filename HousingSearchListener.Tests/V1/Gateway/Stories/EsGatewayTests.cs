@@ -79,9 +79,9 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
         public void AddTenureToPersonIndexPersonExists()
         {
             this.Given(g => _esGatewayFixture.GivenTheEsPersonExists())
-                .Given(g => _esGatewayFixture.GivenTheEsPersonTenureExists())
+                .And(g => _esGatewayFixture.GivenTheEsPersonTenureExists())
                 .When(w => _steps.WhenPersonAlreadyExists(EsGatewayFixture.EsPerson))
-                .When(w => _steps.WhenAddTenureToPersonIsTriggered(EsGatewayFixture.EsPerson, EsGatewayFixture.EsPersonTenure))
+                .And(w => _steps.WhenAddTenureToPersonIsTriggered(EsGatewayFixture.EsPerson, EsGatewayFixture.EsPersonTenure))
                 .Then(t => _steps.ThenAPersonAccountAdded(EsGatewayFixture.EsPerson, EsGatewayFixture.EsPersonTenure))
                 .BDDfy();
         }
@@ -90,7 +90,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
         public void AddTenureToPersonIndexPersonIsNullThrowsArgumentNullException()
         {
             this.Given(g => _esGatewayFixture.GivenTheEsPersonDoesNotExist())
-                .Given(g => _esGatewayFixture.GivenTheEsPersonTenureExists())
+                .And(g => _esGatewayFixture.GivenTheEsPersonTenureExists())
                 .When(w => _steps.WhenAddTenureToPersonIsTriggered(null, EsGatewayFixture.EsPersonTenure))
                 .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
                 .BDDfy();
@@ -100,9 +100,9 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
         public void AddTenureToPersonIndexTenureIsNullThrowsArgumentNullException()
         {
             this.Given(g => _esGatewayFixture.GivenTheEsPersonExists())
-                .Given(g => _esGatewayFixture.GivenTheEsPersonTenureExists())
+                .And(g => _esGatewayFixture.GivenTheEsPersonTenureExists())
                 .When(w => _steps.WhenPersonAlreadyExists(EsGatewayFixture.EsPerson))
-                .When(w => _steps.WhenAddTenureToPersonIsTriggered(EsGatewayFixture.EsPerson, null))
+                .And(w => _steps.WhenAddTenureToPersonIsTriggered(EsGatewayFixture.EsPerson, null))
                 .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
                 .BDDfy();
         }

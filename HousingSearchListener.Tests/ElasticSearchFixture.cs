@@ -140,8 +140,8 @@ namespace HousingSearchListener.Tests
             var esPerson = _esEntityFactory.CreatePerson(person);
             esPerson.Firstname = "Old";
             esPerson.Surname = "Macdonald";
-            esPerson.Tenures = new List<ESPersonTenure>();
-            var request = new IndexRequest<ESPerson>(esPerson, IndexNamePersons);
+            esPerson.Tenures = new List<QueryablePersonTenure>();
+            var request = new IndexRequest<QueryablePerson>(esPerson, IndexNamePersons);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
         }
 
@@ -150,32 +150,6 @@ namespace HousingSearchListener.Tests
             var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
             var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
-        }
-
-        public async Task GivenATenureIsIndexedWithDifferentInfo(TenureInformation tenure)
-        {
-            var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
-            esTenure.EndOfTenureDate = null;
-            esTenure.PaymentReference = null;
-            esTenure.TenuredAsset.FullAddress = "Somewhere";
-            var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
-            await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
-        }
-
-        public void GivenAnAssetIsNotIndexed(string assetId)
-        {
-            // Nothing to do here
-        }
-
-        public async Task GivenAnAssetIsIndexed(string assetId)
-        {
-            var esAsset = _fixture.Build<QueryableAsset>()
-                                  .With(x => x.Id, assetId)
-                                  .With(x => x.AssetId, assetId)
-                                  .Create();
-            var request = new IndexRequest<QueryableAsset>(esAsset, IndexNameAssets);
-            await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
-            AssetInIndex = esAsset;
         }
 
         public async Task GivenATenureIsIndexedWithDifferentInfo(TenureInformation tenure)

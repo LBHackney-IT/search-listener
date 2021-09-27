@@ -25,15 +25,17 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         private readonly Fixture _fixture = new Fixture();
         private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
         private Exception _lastException;
+        protected readonly Guid _correlationId = Guid.NewGuid();
 
         public AddTenureToIndexSteps()
         { }
 
-        private SQSEvent.SQSMessage CreateMessage(Guid tenureId, EventTypes eventType = EventTypes.TenureCreatedEvent)
+        private SQSEvent.SQSMessage CreateMessage(Guid tenureId, string eventType = EventTypes.TenureCreatedEvent)
         {
             var tenureSns = _fixture.Build<EntityEventSns>()
                                     .With(x => x.EntityId, tenureId)
-                                    .With(x => x.EventType, eventType.ToString())
+                                    .With(x => x.EventType, eventType)
+                                    .With(x => x.CorrelationId, _correlationId)
                                     .Create();
 
             var msgBody = JsonSerializer.Serialize(tenureSns, _jsonOptions);
@@ -43,7 +45,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                            .Create();
         }
 
-        public async Task WhenTheFunctionIsTriggered(Guid tenureId, EventTypes eventType)
+        public async Task WhenTheFunctionIsTriggered(Guid tenureId, string eventType)
         {
             var mockLambdaLogger = new Mock<ILambdaLogger>();
             ILambdaContext lambdaContext = new TestLambdaContext()
@@ -62,6 +64,11 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             };
 
             _lastException = await Record.ExceptionAsync(func);
+        }
+
+        public void ThenTheCorrelationIdWasUsedInTheApiCall(string receivedCorrelationId)
+        {
+            receivedCorrelationId.Should().Be(_correlationId.ToString());
         }
 
         public void ThenAnAssetNotIndexedExceptionIsThrown(string id)

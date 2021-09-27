@@ -1,7 +1,11 @@
 ﻿using FluentAssertions;
 using HousingSearchListener.V1.Domain.ElasticSearch;
+using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Gateway;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Nest;
 using System;
 using System.Linq;
@@ -14,15 +18,17 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
     {
         private readonly ElasticSearchFixture _elasticSearchFixture;
         private readonly EsGateway _esGateway;
+        private readonly Mock<ILogger<EsGateway>> _logger;
         private Exception _lastException;
 
         public EsGatewaySteps()
         {
+            _logger = new Mock<ILogger<EsGateway>>();
             _elasticSearchFixture = new ElasticSearchFixture();
-            _esGateway = new EsGateway(_elasticSearchFixture.ElasticSearchClient);
+            _esGateway = new EsGateway(_elasticSearchFixture.ElasticSearchClient, _logger.Object);
         }
 
-        public async Task WhenIndexPersonIsTriggered(ESPerson esPerson)
+        public async Task WhenIndexPersonIsTriggered(QueryablePerson esPerson)
         {
             async Task<IndexResponse> func()
             {
@@ -32,12 +38,12 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
             _lastException = await Record.ExceptionAsync(func);
         }
 
-        public async Task WhenPersonAlreadyExists(ESPerson esPerson)
+        public async Task WhenPersonAlreadyExists(QueryablePerson esPerson)
         {
             await _esGateway.IndexPerson(esPerson).ConfigureAwait(false);
 
             var result = await _elasticSearchFixture.ElasticSearchClient
-                                           .GetAsync<ESPerson>(esPerson.Id, g => g.Index("persons"))
+                                           .GetAsync<QueryablePerson>(esPerson.Id, g => g.Index("persons"))
                                            .ConfigureAwait(false);
 
             result.Should().NotBeNull();
@@ -57,9 +63,9 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
             _lastException = await Record.ExceptionAsync(func);
         }
 
-        public async Task WhenAddTenureToPersonIsTriggered(ESPerson esPerson, ESPersonTenure tenure)
+        public async Task WhenAddTenureToPersonIsTriggered(QueryablePerson esPerson, QueryablePersonTenure tenure)
         {
-            async Task<UpdateResponse<Person>> func()
+            async Task<UpdateResponse<QueryablePerson>> func()
             {
                 return await _esGateway.AddTenureToPersonAsync(esPerson, tenure).ConfigureAwait(false);
             }
@@ -73,10 +79,10 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
             _lastException.Should().BeOfType<ArgumentNullException>();
         }
 
-        public async Task ThenAPersonCreated(ESPerson person)
+        public async Task ThenAPersonCreated(QueryablePerson person)
         {
             var result = await _elasticSearchFixture.ElasticSearchClient
-                                           .GetAsync<ESPerson>(person.Id, g => g.Index("persons"))
+                                           .GetAsync<QueryablePerson>(person.Id, g => g.Index("persons"))
                                            .ConfigureAwait(false);
 
             result.Should().NotBeNull();
@@ -99,10 +105,10 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
                                                                                     .ConfigureAwait(false));
         }
 
-        public async Task ThenAPersonAccountUpdated(ESPerson person, ESPersonTenure tenure)
+        public async Task ThenAPersonAccountUpdated(QueryablePerson person, QueryablePersonTenure tenure)
         {
             var result = await _elasticSearchFixture.ElasticSearchClient
-                                           .GetAsync<ESPerson>(person.Id, g => g.Index("persons"))
+                                           .GetAsync<QueryablePerson>(person.Id, g => g.Index("persons"))
                                            .ConfigureAwait(false);
 
             var personResult = result.Source;
@@ -113,10 +119,10 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
             updatedTenure.TotalBalance.Should().Be(tenure.TotalBalance);
         }
 
-        public async Task ThenAPersonAccountAdded(ESPerson person, ESPersonTenure tenure)
+        public async Task ThenAPersonAccountAdded(QueryablePerson person, QueryablePersonTenure tenure)
         {
             var result = await _elasticSearchFixture.ElasticSearchClient
-                                           .GetAsync<ESPerson>(person.Id, g => g.Index("persons"))
+                                           .GetAsync<QueryablePerson>(person.Id, g => g.Index("persons"))
                                            .ConfigureAwait(false);
 
             var personResult = result.Source;

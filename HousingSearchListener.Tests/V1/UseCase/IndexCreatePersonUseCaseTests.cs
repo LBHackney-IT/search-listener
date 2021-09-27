@@ -27,6 +27,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly Person _person;
 
         private readonly Fixture _fixture;
+        private static readonly Guid _correlationId = Guid.NewGuid();
 
         public IndexCreatePersonUseCaseTests()
         {
@@ -42,10 +43,11 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _person = CreatePerson(_message.EntityId);
         }
 
-        private EntityEventSns CreateMessage(EventTypes eventType = EventTypes.PersonCreatedEvent)
+        private EntityEventSns CreateMessage(string eventType = EventTypes.PersonCreatedEvent)
         {
             return _fixture.Build<EntityEventSns>()
-                           .With(x => x.EventType, eventType.ToString())
+                           .With(x => x.EventType, eventType)
+                           .With(x => x.CorrelationId, _correlationId)
                            .Create();
         }
 
@@ -76,7 +78,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ProcessMessageAsyncTestGetPersonExceptionThrown()
         {
             var exMsg = "This is an error";
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ThrowsAsync(new Exception(exMsg));
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -86,7 +88,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         [Fact]
         public void ProcessMessageAsyncTestGetPersonReturnsNullThrows()
         {
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ReturnsAsync((Person)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -97,7 +99,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ProcessMessageAsyncTestIndexPersonExceptionThrows()
         {
             var exMsg = "This is the last error";
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ReturnsAsync(_person);
             _mockEsGateway.Setup(x => x.IndexPerson(It.IsAny<QueryablePerson>()))
                           .ThrowsAsync(new Exception(exMsg));
@@ -110,9 +112,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
         [InlineData(EventTypes.PersonCreatedEvent)]
         public async Task ProcessMessageAsyncTestIndexPersonSuccess(string eventType)
         {
-            _message.EventType = eventType.ToString();
+            _message.EventType = eventType;
 
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ReturnsAsync(_person);
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);

@@ -32,6 +32,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly TenureInformation _tenure;
 
         private readonly Fixture _fixture;
+        private static readonly Guid _correlationId = Guid.NewGuid();
         private const string DateFormat = "yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ";
 
         public AddPersonToTenureUseCaseTests()
@@ -48,7 +49,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _tenure = CreateTenure();
             _message = CreateMessage(Guid.Parse(_tenure.Id));
 
-            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
+            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ReturnsAsync(_tenure);
         }
 
@@ -57,6 +58,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             return _fixture.Build<EntityEventSns>()
                            .With(x => x.EventType, eventType)
                            .With(x => x.EntityId, tenureId)
+                           .With(x => x.CorrelationId, _correlationId)
                            .Create();
         }
 
@@ -137,7 +139,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ProcessMessageAsyncTestGetTenureExceptionThrown()
         {
             var exMsg = "This is an error";
-            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
+            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ThrowsAsync(new Exception(exMsg));
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -147,7 +149,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         [Fact]
         public void ProcessMessageAsyncTestGetTenureReturnsNullThrows()
         {
-            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
+            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ReturnsAsync((TenureInformation)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -158,7 +160,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ProcessMessageAsyncTestGetPersonExceptionThrown()
         {
             var exMsg = "This is an error";
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ThrowsAsync(new Exception(exMsg));
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -168,7 +170,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         [Fact]
         public void ProcessMessageAsyncTestGetPersonReturnsNullThrows()
         {
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(It.IsAny<Guid>()))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(It.IsAny<Guid>(), _message.CorrelationId))
                                        .ReturnsAsync((Person)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -180,10 +182,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             var personId = SetMessageEventData(_tenure, _message, true);
             var person = CreatePerson(personId);
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId.Value))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId.Value, _message.CorrelationId))
                                        .ReturnsAsync(person);
 
-            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
+            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ReturnsAsync(_tenure);
 
             var exMsg = "This is the last error";
@@ -202,7 +204,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             var personId = SetMessageEventData(_tenure, _message, true);
             var person = CreatePerson(personId);
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId.Value))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId.Value, _message.CorrelationId))
                                        .ReturnsAsync(person);
             var exMsg = "This is the last error";
             _mockEsGateway.Setup(x => x.IndexPerson(It.IsAny<QueryablePerson>()))
@@ -232,7 +234,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             var personId = SetMessageEventData(_tenure, _message, true, newHm);
             var person = CreatePerson(personId);
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId.Value))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId.Value, _message.CorrelationId))
                                        .ReturnsAsync(person);
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
