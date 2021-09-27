@@ -76,7 +76,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
         {
             await _esGateway.IndexTenure(tenure).ConfigureAwait(false);
         }
-        
+
         public async Task GivenAnAssetIsIndexed(QueryableAsset asset)
         {
             await _esGateway.IndexAsset(asset).ConfigureAwait(false);
@@ -139,7 +139,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
             var result = await _elasticSearchFixture.ElasticSearchClient
                                            .GetAsync<QueryablePerson>(person.Id, g => g.Index("persons"))
                                            .ConfigureAwait(false);
-
+            
             var personResult = result.Source;
             personResult.Should().BeEquivalentTo(person, options => options.Excluding(_ => _.Tenures));
 
