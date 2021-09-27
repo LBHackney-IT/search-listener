@@ -4,6 +4,7 @@ using HousingSearchListener.V1.Domain.ElasticSearch.Person;
 using Microsoft.Extensions.Logging;
 using Nest;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.Gateway
@@ -67,6 +68,36 @@ namespace HousingSearchListener.V1.Gateway
         {
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
             return await GetById<QueryableAsset>(id, IndexNameAssets);
+        }
+
+        [LogCall]
+        public async Task<UpdateResponse<QueryablePerson>> AddTenureToPersonAsync(QueryablePerson person, QueryablePersonTenure tenure)
+        {
+            if (person is null)
+            {
+                throw new ArgumentNullException(nameof(person));
+            }
+
+            if (tenure is null)
+            {
+                throw new ArgumentNullException(nameof(tenure));
+            }
+
+            var esPerson = await GetById<QueryablePerson>(person.Id, IndexNamePersons).ConfigureAwait(false);
+
+            if (esPerson.Tenures.Any(t => t.Id.Equals(tenure.Id)))
+            {
+                throw new ArgumentException($"Tenure with id: {tenure.Id} already exist!");
+            }
+
+            esPerson.Tenures.Add(tenure);
+
+            _logger.LogDebug($"Updating '{IndexNamePersons}' index for person id {esPerson.Id}");
+
+            return await _elasticClient.UpdateAsync<QueryablePerson, object>(esPerson.Id, descriptor => descriptor
+                .Index(IndexNamePersons)
+                .Doc(new { tenures = esPerson.Tenures })
+                .DocAsUpsert(true));
         }
     }
 }

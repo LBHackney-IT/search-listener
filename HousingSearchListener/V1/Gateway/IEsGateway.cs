@@ -14,5 +14,7 @@ namespace HousingSearchListener.V1.Gateway
         Task<IndexResponse> IndexAsset(QueryableAsset esAsset);
 
         Task<QueryableAsset> GetAssetById(string id);
+
+        Task<UpdateResponse<QueryablePerson>> AddTenureToPersonAsync(QueryablePerson esPerson, QueryablePersonTenure esTenure);
     }
 }

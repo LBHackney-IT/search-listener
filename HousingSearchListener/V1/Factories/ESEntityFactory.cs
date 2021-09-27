@@ -22,6 +22,25 @@ namespace HousingSearchListener.V1.Factories
             }).ToList();
         }
 
+        public QueryablePersonTenure CreateQueryablePersonTenure(TenureInformation tenure)
+        {
+            if (tenure is null)
+            {
+                throw new ArgumentNullException(nameof(tenure));
+            }
+
+            return new QueryablePersonTenure
+            {
+                Id = tenure.Id,
+                Type = tenure.TenureType.Code,
+                TotalBalance = tenure.TotalBalance,
+                StartDate = tenure.StartOfTenureDate,
+                EndDate = tenure.EndOfTenureDate,
+                AssetFullAddress = tenure.TenuredAsset.FullAddress,
+                PaymentReference = tenure.PaymentReference
+            };
+        }
+
         public QueryablePerson CreatePerson(Person person)
         {
             return new QueryablePerson

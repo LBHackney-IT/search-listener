@@ -41,6 +41,7 @@ namespace HousingSearchListener
             services.AddScoped<IEsGateway, EsGateway>();
             services.AddScoped<IPersonApiGateway, PersonApiGateway>();
             services.AddScoped<ITenureApiGateway, TenureApiGateway>();
+            services.AddScoped<IAccountApiGateway, AccountApiGateway>();
 
             services.ConfigureElasticSearch(Configuration);
 
@@ -48,6 +49,7 @@ namespace HousingSearchListener
             services.AddScoped<IIndexUpdatePersonUseCase, IndexUpdatePersonUseCase>();
             services.AddScoped<IIndexTenureUseCase, IndexTenureUseCase>();
             services.AddScoped<IAddPersonToTenureUseCase, AddPersonToTenureUseCase>();
+            services.AddScoped<IAccountAddUseCase, AccountAddUseCase>();
 
             base.ConfigureServices(services);
         }

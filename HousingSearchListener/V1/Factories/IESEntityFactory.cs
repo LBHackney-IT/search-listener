@@ -10,6 +10,7 @@ namespace HousingSearchListener.V1.Factories
     {
         QueryablePerson CreatePerson(Person person);
         QueryableTenure CreateQueryableTenure(TenureInformation tenure);
+        QueryablePersonTenure CreateQueryablePersonTenure(TenureInformation tenure);
         List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers);
         Domain.ElasticSearch.Asset.QueryableTenure CreateAssetQueryableTenure(TenureInformation tenure);
     }
