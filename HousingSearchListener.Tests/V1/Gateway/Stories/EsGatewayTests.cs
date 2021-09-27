@@ -118,7 +118,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
                 .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
                 .BDDfy();
         }
-        
+
         [Fact]
         public void GetTenureByIdCallsEsClient()
         {
@@ -128,7 +128,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
                 .Then(t => _steps.ThenATenureFound(EsGatewayFixture.QueryableTenure))
                 .BDDfy();
         }
-        
+
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -140,7 +140,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
                 .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
                 .BDDfy();
         }
-        
+
         [Fact]
         public void GetAssetByIdCallsEsClient()
         {
