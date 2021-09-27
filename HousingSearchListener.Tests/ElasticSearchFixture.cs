@@ -186,7 +186,7 @@ namespace HousingSearchListener.Tests
                 var personTenure = person.Tenures[i];
                 var personType = person.PersonType[i];
                 var esTenure = CreateQueryableTenureForPerson(personTenure.Id, person.Id, personType);
-             
+
                 var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
                 await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
             }

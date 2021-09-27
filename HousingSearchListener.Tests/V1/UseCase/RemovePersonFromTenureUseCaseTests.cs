@@ -121,13 +121,13 @@ namespace HousingSearchListener.Tests.V1.UseCase
             if (hasThisTenure)
                 tenures.Last().Id = _tenure.Id;
             var personTypes = new List<string> { "Tenant", "HouseholderMember", "Freeholder" };
-            var person =  _fixture.Build<Person>()
+            var person = _fixture.Build<Person>()
                            .With(x => x.Id, entityId.ToString())
                            .With(x => x.Tenures, tenures)
                            .With(x => x.PersonType, personTypes)
                            .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ"))
                            .Create();
-            
+
             for (int i = 0; i < tenures.Count; i++)
             {
                 var personTenure = tenures[i];
@@ -161,7 +161,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private bool VerifyPersonIndexed(QueryablePerson esPerson, Person startingPerson)
         {
-            esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(startingPerson), 
+            esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(startingPerson),
                                              c => c.Excluding(y => y.Tenures).Excluding(y => y.PersonTypes));
             esPerson.Tenures.Should().NotContain(x => x.Id == _tenure.Id);
             esPerson.PersonTypes.Should().HaveCount(2);
