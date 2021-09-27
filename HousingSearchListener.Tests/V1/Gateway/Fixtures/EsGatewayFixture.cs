@@ -1,9 +1,10 @@
 ﻿using AutoFixture;
 using HousingSearchListener.V1.Domain.Account;
+using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
 using HousingSearchListener.V1.Domain.ElasticSearch.Person;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using System;
 using System.Collections.Generic;
+using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
 
 namespace HousingSearchListener.Tests.V1.Gateway.Fixtures
 {
@@ -16,6 +17,7 @@ namespace HousingSearchListener.Tests.V1.Gateway.Fixtures
         public static QueryableTenure QueryableTenure { get; private set; }
         public static Account PersonAccount { get; private set; }
         public static QueryablePersonTenure EsPersonTenure { get; private set; }
+        public static QueryableAsset QueryableAsset { get; private set; }
 
         public EsGatewayFixture()
         {
@@ -107,6 +109,20 @@ namespace HousingSearchListener.Tests.V1.Gateway.Fixtures
             };
 
             return EsPersonTenure;
+        }
+
+        public void GivenTheQueryableAssetDoesNotExists()
+        {
+            // nothing to do here
+        }
+
+        public QueryableAsset GivenTheQueryableAssetExists()
+        {
+            QueryableAsset = _fixture.Build<QueryableAsset>()
+                           .With(x => x.Id, Guid.NewGuid().ToString())
+                           .Create();
+
+            return QueryableAsset;
         }
     }
 }

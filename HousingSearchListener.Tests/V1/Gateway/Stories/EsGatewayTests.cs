@@ -106,5 +106,49 @@ namespace HousingSearchListener.Tests.V1.Gateway.Stories
                 .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
                 .BDDfy();
         }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void GetTenureByIdInvalidInputThrowsArgumentNullException(string tenureId)
+        {
+            this.Given(g => _esGatewayFixture.GivenTheQueryableTenureExists())
+                .And(h => _steps.GivenATenureIsIndexed(EsGatewayFixture.QueryableTenure))
+                .When(w => _steps.WhenGetTenureByIdIsTriggered(tenureId))
+                .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
+                .BDDfy();
+        }
+        
+        [Fact]
+        public void GetTenureByIdCallsEsClient()
+        {
+            this.Given(g => _esGatewayFixture.GivenTheQueryableTenureExists())
+                .And(h => _steps.GivenATenureIsIndexed(EsGatewayFixture.QueryableTenure))
+                .When(w => _steps.WhenGetTenureByIdIsTriggered(EsGatewayFixture.QueryableTenure.Id))
+                .Then(t => _steps.ThenATenureFound(EsGatewayFixture.QueryableTenure))
+                .BDDfy();
+        }
+        
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void GetAssetByIdInvalidInputThrowsArgumentNullException(string assetId)
+        {
+            this.Given(g => _esGatewayFixture.GivenTheQueryableAssetExists())
+                .And(h => _steps.GivenAnAssetIsIndexed(EsGatewayFixture.QueryableAsset))
+                .When(w => _steps.WhenGetAssetByIdIsTriggered(assetId))
+                .Then(t => _steps.ThenArgumentNullExceptionIsThrown())
+                .BDDfy();
+        }
+        
+        [Fact]
+        public void GetAssetByIdCallsEsClient()
+        {
+            this.Given(g => _esGatewayFixture.GivenTheQueryableAssetExists())
+                .And(h => _steps.GivenAnAssetIsIndexed(EsGatewayFixture.QueryableAsset))
+                .When(w => _steps.WhenGetAssetByIdIsTriggered(EsGatewayFixture.QueryableAsset.Id))
+                .Then(t => _steps.ThenAnAssetFound(EsGatewayFixture.QueryableAsset))
+                .BDDfy();
+        }
     }
 }

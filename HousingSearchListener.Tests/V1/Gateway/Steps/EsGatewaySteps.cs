@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
+using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
 using HousingSearchListener.V1.Domain.ElasticSearch.Person;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Gateway;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
 
 namespace HousingSearchListener.Tests.V1.Gateway.Steps
 {
@@ -66,6 +67,36 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
             async Task<UpdateResponse<QueryablePerson>> func()
             {
                 return await _esGateway.AddTenureToPersonAsync(esPerson, tenure).ConfigureAwait(false);
+            }
+
+            _lastException = await Record.ExceptionAsync(func);
+        }
+
+        public async Task GivenATenureIsIndexed(QueryableTenure tenure)
+        {
+            await _esGateway.IndexTenure(tenure).ConfigureAwait(false);
+        }
+        
+        public async Task GivenAnAssetIsIndexed(QueryableAsset asset)
+        {
+            await _esGateway.IndexAsset(asset).ConfigureAwait(false);
+        }
+
+        public async Task WhenGetTenureByIdIsTriggered(string id)
+        {
+            async Task<QueryableTenure> func()
+            {
+                return await _esGateway.GetTenureById(id).ConfigureAwait(false);
+            }
+
+            _lastException = await Record.ExceptionAsync(func);
+        }
+
+        public async Task WhenGetAssetByIdIsTriggered(string id)
+        {
+            async Task<QueryableAsset> func()
+            {
+                return await _esGateway.GetAssetById(id).ConfigureAwait(false);
             }
 
             _lastException = await Record.ExceptionAsync(func);
@@ -129,6 +160,32 @@ namespace HousingSearchListener.Tests.V1.Gateway.Steps
 
             personResult.Tenures.Should().NotBeEmpty();
             personResult.Tenures.FindLast(_ => _.Id.Equals(tenure.Id)).Should().BeEquivalentTo(tenure);
+        }
+
+        public async Task ThenATenureFound(QueryableTenure tenure)
+        {
+            var result = await _elasticSearchFixture.ElasticSearchClient
+                                           .GetAsync<QueryableTenure>(tenure.Id, g => g.Index("tenures"))
+                                           .ConfigureAwait(false);
+
+            result.Should().NotBeNull();
+            result.Source.Should().BeEquivalentTo(tenure);
+
+            _cleanup.Add(async () => await _elasticSearchFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("tenures", tenure.Id))
+                                                                                    .ConfigureAwait(false));
+        }
+
+        public async Task ThenAnAssetFound(QueryableAsset asset)
+        {
+            var result = await _elasticSearchFixture.ElasticSearchClient
+                                           .GetAsync<QueryableAsset>(asset.Id, g => g.Index("assets"))
+                                           .ConfigureAwait(false);
+
+            result.Should().NotBeNull();
+            result.Source.Should().BeEquivalentTo(asset);
+
+            _cleanup.Add(async () => await _elasticSearchFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("assets", asset.Id))
+                                                                           .ConfigureAwait(false));
         }
     }
 }
