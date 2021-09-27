@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
-    <NoWarn>CA1307;CA1051;CA1822;CA1001;CA1062;CA2000;S2699;S1764</NoWarn>
+    <NoWarn>CA1307;CA1051;CA1822;CA1001;CA1062;CA2000;S2699;S1764;S4144</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

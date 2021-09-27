@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
-    public abstract class BaseApiFixture<T> where T : class
+    public abstract class BaseApiFixture<T> : IDisposable where T : class
     {
         protected readonly Fixture _fixture = new Fixture();
         protected readonly JsonSerializerOptions _jsonOptions;
