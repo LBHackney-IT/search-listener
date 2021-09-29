@@ -48,9 +48,37 @@ namespace HousingSearchListener.V1.UseCase
                                                 .ConfigureAwait(false);
             if (person is null) throw new EntityNotFoundException<Person>(personId);
 
+            UpdatePersonTenures(person, tenure);
+            UpdatePersonTypes(person, tenure.TenureType, householdMember.IsResponsible);
+
             // 4. Update the indexes
             await UpdateTenureIndexAsync(tenure);
             await UpdatePersonIndexAsync(person);
+        }
+
+        private void UpdatePersonTenures(Person person, TenureInformation tenure)
+        {
+            var personTenure = person.Tenures.FirstOrDefault(x => x.Id == tenure.Id);
+            if (personTenure is null)
+            {
+                personTenure = new Tenure();
+                person.Tenures.Add(personTenure);
+            }
+            personTenure.AssetFullAddress = tenure.TenuredAsset.FullAddress;
+            personTenure.AssetId = tenure.TenuredAsset.Id;
+            personTenure.EndDate = tenure.EndOfTenureDate;
+            personTenure.Id = tenure.Id;
+            personTenure.IsActive = tenure.IsActive;
+            personTenure.StartDate = tenure.StartOfTenureDate;
+            personTenure.Type = tenure.TenureType.Description;
+            personTenure.Uprn = tenure.TenuredAsset.Uprn;
+        }
+
+        private void UpdatePersonTypes(Person person, TenureType tenureType, bool isResponsible)
+        {
+            var personTenureType = TenureTypes.GetPersonTenureType(tenureType.Code, isResponsible);
+            if (!person.PersonType.Contains(personTenureType))
+                person.PersonType.Add(personTenureType);
         }
 
         private async Task UpdateTenureIndexAsync(TenureInformation tenure)

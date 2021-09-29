@@ -116,9 +116,20 @@ namespace HousingSearchListener.Tests.V1.UseCase
             return personId;
         }
 
-        private bool VerifyPersonIndexed(QueryablePerson esPerson, Person person)
+        private bool VerifyPersonIndexed(QueryablePerson esPerson, Person person, TenureInformation tenure)
         {
-            esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(person));
+            esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(person),
+                                                  c => c.Excluding(x => x.Tenures)
+                                                        .Excluding(x => x.PersonTypes));
+
+            var newTenure = esPerson.Tenures.FirstOrDefault(x => x.Id == tenure.Id);
+            newTenure.Should().NotBeNull();
+            newTenure.AssetFullAddress.Should().Be(tenure.TenuredAsset.FullAddress);
+            newTenure.EndDate.Should().Be(tenure.EndOfTenureDate);
+            newTenure.StartDate.Should().Be(tenure.StartOfTenureDate);
+            newTenure.Type.Should().Be(tenure.TenureType.Description);
+
+            esPerson.PersonTypes.Should().Contain("Tenant");
             return true;
         }
 
@@ -196,7 +207,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
 
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person))), Times.Never);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person, _tenure))), Times.Never);
         }
 
         [Fact]
@@ -214,7 +225,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
 
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person, _tenure))), Times.Once);
         }
 
         [Theory]
@@ -240,7 +251,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person, _tenure))), Times.Once);
         }
     }
 }
