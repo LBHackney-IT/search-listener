@@ -99,7 +99,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             newTenure.StartDate.Should().Be(tenure.StartOfTenureDate);
             newTenure.Type.Should().Be(tenure.TenureType.Description);
 
-            personInIndex.PersonTypes.Should().Contain("Tenant");            
+            personInIndex.PersonTypes.Should().Contain("Tenant");
         }
 
         public void ThenATenureNotFoundExceptionIsThrown(Guid id)
