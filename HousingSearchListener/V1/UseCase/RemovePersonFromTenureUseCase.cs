@@ -67,7 +67,7 @@ namespace HousingSearchListener.V1.UseCase
             Task.WaitAll(getTenureFromIndexTasks);
 
             var personTypes = getTenureFromIndexTasks.Select(x => GetPersonTypeForTenure(x.Result, person.Id)).ToList();
-            person.PersonType = personTypes;
+            person.PersonTypes = personTypes;
         }
 
         private string GetPersonTypeForTenure(QueryableTenure tenure, string personId)

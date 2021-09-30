@@ -50,7 +50,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
             ResponseObject = _fixture.Build<Person>()
                                      .With(x => x.Id, id.ToString())
                                      .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ"))
-                                     .With(x => x.PersonType, personTypes)
+                                     .With(x => x.PersonTypes, personTypes)
                                      .With(x => x.Tenures, _fixture.CreateMany<Tenure>(3).ToList())
                                      .Create();
 

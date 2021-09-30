@@ -35,7 +35,7 @@ namespace HousingSearchListener.V1.Factories
                 MiddleName = person.MiddleName,
                 PreferredFirstname = person.PreferredFirstName,
                 PreferredSurname = person.PreferredSurname,
-                PersonTypes = person.PersonType,
+                PersonTypes = person.PersonTypes,
                 Tenures = person.Tenures != null ? CreatePersonTenures(person.Tenures) : new List<QueryablePersonTenure>()
             };
         }
