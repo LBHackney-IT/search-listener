@@ -184,7 +184,7 @@ namespace HousingSearchListener.Tests
             for (int i = 0; i < person.Tenures.Count; i++)
             {
                 var personTenure = person.Tenures[i];
-                var personType = person.PersonType[i];
+                var personType = person.PersonTypes[i];
                 var esTenure = CreateQueryableTenureForPerson(personTenure.Id, person.Id, personType);
 
                 var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);

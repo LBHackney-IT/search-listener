@@ -34,7 +34,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             //result.IsPersonCautionaryAlerted.Should().Be();
             //result.IsTenureCautionaryAlerted.Should().Be();            
             result.MiddleName.Should().Be(domainPerson.MiddleName);
-            result.PersonTypes.Should().BeEquivalentTo(domainPerson.PersonType);
+            result.PersonTypes.Should().BeEquivalentTo(domainPerson.PersonTypes);
             result.PreferredFirstname.Should().Be(domainPerson.PreferredFirstName);
             result.PreferredSurname.Should().Be(domainPerson.PreferredSurname);
             result.Surname.Should().Be(domainPerson.Surname);

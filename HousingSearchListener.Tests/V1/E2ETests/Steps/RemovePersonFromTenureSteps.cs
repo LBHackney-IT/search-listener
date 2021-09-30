@@ -130,7 +130,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                                   c => c.Excluding(y => y.Tenures).Excluding(z => z.PersonTypes));
             personInIndex.Tenures.Should().HaveCount(person.Tenures.Count - 1);
             personInIndex.Tenures.Should().NotContain(x => x.Id == tenureId.ToString());
-            personInIndex.PersonTypes.Should().HaveCount(person.PersonType.Count - 1);
+            personInIndex.PersonTypes.Should().HaveCount(person.PersonTypes.Count - 1);
             personInIndex.PersonTypes.Should().NotContain("Freeholder");
         }
     }

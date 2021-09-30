@@ -77,8 +77,8 @@ namespace HousingSearchListener.V1.UseCase
         private void UpdatePersonTypes(Person person, TenureType tenureType, bool isResponsible)
         {
             var personTenureType = TenureTypes.GetPersonTenureType(tenureType.Code, isResponsible);
-            if (!person.PersonType.Contains(personTenureType))
-                person.PersonType.Add(personTenureType);
+            if (!person.PersonTypes.Contains(personTenureType))
+                person.PersonTypes.Add(personTenureType);
         }
 
         private async Task UpdateTenureIndexAsync(TenureInformation tenure)

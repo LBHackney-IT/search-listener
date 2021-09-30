@@ -124,7 +124,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             var person = _fixture.Build<Person>()
                            .With(x => x.Id, entityId.ToString())
                            .With(x => x.Tenures, tenures)
-                           .With(x => x.PersonType, personTypes)
+                           .With(x => x.PersonTypes, personTypes)
                            .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ"))
                            .Create();
 
