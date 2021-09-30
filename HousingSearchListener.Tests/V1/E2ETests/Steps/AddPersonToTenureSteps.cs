@@ -14,6 +14,7 @@ using Moq;
 using Nest;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -81,13 +82,24 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         }
 
         public async Task ThenTheIndexIsUpdatedWithThePerson(
-            Person person, IElasticClient esClient)
+            Person person, TenureInformation tenure, IElasticClient esClient)
         {
             var result = await esClient.GetAsync<QueryablePerson>(person.Id, g => g.Index("persons"))
                                        .ConfigureAwait(false);
 
             var personInIndex = result.Source;
-            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person));
+            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person),
+                                                  c => c.Excluding(x => x.Tenures)
+                                                        .Excluding(x => x.PersonTypes));
+
+            var newTenure = personInIndex.Tenures.FirstOrDefault(x => x.Id == tenure.Id);
+            newTenure.Should().NotBeNull();
+            newTenure.AssetFullAddress.Should().Be(tenure.TenuredAsset.FullAddress);
+            newTenure.EndDate.Should().Be(tenure.EndOfTenureDate);
+            newTenure.StartDate.Should().Be(tenure.StartOfTenureDate);
+            newTenure.Type.Should().Be(tenure.TenureType.Description);
+
+            personInIndex.PersonTypes.Should().Contain("Tenant");
         }
 
         public void ThenATenureNotFoundExceptionIsThrown(Guid id)
