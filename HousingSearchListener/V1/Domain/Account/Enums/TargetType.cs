@@ -5,7 +5,7 @@ namespace HousingSearchListener.V1.Domain.Account.Enums
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum TargetType
     {
-        Housing, 
+        Housing,
         Garage
     }
 }
