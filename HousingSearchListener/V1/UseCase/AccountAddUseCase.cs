@@ -53,25 +53,17 @@ namespace HousingSearchListener.V1.UseCase
             }
             tenure.TotalBalance = account.AccountBalance;
 
-            // Hanna Holasava
-            // HouseHoldMembers can contains multiple responsible members
-            var responsibleMembers = tenure.HouseholdMembers.Where(m => m.IsResponsible).ToList();
-            if (responsibleMembers == null || responsibleMembers.Count == 0)
+            if (account.Tenure?.PrimaryTenants == null || account.Tenure.PrimaryTenants.Count() == 0)
             {
                 throw new MissedEntityDataException($"Tenure with id {message.EntityId} does not have any responsible household members.");
             }
 
-            foreach (var responsibleMember in responsibleMembers)
+            foreach (var responsibleTenant in account.Tenure.PrimaryTenants)
             {
-                if (!Guid.TryParse(responsibleMember.Id, out Guid personId))
-                {
-                    throw new FormatException(nameof(personId));
-                }
-
-                var personModel = await _personApiGateway.GetPersonByIdAsync(personId, message.CorrelationId).ConfigureAwait(false);
+                var personModel = await _personApiGateway.GetPersonByIdAsync(responsibleTenant.Id, message.CorrelationId).ConfigureAwait(false);
                 if (personModel is null)
                 {
-                    throw new EntityNotFoundException<Person>(personId);
+                    throw new EntityNotFoundException<Person>(responsibleTenant.Id);
                 }
 
                 var esTenure = _esEntityFactory.CreateQueryablePersonTenure(tenure);

@@ -50,6 +50,8 @@ namespace HousingSearchListener.Tests
             EnsureEnvVarConfigured("PersonApiToken", FixtureConstants.PersonApiToken);
             EnsureEnvVarConfigured("TenureApiUrl", FixtureConstants.TenureApiRoute);
             EnsureEnvVarConfigured("TenureApiToken", FixtureConstants.TenureApiToken);
+            EnsureEnvVarConfigured("AccountApiUrl", FixtureConstants.AccountApiRoute);
+            EnsureEnvVarConfigured("AccountApiToken", FixtureConstants.AccountApiToken);
 
             _factory = new MockApplicationFactory();
             _host = _factory.CreateHostBuilder(null).Build();

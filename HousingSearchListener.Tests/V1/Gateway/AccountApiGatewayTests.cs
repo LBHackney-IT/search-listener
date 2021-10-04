@@ -31,7 +31,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
 
         private static readonly Guid _correlationId = Guid.NewGuid();
         private const string AccountApiRoute = "https://some-domain.com/api/";
-        private const string AccountApiKey = "dksfghjskueygfakseygfaskjgfsdjkgfdkjsgfdkjgf";
+        private const string AccountApiToken = "dksfghjskueygfakseygfaskjgfsdjkgfdkjsgfdkjgf";
 
         public AccountApiGatewayTests()
         {
@@ -43,7 +43,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
 
             var inMemorySettings = new Dictionary<string, string> {
                 { "AccountApiUrl", AccountApiRoute },
-                { "AccountApiKey", AccountApiKey }
+                { "AccountApiToken", AccountApiToken }
             };
             _configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
@@ -52,14 +52,14 @@ namespace HousingSearchListener.Tests.V1.Gateway
             _sut = new AccountApiGateway(_mockHttpClientFactory.Object, _configuration);
         }
 
-        private static string Route(Guid id) => $"{AccountApiRoute}residents/{id}";
+        private static string Route(Guid id) => $"{AccountApiRoute}accounts/{id}";
 
         private static bool ValidateRequest(string expectedRoute, HttpRequestMessage request)
         {
             var correlationIdHeader = request.Headers.GetValues("x-correlation-id")?.FirstOrDefault();
-            var apiKey = request.Headers.GetValues("x-api-key")?.FirstOrDefault();
+            var apiToken = request.Headers.GetValues("Authorization")?.FirstOrDefault();
             return (request.RequestUri.ToString() == expectedRoute)
-                && (apiKey == AccountApiKey)
+                && (apiToken == AccountApiToken)
                 && (correlationIdHeader == _correlationId.ToString());
         }
 

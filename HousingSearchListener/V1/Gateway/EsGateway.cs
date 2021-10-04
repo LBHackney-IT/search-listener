@@ -85,6 +85,11 @@ namespace HousingSearchListener.V1.Gateway
 
             var esPerson = await GetById<QueryablePerson>(person.Id, IndexNamePersons).ConfigureAwait(false);
 
+            if (esPerson == null)
+            {
+                throw new ArgumentException($"Person with id: {person.Id} doesn't exist!");
+            }
+
             if (esPerson.Tenures.Any(t => t.Id.Equals(tenure.Id)))
             {
                 throw new ArgumentException($"Tenure with id: {tenure.Id} already exist!");
