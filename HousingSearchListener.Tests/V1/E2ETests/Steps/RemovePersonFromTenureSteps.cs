@@ -14,24 +14,23 @@ using Moq;
 using Nest;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
-    public class AddPersonToTenureSteps : BaseSteps
+    public class RemovePersonFromTenureSteps : BaseSteps
     {
         private readonly Fixture _fixture = new Fixture();
         private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
         private Exception _lastException;
         protected readonly Guid _correlationId = Guid.NewGuid();
 
-        public AddPersonToTenureSteps()
+        public RemovePersonFromTenureSteps()
         { }
 
-        private SQSEvent.SQSMessage CreateMessage(Guid personId, EventData eventData, string eventType = EventTypes.PersonAddedToTenureEvent)
+        private SQSEvent.SQSMessage CreateMessage(Guid personId, EventData eventData, string eventType = EventTypes.PersonRemovedFromTenureEvent)
         {
             var personSns = _fixture.Build<EntityEventSns>()
                                     .With(x => x.EntityId, personId)
@@ -82,24 +81,14 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         }
 
         public async Task ThenTheIndexIsUpdatedWithThePerson(
-            Person person, TenureInformation tenure, IElasticClient esClient)
+            Person person, Guid tenureId, IElasticClient esClient)
         {
             var result = await esClient.GetAsync<QueryablePerson>(person.Id, g => g.Index("persons"))
                                        .ConfigureAwait(false);
 
             var personInIndex = result.Source;
-            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person),
-                                                  c => c.Excluding(x => x.Tenures)
-                                                        .Excluding(x => x.PersonTypes));
-
-            var newTenure = personInIndex.Tenures.FirstOrDefault(x => x.Id == tenure.Id);
-            newTenure.Should().NotBeNull();
-            newTenure.AssetFullAddress.Should().Be(tenure.TenuredAsset.FullAddress);
-            newTenure.EndDate.Should().Be(tenure.EndOfTenureDate);
-            newTenure.StartDate.Should().Be(tenure.StartOfTenureDate);
-            newTenure.Type.Should().Be(tenure.TenureType.Description);
-
-            personInIndex.PersonTypes.Should().Contain("Tenant");
+            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person), c => c.Excluding(y => y.Tenures));
+            personInIndex.Tenures.Should().NotContain(x => x.Id == tenureId.ToString());
         }
 
         public void ThenATenureNotFoundExceptionIsThrown(Guid id)
@@ -117,6 +106,32 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
             var tenureInIndex = result.Source;
             tenureInIndex.Should().BeEquivalentTo(_entityFactory.CreateQueryableTenure(tenure));
+        }
+
+        public async Task ThenTheIndexedTenureHasThePersonRemoved(
+            TenureInformation tenure, Guid personId, IElasticClient esClient)
+        {
+            var result = await esClient.GetAsync<QueryableTenure>(tenure.Id, g => g.Index("tenures"))
+                                       .ConfigureAwait(false);
+
+            var tenureInIndex = result.Source;
+            tenureInIndex.Should().BeEquivalentTo(_entityFactory.CreateQueryableTenure(tenure), c => c.Excluding(y => y.HouseholdMembers));
+            tenureInIndex.HouseholdMembers.Should().NotContain(x => x.Id == personId.ToString());
+        }
+
+        public async Task ThenTheIndexedPersonHasTheTenureRemoved(
+            Person person, Guid tenureId, IElasticClient esClient)
+        {
+            var result = await esClient.GetAsync<QueryablePerson>(person.Id, g => g.Index("persons"))
+                                       .ConfigureAwait(false);
+
+            var personInIndex = result.Source;
+            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person),
+                                                  c => c.Excluding(y => y.Tenures).Excluding(z => z.PersonTypes));
+            personInIndex.Tenures.Should().HaveCount(person.Tenures.Count - 1);
+            personInIndex.Tenures.Should().NotContain(x => x.Id == tenureId.ToString());
+            personInIndex.PersonTypes.Should().HaveCount(person.PersonTypes.Count - 1);
+            personInIndex.PersonTypes.Should().NotContain("Freeholder");
         }
     }
 }

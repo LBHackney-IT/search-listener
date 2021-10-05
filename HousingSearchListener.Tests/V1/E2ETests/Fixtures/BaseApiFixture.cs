@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
-    public abstract class BaseApiFixture<T> where T : class
+    public abstract class BaseApiFixture<T> : IDisposable where T : class
     {
         protected readonly Fixture _fixture = new Fixture();
         protected readonly JsonSerializerOptions _jsonOptions;
@@ -18,7 +18,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
         protected string _route;
         protected string _token;
 
-        public static T ResponseObject { get; protected set; }
+        public T ResponseObject { get; protected set; }
+        public string ReceivedCorrelationId { get; private set; }
 
         protected BaseApiFixture()
         {
@@ -46,6 +47,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 
         protected virtual void StartApiStub()
         {
+            ReceivedCorrelationId = null;
             Task.Run(() =>
             {
                 _httpListener = new HttpListener();
@@ -62,6 +64,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
                 }
                 else
                 {
+                    ReceivedCorrelationId = context.Request.Headers["x-correlation-id"];
+
                     response.StatusCode = (int)((ResponseObject is null) ? HttpStatusCode.NotFound : HttpStatusCode.OK);
                     string responseBody = string.Empty;
                     if (ResponseObject is null)

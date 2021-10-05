@@ -15,7 +15,7 @@ namespace HousingSearchListener.V1.Domain.Person
         public string Surname { get; set; }
         public string PlaceOfBirth { get; set; }
         public string DateOfBirth { get; set; }
-        public List<string> PersonType { get; set; }
+        public List<string> PersonTypes { get; set; }
         public List<Tenure> Tenures { get; set; }
 
         public string FullName => FormatFullName();
