@@ -1,4 +1,5 @@
 ﻿using HousingSearchListener.V1.Boundary;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -14,14 +15,14 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase
 {
-    public class AddPersonToTenureUseCase : IAddPersonToTenureUseCase
+    public class RemovePersonFromTenureUseCase : IRemovePersonFromTenureUseCase
     {
         private readonly IEsGateway _esGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
         private readonly IPersonApiGateway _personApiGateway;
         private readonly IESEntityFactory _esEntityFactory;
 
-        public AddPersonToTenureUseCase(IEsGateway esGateway, ITenureApiGateway tenureApiGateway,
+        public RemovePersonFromTenureUseCase(IEsGateway esGateway, ITenureApiGateway tenureApiGateway,
             IPersonApiGateway personApiGateway, IESEntityFactory esEntityFactory)
         {
             _esGateway = esGateway;
@@ -40,45 +41,39 @@ namespace HousingSearchListener.V1.UseCase
             if (tenure is null) throw new EntityNotFoundException<TenureInformation>(message.EntityId);
 
             // 2. Determine the Person id from event data.
-            var householdMember = GetAddedOrUpdatedHouseholdMember(message.EventData);
+            var householdMember = GetRemovedHouseholdMember(message.EventData);
             var personId = Guid.Parse(householdMember.Id);
 
-            // 3. Get Added person from Person service API
+            // 3. Get Removed person from Person service API
             var person = await _personApiGateway.GetPersonByIdAsync(personId, message.CorrelationId)
                                                 .ConfigureAwait(false);
             if (person is null) throw new EntityNotFoundException<Person>(personId);
 
-            UpdatePersonTenures(person, tenure);
-            UpdatePersonTypes(person, tenure.TenureType, householdMember.IsResponsible);
+            // 4. Make sure the tenure is no longer on the person
+            if (person.Tenures.Any(x => x.Id == tenure.Id))
+                person.Tenures.Remove(person.Tenures.First(x => x.Id == tenure.Id));
 
-            // 4. Update the indexes
-            await UpdateTenureIndexAsync(tenure);
-            await UpdatePersonIndexAsync(person);
+            // 5. Update the person.PersonType list if necessary
+            UpdatePersonType(person);
+
+            // 6. Update the indexes
+            await UpdateTenureIndexAsync(tenure).ConfigureAwait(false);
+            await UpdatePersonIndexAsync(person).ConfigureAwait(false);
         }
 
-        private void UpdatePersonTenures(Person person, TenureInformation tenure)
+        private void UpdatePersonType(Person person)
         {
-            var personTenure = person.Tenures.FirstOrDefault(x => x.Id == tenure.Id);
-            if (personTenure is null)
-            {
-                personTenure = new Tenure();
-                person.Tenures.Add(personTenure);
-            }
-            personTenure.AssetFullAddress = tenure.TenuredAsset.FullAddress;
-            personTenure.AssetId = tenure.TenuredAsset.Id;
-            personTenure.EndDate = tenure.EndOfTenureDate;
-            personTenure.Id = tenure.Id;
-            personTenure.IsActive = tenure.IsActive;
-            personTenure.StartDate = tenure.StartOfTenureDate;
-            personTenure.Type = tenure.TenureType.Description;
-            personTenure.Uprn = tenure.TenuredAsset.Uprn;
+            var getTenureFromIndexTasks = person.Tenures.Select(x => _esGateway.GetTenureById(x.Id)).ToArray();
+            Task.WaitAll(getTenureFromIndexTasks);
+
+            var personTypes = getTenureFromIndexTasks.Select(x => GetPersonTypeForTenure(x.Result, person.Id)).ToList();
+            person.PersonTypes = personTypes;
         }
 
-        private void UpdatePersonTypes(Person person, TenureType tenureType, bool isResponsible)
+        private string GetPersonTypeForTenure(QueryableTenure tenure, string personId)
         {
-            var personTenureType = TenureTypes.GetPersonTenureType(tenureType.Code, isResponsible);
-            if (!person.PersonTypes.Contains(personTenureType))
-                person.PersonTypes.Add(personTenureType);
+            var hm = tenure.HouseholdMembers.First(x => x.Id == personId);
+            return TenureTypes.GetPersonTenureType(tenure.TenureType.Code, hm.IsResponsible);
         }
 
         private async Task UpdateTenureIndexAsync(TenureInformation tenure)
@@ -93,12 +88,12 @@ namespace HousingSearchListener.V1.UseCase
             await _esGateway.IndexPerson(esPerson);
         }
 
-        private static HouseholdMembers GetAddedOrUpdatedHouseholdMember(EventData eventData)
+        private static HouseholdMembers GetRemovedHouseholdMember(EventData eventData)
         {
             var oldHms = GetHouseholdMembersFromEventData(eventData.OldData);
             var newHms = GetHouseholdMembersFromEventData(eventData.NewData);
 
-            return newHms.Except(oldHms).FirstOrDefault();
+            return oldHms.Except(newHms).FirstOrDefault();
         }
 
         private static List<HouseholdMembers> GetHouseholdMembersFromEventData(object data)

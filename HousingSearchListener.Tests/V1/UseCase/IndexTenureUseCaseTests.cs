@@ -29,6 +29,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly QueryableAsset _asset;
 
         private readonly Fixture _fixture;
+        private static readonly Guid _correlationId = Guid.NewGuid();
         private const string DateFormat = "yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ";
 
         public IndexTenureUseCaseTests()
@@ -50,6 +51,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             return _fixture.Build<EntityEventSns>()
                            .With(x => x.EventType, eventType)
+                           .With(x => x.CorrelationId, _correlationId)
                            .Create();
         }
 
@@ -107,7 +109,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ProcessMessageAsyncTestGetTenureExceptionThrown()
         {
             var exMsg = "This is an error";
-            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
+            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ThrowsAsync(new Exception(exMsg));
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -117,7 +119,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         [Fact]
         public void ProcessMessageAsyncTestGetTenureReturnsNullThrows()
         {
-            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
+            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ReturnsAsync((TenureInformation)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -128,7 +130,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ProcessMessageAsyncTestIndexTenureExceptionThrows()
         {
             var exMsg = "This is the last error";
-            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
+            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ReturnsAsync(_tenure);
             _mockEsGateway.Setup(x => x.IndexTenure(It.IsAny<QueryableTenure>()))
                           .ThrowsAsync(new Exception(exMsg));
@@ -144,7 +146,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             _message.EventType = eventType;
 
-            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
+            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ReturnsAsync(_tenure);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -161,7 +163,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             _message.EventType = eventType;
 
-            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId))
+            _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId, _message.CorrelationId))
                                        .ReturnsAsync(_tenure);
             _mockEsGateway.Setup(x => x.GetAssetById(_tenure.TenuredAsset.Id)).ReturnsAsync(_asset);
 

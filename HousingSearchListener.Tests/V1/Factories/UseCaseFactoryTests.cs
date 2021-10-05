@@ -63,13 +63,18 @@ namespace HousingSearchListener.Tests.V1.Factories
             _mockServiceProvider.Verify(x => x.GetService(It.IsAny<Type>()), Times.Never);
         }
 
-        [Theory]
-        [InlineData(EventTypes.PersonCreatedEvent)]
-        [InlineData(EventTypes.PersonUpdatedEvent)]
-        public void CreateUseCaseForMessageTestPersonEvents(string eventType)
+        [Fact]
+        public void CreateUseCaseForMessageTestPersonCreatedEvent()
         {
-            _event = ConstructEvent(eventType);
+            _event = ConstructEvent(EventTypes.PersonCreatedEvent);
             TestMessageProcessingCreation<IIndexCreatePersonUseCase>(_event);
+        }
+
+        [Fact]
+        public void CreateUseCaseForMessageTestPersonUpdatedEvent()
+        {
+            _event = ConstructEvent(EventTypes.PersonUpdatedEvent);
+            TestMessageProcessingCreation<IIndexUpdatePersonUseCase>(_event);
         }
 
         [Theory]
@@ -81,12 +86,18 @@ namespace HousingSearchListener.Tests.V1.Factories
             TestMessageProcessingCreation<IIndexTenureUseCase>(_event);
         }
 
-        [Theory]
-        [InlineData(EventTypes.PersonAddedToTenureEvent)]
-        public void CreateUseCaseForMessageTestPersonTenureEvents(string eventType)
+        [Fact]
+        public void CreateUseCaseForMessageTestAddPersonToTenureEvent()
         {
-            _event = ConstructEvent(eventType);
+            _event = ConstructEvent(EventTypes.PersonAddedToTenureEvent);
             TestMessageProcessingCreation<IAddPersonToTenureUseCase>(_event);
+        }
+
+        [Fact]
+        public void CreateUseCaseForMessageTestPersonRemovedFromTenureEvent()
+        {
+            _event = ConstructEvent(EventTypes.PersonRemovedFromTenureEvent);
+            TestMessageProcessingCreation<IRemovePersonFromTenureUseCase>(_event);
         }
     }
 }

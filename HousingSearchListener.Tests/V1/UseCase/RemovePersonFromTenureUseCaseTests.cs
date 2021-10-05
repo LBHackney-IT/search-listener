@@ -20,13 +20,13 @@ using Xunit;
 namespace HousingSearchListener.Tests.V1.UseCase
 {
     [Collection("LogCall collection")]
-    public class AddPersonToTenureUseCaseTests
+    public class RemovePersonFromTenureUseCaseTests
     {
         private readonly Mock<ITenureApiGateway> _mockTenureApi;
         private readonly Mock<IPersonApiGateway> _mockPersonApi;
         private readonly Mock<IEsGateway> _mockEsGateway;
         private readonly IESEntityFactory _esEntityFactory;
-        private readonly AddPersonToTenureUseCase _sut;
+        private readonly RemovePersonFromTenureUseCase _sut;
 
         private readonly EntityEventSns _message;
         private readonly TenureInformation _tenure;
@@ -35,7 +35,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private static readonly Guid _correlationId = Guid.NewGuid();
         private const string DateFormat = "yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ";
 
-        public AddPersonToTenureUseCaseTests()
+        public RemovePersonFromTenureUseCaseTests()
         {
             _fixture = new Fixture();
 
@@ -43,7 +43,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockTenureApi = new Mock<ITenureApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
             _esEntityFactory = new ESEntityFactory();
-            _sut = new AddPersonToTenureUseCase(_mockEsGateway.Object,
+            _sut = new RemovePersonFromTenureUseCase(_mockEsGateway.Object,
                 _mockTenureApi.Object, _mockPersonApi.Object, _esEntityFactory);
 
             _tenure = CreateTenure();
@@ -53,7 +53,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                                        .ReturnsAsync(_tenure);
         }
 
-        private EntityEventSns CreateMessage(Guid tenureId, string eventType = EventTypes.PersonAddedToTenureEvent)
+        private EntityEventSns CreateMessage(Guid tenureId, string eventType = EventTypes.PersonRemovedFromTenureEvent)
         {
             return _fixture.Build<EntityEventSns>()
                            .With(x => x.EventType, eventType)
@@ -69,67 +69,103 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .With(x => x.StartOfTenureDate, DateTime.UtcNow.AddMonths(-6).ToString(DateFormat))
                            .With(x => x.EndOfTenureDate, DateTime.UtcNow.AddYears(6).ToString(DateFormat))
                            .With(x => x.HouseholdMembers, _fixture.Build<HouseholdMembers>()
-                                                                  .With(x => x.Id, Guid.NewGuid().ToString())
                                                                   .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-40).ToString(DateFormat))
                                                                   .With(x => x.PersonTenureType, "Tenant")
                                                                   .CreateMany(3).ToList())
                            .Create();
         }
 
-        private Person CreatePerson(Guid? entityId)
+        private QueryableTenureType ToQueryable(TenureType tt)
         {
-            if (!entityId.HasValue) return null;
+            return new QueryableTenureType { Code = tt.Code, Description = tt.Description };
+        }
 
-            var tenures = _fixture.CreateMany<Tenure>(1).ToList();
-            return _fixture.Build<Person>()
-                           .With(x => x.Id, entityId.ToString())
-                           .With(x => x.Tenures, tenures)
-                           .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ"))
+        private QueryableTenure CreateQueryableTenureForPerson(string tenureId, string personId, string personType)
+        {
+            QueryableTenureType tt;
+            bool isResponsible;
+            switch (personType)
+            {
+                case "HouseholderMember":
+                    tt = ToQueryable(TenureTypes.Secure);
+                    isResponsible = false;
+                    break;
+                case "Freeholder":
+                    tt = ToQueryable(TenureTypes.Freehold);
+                    isResponsible = true;
+                    break;
+                default:
+                    tt = ToQueryable(TenureTypes.Secure);
+                    isResponsible = true;
+                    break;
+            }
+            var hms = _fixture.Build<QueryableHouseholdMember>()
+                              .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-40).ToString(DateFormat))
+                              .With(x => x.PersonTenureType, personType)
+                              .With(x => x.IsResponsible, isResponsible)
+                              .CreateMany(3).ToList();
+            hms.Last().Id = personId;
+
+            return _fixture.Build<QueryableTenure>()
+                           .With(x => x.Id, tenureId)
+                           .With(x => x.TenureType, tt)
+                           .With(x => x.HouseholdMembers, hms)
                            .Create();
         }
 
-        private Guid? SetMessageEventData(TenureInformation tenure, EntityEventSns message, bool hasChanges, HouseholdMembers added = null)
+        private Person CreatePerson(Guid? entityId, bool hasThisTenure = true)
         {
-            var oldData = tenure.HouseholdMembers;
-            var newData = oldData.DeepClone();
+            if (!entityId.HasValue) return null;
+
+            var tenures = _fixture.CreateMany<Tenure>(3).ToList();
+            if (hasThisTenure)
+                tenures.Last().Id = _tenure.Id;
+            var personTypes = new List<string> { "Tenant", "HouseholderMember", "Freeholder" };
+            var person = _fixture.Build<Person>()
+                           .With(x => x.Id, entityId.ToString())
+                           .With(x => x.Tenures, tenures)
+                           .With(x => x.PersonTypes, personTypes)
+                           .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ"))
+                           .Create();
+
+            for (int i = 0; i < tenures.Count; i++)
+            {
+                var personTenure = tenures[i];
+                var personType = personTypes[i];
+                var t = CreateQueryableTenureForPerson(personTenure.Id, person.Id, personType);
+                _mockEsGateway.Setup(x => x.GetTenureById(personTenure.Id)).ReturnsAsync(t);
+            }
+
+            return person;
+        }
+
+        private Guid SetMessageEventData(TenureInformation tenure, EntityEventSns message)
+        {
+            var newData = tenure.HouseholdMembers;
+            var oldData = newData.DeepClone();
             message.EventData = new EventData()
             {
                 OldData = new Dictionary<string, object> { { "householdMembers", oldData } },
                 NewData = new Dictionary<string, object> { { "householdMembers", newData } }
             };
 
-            Guid? personId = null;
-            if (hasChanges)
-            {
-                if (added is null)
-                {
-                    var changed = newData.First();
-                    changed.FullName = "Updated name";
-                    personId = Guid.Parse(changed.Id);
-                }
-                else
-                {
-                    newData.Add(added);
-                    personId = Guid.Parse(added.Id);
-                }
-            }
+            var removedHm = _fixture.Build<HouseholdMembers>()
+                                    .With(x => x.Id, Guid.NewGuid().ToString())
+                                    .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-40).ToString(DateFormat))
+                                    .With(x => x.PersonTenureType, "Tenant")
+                                    .Create();
+            var personId = Guid.Parse(removedHm.Id);
+            oldData.Add(removedHm);
             return personId;
         }
 
-        private bool VerifyPersonIndexed(QueryablePerson esPerson, Person person, TenureInformation tenure)
+        private bool VerifyPersonIndexed(QueryablePerson esPerson, Person startingPerson)
         {
-            esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(person),
-                                                  c => c.Excluding(x => x.Tenures)
-                                                        .Excluding(x => x.PersonTypes));
-
-            var newTenure = esPerson.Tenures.FirstOrDefault(x => x.Id == tenure.Id);
-            newTenure.Should().NotBeNull();
-            newTenure.AssetFullAddress.Should().Be(tenure.TenuredAsset.FullAddress);
-            newTenure.EndDate.Should().Be(tenure.EndOfTenureDate);
-            newTenure.StartDate.Should().Be(tenure.StartOfTenureDate);
-            newTenure.Type.Should().Be(tenure.TenureType.Description);
-
-            esPerson.PersonTypes.Should().Contain("Tenant");
+            esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(startingPerson),
+                                             c => c.Excluding(y => y.Tenures).Excluding(y => y.PersonTypes));
+            esPerson.Tenures.Should().NotContain(x => x.Id == _tenure.Id);
+            esPerson.PersonTypes.Should().HaveCount(2);
+            esPerson.PersonTypes.Should().NotContain("Freeholder");
             return true;
         }
 
@@ -170,8 +206,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
         [Fact]
         public void ProcessMessageAsyncTestGetPersonExceptionThrown()
         {
+            var personId = SetMessageEventData(_tenure, _message);
+
             var exMsg = "This is an error";
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_message.EntityId, _message.CorrelationId))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId, _message.CorrelationId))
                                        .ThrowsAsync(new Exception(exMsg));
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -181,7 +219,8 @@ namespace HousingSearchListener.Tests.V1.UseCase
         [Fact]
         public void ProcessMessageAsyncTestGetPersonReturnsNullThrows()
         {
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(It.IsAny<Guid>(), _message.CorrelationId))
+            var personId = SetMessageEventData(_tenure, _message);
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId, _message.CorrelationId))
                                        .ReturnsAsync((Person)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
@@ -191,9 +230,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
         [Fact]
         public void ProcessMessageAsyncTestIndexTenureExceptionThrows()
         {
-            var personId = SetMessageEventData(_tenure, _message, true);
+            var personId = SetMessageEventData(_tenure, _message);
             var person = CreatePerson(personId);
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId.Value, _message.CorrelationId))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId, _message.CorrelationId))
                                        .ReturnsAsync(person);
 
             _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_message.EntityId, _message.CorrelationId))
@@ -207,15 +246,15 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
 
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person, _tenure))), Times.Never);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person))), Times.Never);
         }
 
         [Fact]
         public void ProcessMessageAsyncTestIndexPersonExceptionThrows()
         {
-            var personId = SetMessageEventData(_tenure, _message, true);
+            var personId = SetMessageEventData(_tenure, _message);
             var person = CreatePerson(personId);
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId.Value, _message.CorrelationId))
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId, _message.CorrelationId))
                                        .ReturnsAsync(person);
             var exMsg = "This is the last error";
             _mockEsGateway.Setup(x => x.IndexPerson(It.IsAny<QueryablePerson>()))
@@ -225,33 +264,24 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
 
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person, _tenure))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person))), Times.Once);
         }
 
-        [Theory]
-        [InlineData(EventTypes.PersonAddedToTenureEvent, false)]
-        [InlineData(EventTypes.PersonAddedToTenureEvent, true)]
-        public async Task ProcessMessageAsyncTestIndexBothSuccess(string eventType, bool added)
+        [Fact]
+        public async Task ProcessMessageAsyncTestIndexBothSuccess()
         {
-            _message.EventType = eventType;
+            var personId = SetMessageEventData(_tenure, _message);
 
-            HouseholdMembers newHm = added ?
-                _fixture.Build<HouseholdMembers>()
-                        .With(x => x.Id, Guid.NewGuid().ToString())
-                        .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-40).ToString(DateFormat))
-                        .With(x => x.PersonTenureType, "Tenant")
-                        .Create()
-                : null;
-
-            var personId = SetMessageEventData(_tenure, _message, true, newHm);
             var person = CreatePerson(personId);
-            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId.Value, _message.CorrelationId))
+            var startingPerson = person.DeepClone();
+            _mockPersonApi.Setup(x => x.GetPersonByIdAsync(personId, _message.CorrelationId))
                                        .ReturnsAsync(person);
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
+            _mockEsGateway.Verify(x => x.GetTenureById(It.IsAny<string>()), Times.Exactly(startingPerson.Tenures.Count - 1));
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Once);
-            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, person, _tenure))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexPerson(It.Is<QueryablePerson>(y => VerifyPersonIndexed(y, startingPerson))), Times.Once);
         }
     }
 }

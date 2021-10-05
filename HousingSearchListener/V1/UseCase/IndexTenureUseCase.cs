@@ -29,7 +29,7 @@ namespace HousingSearchListener.V1.UseCase
             if (message is null) throw new ArgumentNullException(nameof(message));
 
             // 1. Get Tenure from Tenure service API
-            var tenure = await _tenureApiGateway.GetTenureByIdAsync(message.EntityId)
+            var tenure = await _tenureApiGateway.GetTenureByIdAsync(message.EntityId, message.CorrelationId)
                                          .ConfigureAwait(false);
             if (tenure is null) throw new EntityNotFoundException<TenureInformation>(message.EntityId);
 

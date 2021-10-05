@@ -35,11 +35,12 @@ namespace HousingSearchListener.V1.Gateway
         }
 
         [LogCall]
-        public async Task<TenureInformation> GetTenureByIdAsync(Guid id)
+        public async Task<TenureInformation> GetTenureByIdAsync(Guid id, Guid correlationId)
         {
             var client = _httpClientFactory.CreateClient();
             var getTenureRoute = $"{_getTenureApiRoute}/tenures/{id}";
 
+            client.DefaultRequestHeaders.Add("x-correlation-id", correlationId.ToString());
             client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(_getTenureApiToken);
             var response = await client.GetAsync(new Uri(getTenureRoute))
                                        .ConfigureAwait(false);

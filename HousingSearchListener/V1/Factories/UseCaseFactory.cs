@@ -2,13 +2,11 @@
 using HousingSearchListener.V1.UseCase.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using Hackney.Core.Logging;
 
 namespace HousingSearchListener.V1.Factories
 {
     public static class UseCaseFactory
     {
-        [LogCall]
         public static IMessageProcessing CreateUseCaseForMessage(this EntityEventSns entityEvent, IServiceProvider serviceProvider)
         {
             if (entityEvent is null) throw new ArgumentNullException(nameof(entityEvent));
@@ -36,6 +34,11 @@ namespace HousingSearchListener.V1.Factories
                 case EventTypes.PersonAddedToTenureEvent:
                     {
                         processor = serviceProvider.GetService<IAddPersonToTenureUseCase>();
+                        break;
+                    }
+                case EventTypes.PersonRemovedFromTenureEvent:
+                    {
+                        processor = serviceProvider.GetService<IRemovePersonFromTenureUseCase>();
                         break;
                     }
 
