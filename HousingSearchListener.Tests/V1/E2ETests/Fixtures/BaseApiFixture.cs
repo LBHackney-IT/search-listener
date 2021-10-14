@@ -1,29 +1,32 @@
-﻿using AutoFixture;
-using HousingSearchListener.V1.Infrastructure;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
+namespace Hackney.Core.Testing.Shared.E2E
 {
-    public abstract class BaseApiFixture<T> : IDisposable where T : class
+    public class BaseApiFixture<T> : IDisposable where T : class
     {
-        protected readonly Fixture _fixture = new Fixture();
         protected readonly JsonSerializerOptions _jsonOptions;
-        protected HttpListener _httpListener;
-
-        protected string _route;
-        protected string _token;
-
+        private HttpListener _httpListener;
+        public List<HttpListenerRequest> Requests { get; private set; } = new List<HttpListenerRequest>();
         public T ResponseObject { get; protected set; }
-        public string ReceivedCorrelationId { get; private set; }
+        public List<string> ReceivedCorrelationIds { get; protected set; } = new List<string>();
+        public string ApiRoute { get; protected set; }
+        public string ApiToken { get; protected set; }
+        public Dictionary<string, T> Responses { get; protected set; } = new Dictionary<string, T>();
+        public int CallsMade { get; private set; }
 
-        protected BaseApiFixture()
+        public BaseApiFixture(string route, string token)
         {
-            _jsonOptions = JsonOptions.CreateJsonOptions();
+            ApiRoute = route ?? throw new ArgumentNullException(nameof(route));
+            ApiToken = token ?? throw new ArgumentNullException(nameof(token));
+
+            _jsonOptions = CreateJsonOptions();
             StartApiStub();
         }
 
@@ -41,46 +44,74 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
                 if (_httpListener.IsListening)
                     _httpListener.Stop();
 
+                ResponseObject = null;
+                Responses.Clear();
+
                 _disposed = true;
             }
         }
 
-        protected virtual void StartApiStub()
+        protected JsonSerializerOptions CreateJsonOptions()
         {
-            ReceivedCorrelationId = null;
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+            options.Converters.Add(new JsonStringEnumConverter());
+            return options;
+        }
+
+        private void StartApiStub()
+        {
+            CallsMade = 0;
+            Requests.Clear();
+            ReceivedCorrelationIds.Clear();
+
             Task.Run(() =>
             {
                 _httpListener = new HttpListener();
-                _httpListener.Prefixes.Add(_route);
+                _httpListener.Prefixes.Add(ApiRoute);
                 _httpListener.Start();
 
-                // GetContext method blocks while waiting for a request. 
-                HttpListenerContext context = _httpListener.GetContext();
-                HttpListenerResponse response = context.Response;
-
-                if (context.Request.Headers["Authorization"] != _token)
+                // GetContext method blocks while waiting for a request.
+                while (true)
                 {
-                    response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                }
-                else
-                {
-                    ReceivedCorrelationId = context.Request.Headers["x-correlation-id"];
+                    HttpListenerContext context = _httpListener.GetContext();
+                    CallsMade++;
+                    Requests.Add(context.Request);
+                    HttpListenerResponse response = context.Response;
 
-                    response.StatusCode = (int)((ResponseObject is null) ? HttpStatusCode.NotFound : HttpStatusCode.OK);
-                    string responseBody = string.Empty;
-                    if (ResponseObject is null)
+                    if (context.Request.Headers["Authorization"] != ApiToken)
                     {
-                        responseBody = context.Request.Url.Segments.Last();
+                        response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     }
                     else
                     {
-                        responseBody = JsonSerializer.Serialize(ResponseObject, _jsonOptions);
-                    }
-                    Stream stream = response.OutputStream;
-                    using (var writer = new StreamWriter(stream))
-                    {
-                        writer.Write(responseBody);
-                        writer.Close();
+                        ReceivedCorrelationIds.Add(context.Request.Headers["x-correlation-id"]);
+                        var thisResponse = ResponseObject;
+                        if (Responses.Any())
+                        {
+                            var requestedId = context.Request.Url.Segments.Last();
+                            thisResponse = Responses.ContainsKey(requestedId) ? Responses[requestedId] : null;
+                        }
+
+                        response.StatusCode = (int)((thisResponse is null) ? HttpStatusCode.NotFound : HttpStatusCode.OK);
+                        string responseBody = string.Empty;
+                        if (thisResponse is null)
+                        {
+                            responseBody = context.Request.Url.Segments.Last();
+                        }
+                        else
+                        {
+                            responseBody = JsonSerializer.Serialize(thisResponse, _jsonOptions);
+                        }
+                        Stream stream = response.OutputStream;
+                        using (var writer = new StreamWriter(stream))
+                        {
+                            writer.Write(responseBody);
+                            writer.Close();
+                        }
                     }
                 }
             });

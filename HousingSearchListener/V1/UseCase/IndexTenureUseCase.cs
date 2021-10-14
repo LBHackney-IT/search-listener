@@ -1,4 +1,4 @@
-﻿using HousingSearchListener.V1.Boundary;
+﻿using Hackney.Core.Sns;
 using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;

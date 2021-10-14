@@ -1,7 +1,7 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Hackney.Core.Logging;
-using HousingSearchListener.V1.Boundary;
+using Hackney.Core.Sns;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
 using HousingSearchListener.V1.Infrastructure;
@@ -41,6 +41,10 @@ namespace HousingSearchListener
             services.AddScoped<IEsGateway, EsGateway>();
             services.AddScoped<IPersonApiGateway, PersonApiGateway>();
             services.AddScoped<ITenureApiGateway, TenureApiGateway>();
+
+            // Transient because otherwise all gateway's that use it will get the same instance,
+            // which is not the desired result.
+            services.AddTransient<IApiGateway, ApiGateway>();
 
             services.ConfigureElasticSearch(Configuration);
 

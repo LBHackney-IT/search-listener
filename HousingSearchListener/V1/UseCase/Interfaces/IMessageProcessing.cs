@@ -1,4 +1,4 @@
-﻿using HousingSearchListener.V1.Boundary;
+﻿using Hackney.Core.Sns;
 using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase.Interfaces
