@@ -1,4 +1,5 @@
-﻿using Hackney.Core.Sns;
+﻿using Hackney.Core.Logging;
+using Hackney.Core.Sns;
 using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -24,6 +25,7 @@ namespace HousingSearchListener.V1.UseCase
             _esEntityFactory = esPersonFactory;
         }
 
+        [LogCall]
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
             if (message is null) throw new ArgumentNullException(nameof(message));

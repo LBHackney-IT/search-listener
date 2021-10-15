@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using AssetQueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Asset.QueryableTenure;
 using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
 
 namespace HousingSearchListener.Tests
@@ -45,11 +46,6 @@ namespace HousingSearchListener.Tests
         public ElasticSearchFixture()
         {
             EnsureEnvVarConfigured("ELASTICSEARCH_DOMAIN_URL", "http://localhost:9200");
-
-            EnsureEnvVarConfigured("PersonApiUrl", FixtureConstants.PersonApiRoute);
-            EnsureEnvVarConfigured("PersonApiToken", FixtureConstants.PersonApiToken);
-            EnsureEnvVarConfigured("TenureApiUrl", FixtureConstants.TenureApiRoute);
-            EnsureEnvVarConfigured("TenureApiToken", FixtureConstants.TenureApiToken);
 
             _factory = new MockApplicationFactory();
             _host = _factory.CreateHostBuilder(null).Build();
@@ -170,13 +166,46 @@ namespace HousingSearchListener.Tests
 
         public async Task GivenAnAssetIsIndexed(string assetId)
         {
+            await GivenAnAssetIsIndexed(assetId, Guid.NewGuid().ToString());
+        }
+        public async Task GivenAnAssetIsIndexed(string assetId, string tenureId)
+        {
+            var esAssetTenure = _fixture.Build<AssetQueryableTenure>()
+                                        .With(x => x.Id, tenureId)
+                                        .Create();
             var esAsset = _fixture.Build<QueryableAsset>()
                                   .With(x => x.Id, assetId)
                                   .With(x => x.AssetId, assetId)
+                                  .With(x => x.Tenure, esAssetTenure)
                                   .Create();
             var request = new IndexRequest<QueryableAsset>(esAsset, IndexNameAssets);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
             AssetInIndex = esAsset;
+        }
+
+        public async Task GivenTenurePersonsAreIndexed(TenureInformation tenure)
+        {
+            var thisPersonTenure = _fixture.Build<QueryablePersonTenure>()
+                                      .With(x => x.AssetFullAddress, tenure.TenuredAsset.FullAddress)
+                                      .With(x => x.EndDate, tenure.EndOfTenureDate)
+                                      .With(x => x.Id, tenure.Id)
+                                      .With(x => x.PaymentReference, tenure.PaymentReference)
+                                      .With(x => x.StartDate, tenure.StartOfTenureDate)
+                                      .With(x => x.Type, tenure.TenureType.Description)
+                                      .Create();
+            foreach (var hm in tenure.HouseholdMembers)
+            {
+                var personTenures = _fixture.CreateMany<QueryablePersonTenure>(2).ToList();
+                personTenures.Add(thisPersonTenure);
+                var esPerson = _fixture.Build<QueryablePerson>()
+                                      .With(x => x.Id, hm.Id)
+                                      .With(x => x.DateOfBirth, hm.DateOfBirth)
+                                      .With(x => x.Tenures, personTenures)
+                                      .Create();
+
+                var request = new IndexRequest<QueryablePerson>(esPerson, IndexNamePersons);
+                await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+            }
         }
 
         public async Task GivenTheOtherPersonTenuresExist(Person person, Guid tenureId)

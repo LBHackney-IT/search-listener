@@ -100,5 +100,12 @@ namespace HousingSearchListener.Tests.V1.Factories
             _event = ConstructEvent(EventTypes.PersonRemovedFromTenureEvent);
             TestMessageProcessingCreation<IRemovePersonFromTenureUseCase>(_event);
         }
+
+        [Fact]
+        public void CreateUseCaseForMessageTestAccountCreatedEvent()
+        {
+            _event = ConstructEvent(EventTypes.AccountCreatedEvent);
+            TestMessageProcessingCreation<IUpdateAccountDetailsUseCase>(_event);
+        }
     }
 }
