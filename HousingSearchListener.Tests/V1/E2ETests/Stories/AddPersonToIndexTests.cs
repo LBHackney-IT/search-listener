@@ -56,7 +56,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             var personId = Guid.NewGuid();
             this.Given(g => _personApiFixture.GivenThePersonDoesNotExist(personId))
                 .When(w => _steps.WhenTheFunctionIsTriggered(personId, eventType))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationId))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenAPersonNotFoundExceptionIsThrown(personId))
                 .BDDfy();
         }
@@ -68,7 +68,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             this.Given(g => _personApiFixture.GivenThePersonExists(personId))
                 .And(h => _esFixture.GivenAPersonIsNotIndexed(_personApiFixture.ResponseObject))
                 .When(w => _steps.WhenTheFunctionIsTriggered(personId, EventTypes.PersonCreatedEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationId))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenTheIndexIsUpdatedWithThePerson(_personApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
@@ -80,7 +80,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             this.Given(g => _personApiFixture.GivenThePersonExists(personId))
                 .And(h => _esFixture.GivenAPersonIsIndexedWithDifferentInfo(_personApiFixture.ResponseObject))
                 .When(w => _steps.WhenTheFunctionIsTriggered(personId, EventTypes.PersonUpdatedEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationId))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenTheIndexIsUpdatedWithThePerson(_personApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
@@ -94,9 +94,9 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
                                                 Guid.Parse(_personApiFixture.ResponseObject.Tenures.First().Id), personId))
                 .And(h => _esFixture.GivenAPersonIsIndexedWithDifferentInfo(_personApiFixture.ResponseObject))
                 .When(w => _steps.WhenTheFunctionIsTriggered(personId, EventTypes.PersonUpdatedEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationId))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationId))
                 .Then(t => _steps.ThenTheIndexIsUpdatedWithTheUpdatedPersonTenure(_personApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationIds))
                 .BDDfy();
         }
     }

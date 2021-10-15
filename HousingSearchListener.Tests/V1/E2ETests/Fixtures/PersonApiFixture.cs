@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using Hackney.Core.Testing.Shared.E2E;
 using HousingSearchListener.V1.Domain.Person;
 using System;
 using System.Collections.Generic;
@@ -8,20 +9,19 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
     public class PersonApiFixture : BaseApiFixture<Person>
     {
+        private readonly Fixture _fixture = new Fixture();
+
         public PersonApiFixture()
+            : base(FixtureConstants.PersonApiRoute, FixtureConstants.PersonApiToken)
         {
             Environment.SetEnvironmentVariable("PersonApiUrl", FixtureConstants.PersonApiRoute);
             Environment.SetEnvironmentVariable("PersonApiToken", FixtureConstants.PersonApiToken);
-
-            _route = FixtureConstants.PersonApiRoute;
-            _token = FixtureConstants.PersonApiToken;
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing && !_disposed)
             {
-                ResponseObject = null;
                 base.Dispose(disposing);
             }
         }

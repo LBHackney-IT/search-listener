@@ -1,6 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using HousingSearchListener.V1.Boundary;
+using Hackney.Core.Sns;
 using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -11,6 +11,7 @@ using Moq;
 using System;
 using System.Threading.Tasks;
 using Xunit;
+using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
 using QueryableTenuredAsset = HousingSearchListener.V1.Domain.ElasticSearch.Asset.QueryableTenuredAsset;
 

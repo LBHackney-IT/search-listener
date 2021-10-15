@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using Force.DeepCloner;
-using HousingSearchListener.V1.Boundary;
+using Hackney.Core.Sns;
+using Hackney.Core.Testing.Shared.E2E;
 using HousingSearchListener.V1.Domain.Tenure;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
     public class TenureApiFixture : BaseApiFixture<TenureInformation>
     {
+        private readonly Fixture _fixture = new Fixture();
         private const string DateFormat = "yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ";
 
         public EventData MessageEventData { get; private set; }
@@ -17,19 +19,16 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
         public Guid RemovedPersonId { get; private set; }
 
         public TenureApiFixture()
+            : base(FixtureConstants.TenureApiRoute, FixtureConstants.TenureApiToken)
         {
             Environment.SetEnvironmentVariable("TenureApiUrl", FixtureConstants.TenureApiRoute);
             Environment.SetEnvironmentVariable("TenureApiToken", FixtureConstants.TenureApiToken);
-
-            _route = FixtureConstants.TenureApiRoute;
-            _token = FixtureConstants.TenureApiToken;
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing && !_disposed)
             {
-                ResponseObject = null;
                 base.Dispose(disposing);
             }
         }
