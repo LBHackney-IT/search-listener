@@ -7,7 +7,7 @@ using Xunit;
 namespace HousingSearchListener.Tests.V1.E2ETests.Stories
 {
     [Story(
-        AsA = "SQS Tenure Listener",
+        AsA = "SQS Housing Search Listener",
         IWant = "a function to process the account created message",
         SoThat = "The account details are set in the appropriate places in the asset, tenure and person indexes")]
     [Collection("ElasticSearch collection")]
