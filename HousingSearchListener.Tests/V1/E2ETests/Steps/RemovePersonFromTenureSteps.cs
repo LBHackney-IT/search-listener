@@ -29,11 +29,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             await TriggerFunction(CreateMessage(eventMsg));
         }
 
-        public void ThenTheCorrelationIdWasUsedInTheApiCall(string receivedCorrelationId)
-        {
-            receivedCorrelationId.Should().Be(_correlationId.ToString());
-        }
-
         public void ThenAPersonNotFoundExceptionIsThrown(Guid id)
         {
             _lastException.Should().NotBeNull();

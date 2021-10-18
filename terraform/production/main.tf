@@ -32,6 +32,10 @@ data "aws_ssm_parameter" "tenure_sns_topic_arn" {
   name = "/sns-topic/production/tenure/arn"
 }
 
+data "aws_ssm_parameter" "accounts_sns_topic_arn" {
+  name = "/sns-topic/production/accounts/arn"
+}
+
 terraform {
   backend "s3" {
     bucket  = "terraform-state-housing-production"
@@ -95,6 +99,18 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
                     "aws:SourceArn": "${data.aws_ssm_parameter.tenure_sns_topic_arn.value}"
                 }
             }
+        },
+        {
+            "Sid": "Third",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "sqs:SendMessage",
+            "Resource": "${aws_sqs_queue.housing_search_listener_queue.arn}",
+            "Condition": {
+                "ArnEquals": {
+                    "aws:SourceArn": "${data.aws_ssm_parameter.accounts_sns_topic_arn.value}"
+                }
+            }
         }
       ]
   }
@@ -110,6 +126,13 @@ resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_t
 
 resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_tenure_sns" {
   topic_arn            = data.aws_ssm_parameter.tenure_sns_topic_arn.value
+  protocol             = "sqs"
+  endpoint             = aws_sqs_queue.housing_search_listener_queue.arn
+  raw_message_delivery = true
+}
+
+resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_accounts_sns" {
+  topic_arn            = data.aws_ssm_parameter.accounts_sns_topic_arn.value
   protocol             = "sqs"
   endpoint             = aws_sqs_queue.housing_search_listener_queue.arn
   raw_message_delivery = true

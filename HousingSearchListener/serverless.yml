@@ -24,6 +24,8 @@ functions:
       PersonApiToken: ${ssm:/housing-tl/${self:provider.stage}/person-api-token}
       TenureApiUrl: ${ssm:/housing-tl/${self:provider.stage}/tenure-api-url}
       TenureApiToken: ${ssm:/housing-tl/${self:provider.stage}/tenure-api-token}
+      AccountApiUrl: ${ssm:/housing-finance/${self:provider.stage}/account-api-url}
+      AccountApiToken: ${ssm:/housing-finance/${self:provider.stage}/account-api-token}
     events:
       - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housing_search_listener_queue/arn} 
 resources:

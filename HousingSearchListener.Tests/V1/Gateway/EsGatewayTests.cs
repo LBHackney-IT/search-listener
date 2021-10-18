@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
+using Hackney.Core.Testing.Shared;
 using HousingSearchListener.V1.Domain.ElasticSearch.Person;
 using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Gateway;
@@ -63,7 +64,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             return true;
         }
 
-        private QueryablePerson CreatePerson()
+        private QueryablePerson CreateQueryablePerson()
         {
             return _fixture.Build<QueryablePerson>()
                            .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-30).ToString())
@@ -102,7 +103,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public async Task IndexPersonTestCallsEsClientUsingMocks()
         {
             var indexResponse = _fixture.Create<IndexResponse>();
-            var person = CreatePerson();
+            var person = CreateQueryablePerson();
             _mockEsClient.Setup(x => x.IndexAsync(It.IsAny<IndexRequest<QueryablePerson>>(), default(CancellationToken)))
                          .ReturnsAsync(indexResponse);
             var response = await _sut.IndexPerson(person).ConfigureAwait(false);
@@ -117,7 +118,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public async Task IndexPersonTestCallsEsClient()
         {
             var sut = new EsGateway(_testFixture.ElasticSearchClient, _mockLogger.Object);
-            var person = CreatePerson();
+            var person = CreateQueryablePerson();
             var response = await sut.IndexPerson(person).ConfigureAwait(false);
 
             response.Should().NotBeNull();
@@ -263,6 +264,32 @@ namespace HousingSearchListener.Tests.V1.Gateway
             response.Should().BeEquivalentTo(tenure);
 
             _cleanup.Add(async () => await _testFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("tenures", tenure.Id))
+                                                                           .ConfigureAwait(false));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void GetPersonByIdTestInvalidInputThrows(string id)
+        {
+            Func<Task<QueryablePerson>> func = async () => await _sut.GetPersonById(id).ConfigureAwait(false);
+            func.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task GetPersonByIdTestCallsEsClient()
+        {
+            var sut = new EsGateway(_testFixture.ElasticSearchClient, _mockLogger.Object);
+            var person = CreateQueryablePerson();
+            var request = new IndexRequest<QueryablePerson>(person, "persons");
+            await _testFixture.ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+
+            var response = await sut.GetPersonById(person.Id).ConfigureAwait(false);
+
+            response.Should().NotBeNull();
+            response.Should().BeEquivalentTo(person);
+
+            _cleanup.Add(async () => await _testFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("persons", person.Id))
                                                                            .ConfigureAwait(false));
         }
     }
