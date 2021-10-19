@@ -75,5 +75,12 @@ namespace HousingSearchListener.V1.Gateway
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
             return await GetById<Domain.ElasticSearch.Tenure.QueryableTenure>(id, IndexNameTenures);
         }
+
+        [LogCall]
+        public async Task<QueryablePerson> GetPersonById(string id)
+        {
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+            return await GetById<QueryablePerson>(id, IndexNamePersons);
+        }
     }
 }

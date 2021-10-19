@@ -9,5 +9,7 @@
         public const string TenureUpdatedEvent = "TenureUpdatedEvent";
         public const string PersonAddedToTenureEvent = "PersonAddedToTenureEvent";
         public const string PersonRemovedFromTenureEvent = "PersonRemovedFromTenureEvent";
+
+        public const string AccountCreatedEvent = "AccountCreatedEvent";
     }
 }

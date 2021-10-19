@@ -1,7 +1,8 @@
-﻿using HousingSearchListener.V1.Boundary;
+﻿using Hackney.Core.Sns;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 
 namespace HousingSearchListener.V1.Factories
 {
@@ -39,6 +40,11 @@ namespace HousingSearchListener.V1.Factories
                 case EventTypes.PersonRemovedFromTenureEvent:
                     {
                         processor = serviceProvider.GetService<IRemovePersonFromTenureUseCase>();
+                        break;
+                    }
+                case EventTypes.AccountCreatedEvent:
+                    {
+                        processor = serviceProvider.GetService<IUpdateAccountDetailsUseCase>();
                         break;
                     }
 

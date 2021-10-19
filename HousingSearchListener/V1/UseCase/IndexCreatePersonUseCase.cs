@@ -1,5 +1,4 @@
-﻿using HousingSearchListener.V1.Boundary;
-using HousingSearchListener.V1.Domain.Person;
+﻿using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
@@ -7,6 +6,7 @@ using HousingSearchListener.V1.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
 using Hackney.Core.Logging;
+using Hackney.Core.Sns;
 
 namespace HousingSearchListener.V1.UseCase
 {

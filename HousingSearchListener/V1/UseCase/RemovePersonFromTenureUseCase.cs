@@ -1,4 +1,5 @@
-﻿using HousingSearchListener.V1.Boundary;
+﻿using Hackney.Core.Logging;
+using Hackney.Core.Sns;
 using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
@@ -31,6 +32,7 @@ namespace HousingSearchListener.V1.UseCase
             _esEntityFactory = esEntityFactory;
         }
 
+        [LogCall]
         public async Task ProcessMessageAsync(EntityEventSns message)
         {
             if (message is null) throw new ArgumentNullException(nameof(message));

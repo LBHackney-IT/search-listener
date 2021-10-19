@@ -1,6 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using HousingSearchListener.V1.Boundary;
+using Hackney.Core.Sns;
 using HousingSearchListener.V1.Domain.ElasticSearch.Person;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
@@ -12,6 +12,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 
 namespace HousingSearchListener.Tests.V1.UseCase
 {

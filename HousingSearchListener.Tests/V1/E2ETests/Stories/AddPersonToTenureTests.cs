@@ -53,7 +53,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             var tenureId = Guid.NewGuid();
             this.Given(g => _tenureApiFixture.GivenTheTenureDoesNotExist(tenureId))
                 .When(w => _steps.WhenTheFunctionIsTriggered(tenureId, _tenureApiFixture.MessageEventData, EventTypes.PersonAddedToTenureEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationId))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenATenureNotFoundExceptionIsThrown(tenureId))
                 .BDDfy();
         }
@@ -65,8 +65,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureApiFixture.GivenTheTenureExists(tenureId))
                 .And(g => _personApiFixture.GivenThePersonDoesNotExist(_tenureApiFixture.AddedPersonId))
                 .When(w => _steps.WhenTheFunctionIsTriggered(tenureId, _tenureApiFixture.MessageEventData, EventTypes.PersonAddedToTenureEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationId))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationId))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationIds))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenAPersonNotFoundExceptionIsThrown(_tenureApiFixture.AddedPersonId))
                 .BDDfy();
         }
@@ -78,8 +78,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureApiFixture.GivenTheTenureExists(tenureId))
                 .And(g => _personApiFixture.GivenThePersonExists(_tenureApiFixture.AddedPersonId))
                 .When(w => _steps.WhenTheFunctionIsTriggered(tenureId, _tenureApiFixture.MessageEventData, EventTypes.PersonAddedToTenureEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationId))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationId))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationIds))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenTheIndexIsUpdatedWithTheTenure(_tenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .Then(t => _steps.ThenTheIndexIsUpdatedWithThePerson(_personApiFixture.ResponseObject, _tenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
