@@ -1,11 +1,12 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using HousingSearchListener.V1.Boundary;
+using Hackney.Core.Sns;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using Moq;
 using System;
 using Xunit;
+using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
@@ -98,6 +99,13 @@ namespace HousingSearchListener.Tests.V1.Factories
         {
             _event = ConstructEvent(EventTypes.PersonRemovedFromTenureEvent);
             TestMessageProcessingCreation<IRemovePersonFromTenureUseCase>(_event);
+        }
+
+        [Fact]
+        public void CreateUseCaseForMessageTestAccountCreatedEvent()
+        {
+            _event = ConstructEvent(EventTypes.AccountCreatedEvent);
+            TestMessageProcessingCreation<IUpdateAccountDetailsUseCase>(_event);
         }
     }
 }

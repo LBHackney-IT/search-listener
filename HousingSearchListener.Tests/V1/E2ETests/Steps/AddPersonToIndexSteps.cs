@@ -1,69 +1,30 @@
-﻿using Amazon.Lambda.Core;
-using Amazon.Lambda.SQSEvents;
-using Amazon.Lambda.TestUtilities;
-using AutoFixture;
-using FluentAssertions;
-using HousingSearchListener.V1.Boundary;
+﻿using FluentAssertions;
 using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
-using Moq;
 using Nest;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
-using Xunit;
+using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
     public class AddPersonToIndexSteps : BaseSteps
     {
-        private readonly Fixture _fixture = new Fixture();
         private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
-        private Exception _lastException;
-        protected readonly Guid _correlationId = Guid.NewGuid();
 
         public AddPersonToIndexSteps()
-        { }
-
-        private SQSEvent.SQSMessage CreateMessage(Guid personId, string eventType = EventTypes.PersonCreatedEvent)
         {
-            var personSns = _fixture.Build<EntityEventSns>()
-                                    .With(x => x.EntityId, personId)
-                                    .With(x => x.EventType, eventType)
-                                    .With(x => x.CorrelationId, _correlationId)
-                                    .Create();
-
-            var msgBody = JsonSerializer.Serialize(personSns, _jsonOptions);
-            return _fixture.Build<SQSEvent.SQSMessage>()
-                           .With(x => x.Body, msgBody)
-                           .With(x => x.MessageAttributes, new Dictionary<string, SQSEvent.MessageAttribute>())
-                           .Create();
+            _eventType = EventTypes.PersonCreatedEvent;
         }
 
         public async Task WhenTheFunctionIsTriggered(Guid personId, string eventType)
         {
-            var mockLambdaLogger = new Mock<ILambdaLogger>();
-            ILambdaContext lambdaContext = new TestLambdaContext()
-            {
-                Logger = mockLambdaLogger.Object
-            };
-
-            var sqsEvent = _fixture.Build<SQSEvent>()
-                                   .With(x => x.Records, new List<SQSEvent.SQSMessage> { CreateMessage(personId, eventType) })
-                                   .Create();
-
-            Func<Task> func = async () =>
-            {
-                var fn = new HousingSearchListener();
-                await fn.FunctionHandler(sqsEvent, lambdaContext).ConfigureAwait(false);
-            };
-
-            _lastException = await Record.ExceptionAsync(func);
+            var eventMsg = CreateEvent(personId, eventType);
+            await TriggerFunction(CreateMessage(eventMsg));
         }
 
         public void ThenTheCorrelationIdWasUsedInTheApiCall(string receivedCorrelationId)
