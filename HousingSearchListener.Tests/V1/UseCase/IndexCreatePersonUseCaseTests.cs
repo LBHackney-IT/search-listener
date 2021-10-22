@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Hackney.Core.Sns;
-using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;

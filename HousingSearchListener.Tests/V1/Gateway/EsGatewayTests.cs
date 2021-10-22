@@ -1,8 +1,9 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Hackney.Core.Testing.Shared;
-using HousingSearchListener.V1.Domain.ElasticSearch.Person;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
+using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Gateway;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -14,7 +15,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
-using QueryableAsset = HousingSearchListener.V1.Domain.ElasticSearch.Asset.QueryableAsset;
 
 namespace HousingSearchListener.Tests.V1.Gateway
 {

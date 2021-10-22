@@ -104,12 +104,12 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      # - run:
-          # name: build
-          # command: docker-compose build tenure-listener-test
-      # - run:
-          # name: Run tests
-          # command: docker-compose run tenure-listener-test
+      - run:
+          name: build
+          command: docker-compose build housing-search-listener-tests
+      - run:
+          name: Run tests
+          command: docker-compose run housing-search-listener-tests
   assume-role-development:
     executor: docker-python
     steps:

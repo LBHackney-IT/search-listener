@@ -1,9 +1,10 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Hackney.Core.Sns;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
+using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Account;
-using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
-using HousingSearchListener.V1.Domain.ElasticSearch.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
@@ -15,9 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using AssetQueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Asset.QueryableTenure;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
-using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
 
 namespace HousingSearchListener.Tests.V1.UseCase
 {
@@ -85,7 +84,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             return _fixture.Build<QueryableAsset>()
                            .With(x => x.Id, id)
-                           .With(x => x.Tenure, _fixture.Build<AssetQueryableTenure>()
+                           .With(x => x.Tenure, _fixture.Build<QueryableAssetTenure>()
                                                         .With(y => y.Id, tenureId)
                                                         .Create())
                            .Create();

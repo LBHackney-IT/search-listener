@@ -1,6 +1,6 @@
 ﻿using Hackney.Core.Logging;
 using Hackney.Core.Sns;
-using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
