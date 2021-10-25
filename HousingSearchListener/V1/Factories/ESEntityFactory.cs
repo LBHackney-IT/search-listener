@@ -1,10 +1,13 @@
-using HousingSearchListener.V1.Domain.ElasticSearch.Person;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
+
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
+using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QueryableTenuredAsset = Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenuredAsset;
 
 namespace HousingSearchListener.V1.Factories
 {
@@ -28,11 +31,10 @@ namespace HousingSearchListener.V1.Factories
             {
                 Id = person.Id,
                 DateOfBirth = person.DateOfBirth,
-                PlaceOfBirth = person.PlaceOfBirth,
                 Title = person.Title,
                 Firstname = person.FirstName,
                 Surname = person.Surname,
-                MiddleName = person.MiddleName,
+                Middlename = person.MiddleName,
                 PreferredFirstname = person.PreferredFirstName,
                 PreferredSurname = person.PreferredSurname,
                 PersonTypes = person.PersonTypes,
@@ -79,23 +81,16 @@ namespace HousingSearchListener.V1.Factories
             }).ToList();
         }
 
-        public Domain.ElasticSearch.Asset.QueryableTenure CreateAssetQueryableTenure(TenureInformation tenure)
+        public QueryableAssetTenure CreateAssetQueryableTenure(TenureInformation tenure)
         {
             if (tenure is null) throw new ArgumentNullException(nameof(tenure));
 
-            return new Domain.ElasticSearch.Asset.QueryableTenure()
+            return new QueryableAssetTenure()
             {
                 Id = tenure.Id,
                 EndOfTenureDate = tenure.EndOfTenureDate,
                 PaymentReference = tenure.PaymentReference,
                 StartOfTenureDate = tenure.StartOfTenureDate,
-                TenuredAsset = new Domain.ElasticSearch.Asset.QueryableTenuredAsset()
-                {
-                    FullAddress = tenure.TenuredAsset.FullAddress,
-                    Id = tenure.TenuredAsset.Id,
-                    Type = tenure.TenuredAsset.Type,
-                    Uprn = tenure.TenuredAsset.Uprn,
-                },
                 Type = tenure.TenureType.Description
             };
         }

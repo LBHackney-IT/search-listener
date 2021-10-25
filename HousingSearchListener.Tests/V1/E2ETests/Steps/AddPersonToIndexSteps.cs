@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using HousingSearchListener.V1.Domain.ElasticSearch.Person;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
+using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
+using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
