@@ -31,8 +31,6 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.DateOfBirth.Should().Be(domainPerson.DateOfBirth);
             result.Firstname.Should().Be(domainPerson.FirstName);
             result.Id.Should().Be(domainPerson.Id);
-            //result.IsPersonCautionaryAlerted.Should().Be();
-            //result.IsTenureCautionaryAlerted.Should().Be();            
             result.Middlename.Should().Be(domainPerson.MiddleName);
             result.PersonTypes.Should().BeEquivalentTo(domainPerson.PersonTypes);
             result.PreferredFirstname.Should().Be(domainPerson.PreferredFirstName);
