@@ -1,5 +1,6 @@
-﻿using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
-using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+﻿using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
+using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using Nest;
 using System.Threading.Tasks;
 
@@ -9,13 +10,13 @@ namespace HousingSearchListener.V1.Gateway
     {
         Task<IndexResponse> IndexPerson(QueryablePerson esPerson);
 
-        Task<IndexResponse> IndexTenure(Domain.ElasticSearch.Tenure.QueryableTenure esTenure);
+        Task<IndexResponse> IndexTenure(QueryableTenure esTenure);
 
         Task<IndexResponse> IndexAsset(QueryableAsset esAsset);
 
         Task<QueryableAsset> GetAssetById(string id);
 
-        Task<Domain.ElasticSearch.Tenure.QueryableTenure> GetTenureById(string id);
+        Task<QueryableTenure> GetTenureById(string id);
 
         Task<QueryablePerson> GetPersonById(string id);
     }

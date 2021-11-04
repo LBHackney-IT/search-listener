@@ -1,6 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
+using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -31,9 +31,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.DateOfBirth.Should().Be(domainPerson.DateOfBirth);
             result.Firstname.Should().Be(domainPerson.FirstName);
             result.Id.Should().Be(domainPerson.Id);
-            //result.IsPersonCautionaryAlerted.Should().Be();
-            //result.IsTenureCautionaryAlerted.Should().Be();            
-            result.MiddleName.Should().Be(domainPerson.MiddleName);
+            result.Middlename.Should().Be(domainPerson.MiddleName);
             result.PersonTypes.Should().BeEquivalentTo(domainPerson.PersonTypes);
             result.PreferredFirstname.Should().Be(domainPerson.PreferredFirstName);
             result.PreferredSurname.Should().Be(domainPerson.PreferredSurname);
@@ -112,7 +110,6 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.Id.Should().Be(domainTenure.Id);
             result.PaymentReference.Should().Be(domainTenure.PaymentReference);
             result.StartOfTenureDate.Should().Be(domainTenure.StartOfTenureDate);
-            result.TenuredAsset.Should().BeEquivalentTo(domainTenure.TenuredAsset);
             result.Type.Should().Be(domainTenure.TenureType.Description);
         }
     }

@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using HousingSearchListener.V1.Domain.ElasticSearch.Person;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
+using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
+using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
@@ -25,11 +25,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         {
             var eventMsg = CreateEvent(personId, eventType);
             await TriggerFunction(CreateMessage(eventMsg));
-        }
-
-        public void ThenTheCorrelationIdWasUsedInTheApiCall(string receivedCorrelationId)
-        {
-            receivedCorrelationId.Should().Be(_correlationId.ToString());
         }
 
         public void ThenAPersonNotFoundExceptionIsThrown(Guid id)

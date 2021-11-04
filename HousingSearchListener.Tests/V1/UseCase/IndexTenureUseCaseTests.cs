@@ -1,7 +1,8 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Hackney.Core.Sns;
-using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
@@ -12,8 +13,6 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
-using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
-using QueryableTenuredAsset = HousingSearchListener.V1.Domain.ElasticSearch.Asset.QueryableTenuredAsset;
 
 namespace HousingSearchListener.Tests.V1.UseCase
 {
@@ -88,13 +87,6 @@ namespace HousingSearchListener.Tests.V1.UseCase
             asset.Tenure.Id.Should().Be(_tenure.Id);
             asset.Tenure.PaymentReference.Should().Be(_tenure.PaymentReference);
             asset.Tenure.StartOfTenureDate.Should().Be(_tenure.StartOfTenureDate);
-            asset.Tenure.TenuredAsset.Should().BeEquivalentTo(new QueryableTenuredAsset()
-            {
-                FullAddress = _tenure.TenuredAsset.FullAddress,
-                Id = _tenure.TenuredAsset.Id,
-                Type = _tenure.TenuredAsset.Type,
-                Uprn = _tenure.TenuredAsset.Uprn,
-            });
             asset.Tenure.Type.Should().Be(_tenure.TenureType.Description);
             return true;
         }
