@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
-using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
@@ -7,8 +8,6 @@ using Nest;
 using System;
 using System.Threading.Tasks;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
-using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
-using QueryableTenuredAsset = HousingSearchListener.V1.Domain.ElasticSearch.Asset.QueryableTenuredAsset;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
@@ -25,11 +24,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         {
             var eventMsg = CreateEvent(tenureId, eventType);
             await TriggerFunction(CreateMessage(eventMsg));
-        }
-
-        public void ThenTheCorrelationIdWasUsedInTheApiCall(string receivedCorrelationId)
-        {
-            receivedCorrelationId.Should().Be(_correlationId.ToString());
         }
 
         public void ThenAnAssetNotIndexedExceptionIsThrown(string id)
@@ -68,13 +62,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             assetInIndex.Tenure.Id.Should().Be(tenure.Id);
             assetInIndex.Tenure.PaymentReference.Should().Be(tenure.PaymentReference);
             assetInIndex.Tenure.StartOfTenureDate.Should().Be(tenure.StartOfTenureDate);
-            assetInIndex.Tenure.TenuredAsset.Should().BeEquivalentTo(new QueryableTenuredAsset()
-            {
-                FullAddress = tenure.TenuredAsset.FullAddress,
-                Id = tenure.TenuredAsset.Id,
-                Type = tenure.TenuredAsset.Type,
-                Uprn = tenure.TenuredAsset.Uprn,
-            });
             assetInIndex.Tenure.Type.Should().Be(tenure.TenureType.Description);
         }
     }

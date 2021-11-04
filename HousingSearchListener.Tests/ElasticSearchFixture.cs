@@ -1,8 +1,8 @@
 ﻿using AutoFixture;
 using Elasticsearch.Net;
-using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
-using HousingSearchListener.V1.Domain.ElasticSearch.Person;
-using HousingSearchListener.V1.Domain.ElasticSearch.Tenure;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
+using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -15,8 +15,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using AssetQueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Asset.QueryableTenure;
-using QueryableTenure = HousingSearchListener.V1.Domain.ElasticSearch.Tenure.QueryableTenure;
 
 namespace HousingSearchListener.Tests
 {
@@ -170,7 +168,7 @@ namespace HousingSearchListener.Tests
         }
         public async Task GivenAnAssetIsIndexed(string assetId, string tenureId)
         {
-            var esAssetTenure = _fixture.Build<AssetQueryableTenure>()
+            var esAssetTenure = _fixture.Build<QueryableAssetTenure>()
                                         .With(x => x.Id, tenureId)
                                         .Create();
             var esAsset = _fixture.Build<QueryableAsset>()

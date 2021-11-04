@@ -1,6 +1,7 @@
 ﻿using Hackney.Core.Logging;
-using HousingSearchListener.V1.Domain.ElasticSearch.Asset;
-using HousingSearchListener.V1.Domain.ElasticSearch.Person;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
+using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using Microsoft.Extensions.Logging;
 using Nest;
 using System;
@@ -45,7 +46,7 @@ namespace HousingSearchListener.V1.Gateway
         }
 
         [LogCall]
-        public async Task<IndexResponse> IndexTenure(Domain.ElasticSearch.Tenure.QueryableTenure esTenure)
+        public async Task<IndexResponse> IndexTenure(QueryableTenure esTenure)
         {
             if (esTenure is null) throw new ArgumentNullException(nameof(esTenure));
 
@@ -70,10 +71,10 @@ namespace HousingSearchListener.V1.Gateway
         }
 
         [LogCall]
-        public async Task<Domain.ElasticSearch.Tenure.QueryableTenure> GetTenureById(string id)
+        public async Task<QueryableTenure> GetTenureById(string id)
         {
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
-            return await GetById<Domain.ElasticSearch.Tenure.QueryableTenure>(id, IndexNameTenures);
+            return await GetById<QueryableTenure>(id, IndexNameTenures);
         }
 
         [LogCall]
