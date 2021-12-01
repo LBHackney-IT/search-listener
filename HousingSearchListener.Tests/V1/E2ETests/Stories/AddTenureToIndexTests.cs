@@ -77,11 +77,13 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureApiFixture.GivenTheTenureExists(id))
                 .And(h => _esFixture.GivenATenureIsNotIndexed(_tenureApiFixture.ResponseObject))
                 .And(i => _esFixture.GivenAnAssetIsIndexed(_tenureApiFixture.ResponseObject.TenuredAsset.Id))
+                .And(i => _esFixture.GivenTenurePersonsAreIndexed(_tenureApiFixture.ResponseObject, true))
                 .When(w => _steps.WhenTheFunctionIsTriggered(id, EventTypes.TenureCreatedEvent))
                 .Then(t => _steps.ThenTheTenureIndexIsUpdated(_tenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .Then(t => _steps.ThenTheAssetIndexIsUpdatedWithTheTenure(_tenureApiFixture.ResponseObject,
                                                                           _esFixture.AssetInIndex,
                                                                           _esFixture.ElasticSearchClient))
+                .Then(t => _steps.ThenThePersonIndexIsUpdatedWithTheTenure(_tenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
 
@@ -92,11 +94,13 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             this.Given(g => _tenureApiFixture.GivenTheTenureExists(id))
                 .And(h => _esFixture.GivenATenureIsIndexedWithDifferentInfo(_tenureApiFixture.ResponseObject))
                 .And(i => _esFixture.GivenAnAssetIsIndexed(_tenureApiFixture.ResponseObject.TenuredAsset.Id))
+                .And(i => _esFixture.GivenTenurePersonsAreIndexed(_tenureApiFixture.ResponseObject, true))
                 .When(w => _steps.WhenTheFunctionIsTriggered(id, EventTypes.TenureUpdatedEvent))
                 .Then(t => _steps.ThenTheTenureIndexIsUpdated(_tenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .Then(t => _steps.ThenTheAssetIndexIsUpdatedWithTheTenure(_tenureApiFixture.ResponseObject,
                                                                           _esFixture.AssetInIndex,
                                                                           _esFixture.ElasticSearchClient))
+                .Then(t => _steps.ThenThePersonIndexIsUpdatedWithTheTenure(_tenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
     }

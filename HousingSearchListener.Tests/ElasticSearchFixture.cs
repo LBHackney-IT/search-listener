@@ -183,12 +183,17 @@ namespace HousingSearchListener.Tests
 
         public async Task GivenTenurePersonsAreIndexed(TenureInformation tenure)
         {
+            await GivenTenurePersonsAreIndexed(tenure, false);
+        }
+
+        public async Task GivenTenurePersonsAreIndexed(TenureInformation tenure, bool areOld)
+        {
             var thisPersonTenure = _fixture.Build<QueryablePersonTenure>()
                                       .With(x => x.AssetFullAddress, tenure.TenuredAsset.FullAddress)
-                                      .With(x => x.EndDate, tenure.EndOfTenureDate)
+                                      .With(x => x.EndDate, areOld ? null : tenure.EndOfTenureDate)
                                       .With(x => x.Id, tenure.Id)
-                                      .With(x => x.PaymentReference, tenure.PaymentReference)
-                                      .With(x => x.StartDate, tenure.StartOfTenureDate)
+                                      .With(x => x.PaymentReference, areOld ? null : tenure.PaymentReference)
+                                      .With(x => x.StartDate, areOld ? null : tenure.StartOfTenureDate)
                                       .With(x => x.Type, tenure.TenureType.Description)
                                       .Create();
             foreach (var hm in tenure.HouseholdMembers)
