@@ -11,5 +11,6 @@
         public const string PersonRemovedFromTenureEvent = "PersonRemovedFromTenureEvent";
 
         public const string AccountCreatedEvent = "AccountCreatedEvent";
+        public const string TransactionCreatedEvent = "TransactionCreatedEvent";
     }
 }
