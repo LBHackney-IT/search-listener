@@ -24,7 +24,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         {
             _esFixture = esFixture;
             _financialTransactionApiFixture = new FinancialTransactionApiFixture();
-          
+
             _steps = new AddTransactionToIndexSteps();
         }
 
