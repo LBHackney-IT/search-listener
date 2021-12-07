@@ -36,6 +36,10 @@ data "aws_ssm_parameter" "accounts_sns_topic_arn" {
   name = "/sns-topic/development/accounts/arn"
 }
 
+data "aws_ssm_parameter" "transaction_sns_topic_arn" {
+  name = "/sns-topic/development/financial-transactions_created/arn"
+}
+
 terraform {
   backend "s3" {
     bucket  = "terraform-state-housing-development"
@@ -111,6 +115,18 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
                     "aws:SourceArn": "${data.aws_ssm_parameter.accounts_sns_topic_arn.value}"
                 }
             }
+        },
+        {
+            "Sid": "Fourth",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "sqs:SendMessage",
+            "Resource": "${aws_sqs_queue.housing_search_listener_queue.arn}",
+            "Condition": {
+                "ArnEquals": {
+                    "aws:SourceArn": "${data.aws_ssm_parameter.transaction_sns_topic_arn.value}"
+                }
+            }
         }
       ]
   }
@@ -134,6 +150,13 @@ resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_t
 
 resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_accounts_sns" {
   topic_arn            = data.aws_ssm_parameter.accounts_sns_topic_arn.value
+  protocol             = "sqs"
+  endpoint             = aws_sqs_queue.housing_search_listener_queue.arn
+  raw_message_delivery = true
+}
+
+resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_transaction_sns" {
+  topic_arn            = data.aws_ssm_parameter.transaction_sns_topic_arn.value
   protocol             = "sqs"
   endpoint             = aws_sqs_queue.housing_search_listener_queue.arn
   raw_message_delivery = true
