@@ -7,7 +7,9 @@ using HousingSearchListener.V1.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HousingSearchListener.V1.Domain.Transaction;
 using Xunit;
+using Person = HousingSearchListener.V1.Domain.Person.Person;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
@@ -111,6 +113,39 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.PaymentReference.Should().Be(domainTenure.PaymentReference);
             result.StartOfTenureDate.Should().Be(domainTenure.StartOfTenureDate);
             result.Type.Should().Be(domainTenure.TenureType.Description);
+        }
+        [Fact]
+        public void CreateQueryableTransactionTest()
+        {
+            var domainTransaction = _fixture.Create<TransactionResponseObject>();
+
+            var result = _sut.CreateQueryableTransaction(domainTransaction);
+            result.Address.Should().Be(domainTransaction.Address);
+            result.Id.Should().Be(domainTransaction.Id);
+            result.PaymentReference.Should().Be(domainTransaction.PaymentReference);
+            result.BalanceAmount.Should().Be(domainTransaction.BalanceAmount);
+            result.BankAccountNumber.Should().Be(domainTransaction.BankAccountNumber);
+            result.ChargedAmount.Should().Be(domainTransaction.ChargedAmount);
+            result.FinancialMonth.Should().Be(domainTransaction.FinancialMonth);
+            result.FinancialYear.Should().Be(domainTransaction.FinancialYear);
+            result.Fund.Should().Be(domainTransaction.Fund);
+            result.HousingBenefitAmount.Should().Be(domainTransaction.HousingBenefitAmount);
+            result.IsSuspense.Should().Be(domainTransaction.IsSuspense);
+            result.PaidAmount.Should().Be(domainTransaction.PaidAmount);
+            result.PeriodNo.Should().Be(domainTransaction.PeriodNo);
+            result.TargetId.Should().Be(domainTransaction.TargetId);
+            result.TargetType.Should().Be(domainTransaction.TargetType);
+            result.TransactionAmount.Should().Be(domainTransaction.TransactionAmount);
+            result.TransactionDate.Should().Be(domainTransaction.TransactionDate);
+            result.TransactionSource.Should().Be(domainTransaction.TransactionSource);
+            result.TransactionType.Should().Be(domainTransaction.TransactionType);
+            result.SuspenseResolutionInfo.IsApproved.Should().Be(domainTransaction.SuspenseResolutionInfo.IsApproved);
+            result.SuspenseResolutionInfo.IsConfirmed.Should().Be(domainTransaction.SuspenseResolutionInfo.IsConfirmed);
+            result.SuspenseResolutionInfo.Note.Should().Be(domainTransaction.SuspenseResolutionInfo.Note);
+            result.SuspenseResolutionInfo.ResolutionDate.Should().Be(domainTransaction.SuspenseResolutionInfo.ResolutionDate);
+
+            result.Sender.FullName.Should().Be(domainTransaction.Person.FullName);
+            result.Sender.Id.Should().Be(domainTransaction.Person.Id);
         }
     }
 }

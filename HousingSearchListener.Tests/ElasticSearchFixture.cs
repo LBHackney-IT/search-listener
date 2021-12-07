@@ -3,7 +3,6 @@ using Elasticsearch.Net;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
-using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using Microsoft.Extensions.Hosting;
@@ -14,7 +13,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
+using HousingSearchListener.V1.Domain.Transaction;
 using Xunit;
+using Person = HousingSearchListener.V1.Domain.Person.Person;
 
 namespace HousingSearchListener.Tests
 {
@@ -31,11 +33,13 @@ namespace HousingSearchListener.Tests
         private static readonly string IndexNamePersons = "persons";
         private static readonly string IndexNameTenures = "tenures";
         private static readonly string IndexNameAssets = "assets";
+        private static readonly string IndexNameTransactions = "transactions";
         private static readonly Dictionary<string, string> _indexes = new Dictionary<string, string>
         {
             { IndexNamePersons, "data/indexes/personIndex.json" },
             { IndexNameTenures, "data/indexes/tenureIndex.json" },
-            { IndexNameAssets, "data/indexes/assetIndex.json" }
+            { IndexNameAssets, "data/indexes/assetIndex.json" },
+            { IndexNameTransactions, "data/indexes/transactionIndex.json" }
         };
 
         public QueryableAsset AssetInIndex { get; private set; }
@@ -146,7 +150,12 @@ namespace HousingSearchListener.Tests
             var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
         }
-
+        public async Task GivenATransactionIsIndexed(TransactionResponseObject transaction)
+        {
+            var esTransaction = _esEntityFactory.CreateQueryableTransaction(transaction);
+            var request = new IndexRequest<QueryableTransaction>(esTransaction, IndexNameTransactions);
+            await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+        }
         public async Task GivenATenureIsIndexedWithDifferentInfo(TenureInformation tenure)
         {
             var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);

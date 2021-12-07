@@ -47,6 +47,11 @@ namespace HousingSearchListener.V1.Factories
                         processor = serviceProvider.GetService<IUpdateAccountDetailsUseCase>();
                         break;
                     }
+                case EventTypes.TransactionCreatedEvent:
+                    {
+                        processor = serviceProvider.GetService<IIndexTransactionUseCase>();
+                        break;
+                    }
 
                 default:
                     throw new ArgumentException($"Unknown event type: {entityEvent.EventType}");

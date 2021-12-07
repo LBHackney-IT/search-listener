@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Nest;
 using System;
 using System.Threading.Tasks;
+using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 
 namespace HousingSearchListener.V1.Gateway
 {
@@ -17,6 +18,7 @@ namespace HousingSearchListener.V1.Gateway
         public const string IndexNamePersons = "persons";
         public const string IndexNameTenures = "tenures";
         public const string IndexNameAssets = "assets";
+        public const string IndexNameTransactions = "transactions";
 
         public EsGateway(IElasticClient elasticClient, ILogger<EsGateway> logger)
         {
@@ -61,6 +63,14 @@ namespace HousingSearchListener.V1.Gateway
 
             _logger.LogDebug($"Updating '{IndexNameAssets}' index for asset id {esAsset.Id}");
             return await ESIndex(esAsset, IndexNameAssets);
+        }
+        [LogCall]
+        public async Task<IndexResponse> IndexTransaction(QueryableTransaction esTransaction)
+        {
+            if (esTransaction is null) throw new ArgumentNullException(nameof(esTransaction));
+
+            _logger.LogDebug($"Updating '{IndexNameTransactions}' index for Transaction id {esTransaction.Id}");
+            return await ESIndex(esTransaction, IndexNameTransactions);
         }
 
         [LogCall]

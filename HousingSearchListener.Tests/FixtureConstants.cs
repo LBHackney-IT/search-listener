@@ -10,5 +10,8 @@
 
         public static string AccountApiRoute => "http://localhost:5878/api/v1/";
         public static string AccountApiToken => "sdjkhfgsdkjfgsdjfgh";
+
+        public static string FinancialTransactionApiRoute => "http://localhost:5978/api/v1/";
+        public static string FinancialTransactionApiToken => "sdjkhfgsdkjfgsdjfgh";
     }
 }
