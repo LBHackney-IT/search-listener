@@ -180,6 +180,7 @@ workflows:
             branches:
               only: master
       - deploy-to-development:
+          context: api-nuget-token-context
           requires:
             - terraform-init-and-apply-to-development
           filters:
@@ -208,6 +209,7 @@ workflows:
             branches:
               only: release
       - deploy-to-staging:
+          context: api-nuget-token-context
           requires:
             - terraform-init-and-apply-to-staging
           filters:
