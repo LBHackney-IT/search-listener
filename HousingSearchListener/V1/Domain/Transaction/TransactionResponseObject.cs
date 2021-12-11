@@ -77,5 +77,30 @@ namespace HousingSearchListener.V1.Domain.Transaction
         public Person Person { get; set; }
 
         public string Fund { get; set; }
+        
+        /// <summary>
+        ///     Provided by the banking system and includes the bank branch and credit card number
+        /// </summary>
+        public string SortCode { get; set; }
+
+        /// <example>
+        ///     Admin
+        /// </example>
+        public string LastUpdatedBy { get; set; }
+
+        /// <example>
+        ///     2021-03-29T15:10:37.471Z
+        /// </example>
+        public DateTime LastUpdatedAt { get; set; }
+
+        /// <example>
+        ///     2021-03-29T15:10:37.471Z
+        /// </example>
+        public DateTime CreatedAt { get; set; }
+
+        /// <example>
+        ///     Admin
+        /// </example>
+        public string CreatedBy { get; set; }
     }
 }
