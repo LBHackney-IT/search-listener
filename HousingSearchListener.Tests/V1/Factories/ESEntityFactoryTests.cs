@@ -138,6 +138,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.TransactionDate.Should().Be(domainTransaction.TransactionDate);
             result.TransactionSource.Should().Be(domainTransaction.TransactionSource);
             result.TransactionType.Should().Be(domainTransaction.TransactionType);
+            result.SortCode.Should().Be(domainTransaction.SortCode);
             result.SuspenseResolutionInfo.IsApproved.Should().Be(domainTransaction.SuspenseResolutionInfo.IsApproved);
             result.SuspenseResolutionInfo.IsConfirmed.Should().Be(domainTransaction.SuspenseResolutionInfo.IsConfirmed);
             result.SuspenseResolutionInfo.Note.Should().Be(domainTransaction.SuspenseResolutionInfo.Note);

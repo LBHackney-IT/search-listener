@@ -1,15 +1,13 @@
-
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
+using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
+using HousingSearchListener.V1.Domain.Transaction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
-using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
-using HousingSearchListener.V1.Domain.Transaction;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
 using QueryableTenuredAsset = Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenuredAsset;
 
@@ -134,7 +132,12 @@ namespace HousingSearchListener.V1.Factories
                 TransactionAmount = transaction.TransactionAmount,
                 TransactionDate = transaction.TransactionDate,
                 TransactionSource = transaction.TransactionSource,
-                TransactionType = transaction.TransactionType
+                TransactionType = transaction.TransactionType,
+                SortCode = transaction.SortCode,
+                CreatedAt = transaction.CreatedAt,
+                CreatedBy = transaction.CreatedBy,
+                LastUpdatedAt = transaction.LastUpdatedAt,
+                LastUpdatedBy = transaction.LastUpdatedBy
             };
         }
     }
