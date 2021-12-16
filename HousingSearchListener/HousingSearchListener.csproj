@@ -18,7 +18,7 @@
     <PackageReference Include="DeepCloner" Version="0.10.2" />
     <PackageReference Include="Hackney.Core.Logging" Version="1.30.0" />
     <PackageReference Include="Hackney.Core.Sns" Version="1.49.0" />
-    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.20.0" />
+    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.22.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />

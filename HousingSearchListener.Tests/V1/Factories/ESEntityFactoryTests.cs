@@ -130,7 +130,6 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.FinancialYear.Should().Be(domainTransaction.FinancialYear);
             result.Fund.Should().Be(domainTransaction.Fund);
             result.HousingBenefitAmount.Should().Be(domainTransaction.HousingBenefitAmount);
-            result.IsSuspense.Should().Be(domainTransaction.IsSuspense);
             result.PaidAmount.Should().Be(domainTransaction.PaidAmount);
             result.PeriodNo.Should().Be(domainTransaction.PeriodNo);
             result.TargetId.Should().Be(domainTransaction.TargetId);
