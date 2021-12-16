@@ -77,7 +77,7 @@ namespace HousingSearchListener.V1.Domain.Transaction
         public Person Person { get; set; }
 
         public string Fund { get; set; }
-        
+
         /// <summary>
         ///     Provided by the banking system and includes the bank branch and credit card number
         /// </summary>
