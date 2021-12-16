@@ -71,7 +71,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public async Task ThenThePersonIndexIsUpdated(
             string newPaymentReference,
             decimal newTotalBalance,
-            TenureInformation tenure, 
+            TenureInformation tenure,
             IElasticClient esClient)
         {
             foreach (var hm in tenure.HouseholdMembers)
