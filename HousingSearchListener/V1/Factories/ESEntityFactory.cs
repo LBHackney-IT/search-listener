@@ -114,7 +114,7 @@ namespace HousingSearchListener.V1.Factories
                 FinancialYear = transaction.FinancialYear,
                 Fund = transaction.Fund,
                 HousingBenefitAmount = transaction.HousingBenefitAmount,
-                IsSuspense = transaction.IsSuspense,
+                //IsSuspense = transaction.IsSuspense,
                 PaidAmount = transaction.PaidAmount,
                 PaymentReference = transaction.PaymentReference,
                 PeriodNo = transaction.PeriodNo,
