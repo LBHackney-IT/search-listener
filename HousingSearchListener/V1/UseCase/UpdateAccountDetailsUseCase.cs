@@ -77,7 +77,10 @@ namespace HousingSearchListener.V1.UseCase
         {
             var esPerson = await _esGateway.GetPersonById(personId).ConfigureAwait(false);
             var personTenure = esPerson.Tenures.First(x => x.Id == tenureId);
+
             personTenure.PaymentReference = account.PaymentReference;
+            personTenure.TotalBalance = account.AccountBalance;
+
             await _esGateway.IndexPerson(esPerson);
         }
     }

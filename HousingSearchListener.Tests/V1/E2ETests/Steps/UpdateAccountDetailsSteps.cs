@@ -69,7 +69,10 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         }
 
         public async Task ThenThePersonIndexIsUpdated(
-            string newPaymentReference, TenureInformation tenure, IElasticClient esClient)
+            string newPaymentReference,
+            decimal newTotalBalance,
+            TenureInformation tenure,
+            IElasticClient esClient)
         {
             foreach (var hm in tenure.HouseholdMembers)
             {
@@ -79,6 +82,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
                 var personTenure = personInIndex.Tenures.First(x => x.Id == tenure.Id);
                 personTenure.PaymentReference.Should().Be(newPaymentReference);
+                personTenure.TotalBalance.Should().Be(newTotalBalance);
             }
         }
     }
