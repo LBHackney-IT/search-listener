@@ -22,7 +22,7 @@ namespace HousingSearchListener.V1.Gateway
         public async Task<TransactionResponseObject> GetTransactionByIdAsync(Guid id, Guid targetId, Guid correlationId)
         {
             var route = $"{_apiGateway.ApiRoute}/transactions/{id}?targetId={targetId}";
-            return await _apiGateway.GetByIdAsync<TransactionResponseObject>(route, id, correlationId);
+            return await _apiGateway.GetByIdAsync<TransactionResponseObject>(route, id, correlationId).ConfigureAwait(false);
         }
     }
 }
