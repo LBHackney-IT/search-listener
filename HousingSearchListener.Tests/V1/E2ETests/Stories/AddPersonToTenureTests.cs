@@ -66,6 +66,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
                 .And(g => _personApiFixture.GivenThePersonDoesNotExist(_tenureApiFixture.AddedPersonId))
                 .When(w => _steps.WhenTheFunctionIsTriggered(tenureId, _tenureApiFixture.MessageEventData, EventTypes.PersonAddedToTenureEvent))
                 .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationIds))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenAPersonNotFoundExceptionIsThrown(_tenureApiFixture.AddedPersonId))
                 .BDDfy();
         }
@@ -78,6 +79,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
                 .And(g => _personApiFixture.GivenThePersonExists(_tenureApiFixture.AddedPersonId))
                 .When(w => _steps.WhenTheFunctionIsTriggered(tenureId, _tenureApiFixture.MessageEventData, EventTypes.PersonAddedToTenureEvent))
                 .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationIds))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenTheIndexIsUpdatedWithTheTenure(_tenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .Then(t => _steps.ThenTheIndexIsUpdatedWithThePerson(_personApiFixture.ResponseObject, _tenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();

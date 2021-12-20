@@ -91,7 +91,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                 await fn.FunctionHandler(sqsEvent, lambdaContext).ConfigureAwait(false);
             };
 
-            _lastException = await Record.ExceptionAsync(func);
+            _lastException = await Record.ExceptionAsync(func).ConfigureAwait(false);
         }
 
         public void ThenTheCorrelationIdWasUsedInTheApiCall(List<string> receivedCorrelationIds)
