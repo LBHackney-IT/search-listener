@@ -43,7 +43,7 @@ namespace HousingSearchListener.V1.UseCase
 
             // 3. Create Transaction Asset
             var esTransaction = _esEntityFactory.CreateQueryableTransaction(transaction);
-            await _esGateway.IndexTransaction(esTransaction);
+            await _esGateway.IndexTransaction(esTransaction).ConfigureAwait(false);
         }
     }
 }

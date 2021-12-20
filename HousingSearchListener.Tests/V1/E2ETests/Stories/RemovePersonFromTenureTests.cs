@@ -67,7 +67,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
                 .And(g => _personApiFixture.GivenThePersonDoesNotExist(removedPersonId))
                 .When(w => _steps.WhenTheFunctionIsTriggered(tenureId, _tenureApiFixture.MessageEventData, EventTypes.PersonRemovedFromTenureEvent))
                 .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationIds))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenAPersonNotFoundExceptionIsThrown(removedPersonId))
                 .BDDfy();
         }
@@ -83,7 +82,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
                 .And(g => _esFixture.GivenTheOtherPersonTenuresExist(_personApiFixture.ResponseObject, tenureId))
                 .When(w => _steps.WhenTheFunctionIsTriggered(tenureId, _tenureApiFixture.MessageEventData, EventTypes.PersonRemovedFromTenureEvent))
                 .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationIds))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenTheIndexedTenureHasThePersonRemoved(_tenureApiFixture.ResponseObject,
                                                                           removedPersonId, _esFixture.ElasticSearchClient))
                 .Then(t => _steps.ThenTheIndexedPersonHasTheTenureRemoved(_personApiFixture.ResponseObject, tenureId, _esFixture.ElasticSearchClient))
