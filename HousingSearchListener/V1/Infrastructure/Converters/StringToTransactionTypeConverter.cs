@@ -23,21 +23,21 @@ namespace HousingSearchListener.V1.Infrastructure.Converters
 
             foreach (var field in objectType.GetFields())
             {
-                if (Attribute.GetCustomAttribute(field,
-                typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
+                if (field.Name?.ToLower() == description?.ToLower())
+                {
+                    return (TransactionType) field.GetValue(null);
+                }
+
+                if (Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) is DescriptionAttribute attribute)
                 {
                     if (attribute.Description?.ToLower() == description?.ToLower())
-                        return (TransactionType)field.GetValue(null);
-                }
-                else
-                {
-                    if (field.Name?.ToLower() == description?.ToLower())
-                        return (TransactionType)field.GetValue(null);
+                    {
+                        return (TransactionType) field.GetValue(null);
+                    }
                 }
             }
 
             throw new ArgumentException("Not found.", nameof(description));
-            // Or return default(T);
         }
     }
 }

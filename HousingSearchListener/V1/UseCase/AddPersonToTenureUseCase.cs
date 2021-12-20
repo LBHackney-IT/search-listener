@@ -112,7 +112,7 @@ namespace HousingSearchListener.V1.UseCase
 
         private static T ConvertFromObject<T>(object obj) where T : class
         {
-            return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(obj), JsonOptions.CreateJsonOptions());
+            return JsonSerializer.Deserialize<T>(obj.ToString(), JsonOptions.CreateJsonOptions());
         }
     }
 }

@@ -39,7 +39,10 @@ namespace HousingSearchListener.V1.UseCase
                     transactionEventData.TargetId, message.CorrelationId)
                 .ConfigureAwait(false);
 
-            if (transaction is null) throw new EntityNotFoundException<Transaction>(message.EntityId);
+            if (transaction is null)
+            {
+                throw new EntityNotFoundException<Transaction>(message.EntityId);
+            }
 
             // 3. Create Transaction Asset
             var esTransaction = _esEntityFactory.CreateQueryableTransaction(transaction);
