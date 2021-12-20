@@ -1,5 +1,6 @@
 ﻿using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,7 +85,7 @@ namespace HousingSearchListener.V1.Gateway
 
             var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
-                return JsonSerializer.Deserialize<T>(responseBody, _jsonOptions);
+                return JsonConvert.DeserializeObject<T>(responseBody);
 
             throw new GetFromApiException(ApiName, route, client.DefaultRequestHeaders.ToList(),
                                           id, response.StatusCode, responseBody);

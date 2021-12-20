@@ -9,6 +9,7 @@ using HousingSearchListener.V1.UseCase;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
@@ -75,12 +76,7 @@ namespace HousingSearchListener
         {
             context.Logger.LogLine($"Processing message {message.MessageId}");
 
-            //var entityEvent = JsonSerializer.Deserialize<EntityEventSns>(message.Body, _jsonOptions);
-            var entityEvent = new EntityEventSns
-            {
-                EventType = "TransactionCreatedEvent",
-                EntityId = Guid.Parse("d9fc332a-2347-4cc0-b092-12f513800d56")
-            };
+            var entityEvent = JsonConvert.DeserializeObject<EntityEventSns>(message.Body);
 
             using (Logger.BeginScope("CorrelationId: {CorrelationId}", entityEvent.CorrelationId))
             {
