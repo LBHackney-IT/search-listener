@@ -3,20 +3,22 @@ using FluentAssertions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using HousingSearchListener.V1.Domain.Transaction;
 using Xunit;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
     public class ESEntityFactoryTests
     {
         private readonly Fixture _fixture = new Fixture();
-        private readonly ESEntityFactory _sut = new ESEntityFactory();
+        private readonly PersonFactory _personFactory = new PersonFactory();
+        private readonly TenuresFactory _tenuresFactory = new TenuresFactory();
+        private readonly TransactionsFactory _transactionsFactory = new TransactionsFactory();
 
         [Theory]
         [InlineData(false)]
@@ -28,7 +30,7 @@ namespace HousingSearchListener.Tests.V1.Factories
                     .With(x => x.Tenures, tenures)
                     .Create();
 
-            var result = _sut.CreatePerson(domainPerson);
+            var result = _personFactory.CreatePerson(domainPerson);
 
             result.DateOfBirth.Should().Be(domainPerson.DateOfBirth);
             result.Firstname.Should().Be(domainPerson.FirstName);
@@ -53,7 +55,7 @@ namespace HousingSearchListener.Tests.V1.Factories
         {
             var domainTenure = _fixture.Create<TenureInformation>();
 
-            var result = _sut.CreateQueryableTenure(domainTenure);
+            var result = _tenuresFactory.CreateQueryableTenure(domainTenure);
             result.EndOfTenureDate.Should().Be(domainTenure.EndOfTenureDate);
             VerifyHouseholdMembers(result.HouseholdMembers, domainTenure.HouseholdMembers);
             result.Id.Should().Be(domainTenure.Id);
@@ -66,7 +68,7 @@ namespace HousingSearchListener.Tests.V1.Factories
         [Fact]
         public void CreateQueryableHouseholdMembersTestNoInput()
         {
-            var result = _sut.CreateQueryableHouseholdMembers(null);
+            var result = _tenuresFactory.CreateQueryableHouseholdMembers(null);
             result.Should().BeEmpty();
         }
 
@@ -75,7 +77,7 @@ namespace HousingSearchListener.Tests.V1.Factories
         {
             var domainHms = _fixture.CreateMany<HouseholdMembers>(5).ToList();
 
-            var result = _sut.CreateQueryableHouseholdMembers(domainHms);
+            var result = _tenuresFactory.CreateQueryableHouseholdMembers(domainHms);
             VerifyHouseholdMembers(result, domainHms);
         }
 
@@ -98,7 +100,7 @@ namespace HousingSearchListener.Tests.V1.Factories
         [Fact]
         public void CreateAssetQueryableTenureTestNullInputThrows()
         {
-            Action act = () => _sut.CreateAssetQueryableTenure(null);
+            Action act = () => _tenuresFactory.CreateAssetQueryableTenure(null);
             act.Should().Throw<ArgumentNullException>();
         }
 
@@ -107,7 +109,7 @@ namespace HousingSearchListener.Tests.V1.Factories
         {
             var domainTenure = _fixture.Create<TenureInformation>();
 
-            var result = _sut.CreateAssetQueryableTenure(domainTenure);
+            var result = _tenuresFactory.CreateAssetQueryableTenure(domainTenure);
             result.EndOfTenureDate.Should().Be(domainTenure.EndOfTenureDate);
             result.Id.Should().Be(domainTenure.Id);
             result.PaymentReference.Should().Be(domainTenure.PaymentReference);
@@ -119,7 +121,7 @@ namespace HousingSearchListener.Tests.V1.Factories
         {
             var domainTransaction = _fixture.Create<TransactionResponseObject>();
 
-            var result = _sut.CreateQueryableTransaction(domainTransaction);
+            var result = _transactionsFactory.CreateQueryableTransaction(domainTransaction);
             result.Address.Should().Be(domainTransaction.Address);
             result.Id.Should().Be(domainTransaction.Id);
             result.PaymentReference.Should().Be(domainTransaction.PaymentReference);

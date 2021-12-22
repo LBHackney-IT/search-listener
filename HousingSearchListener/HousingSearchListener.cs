@@ -3,7 +3,10 @@ using Amazon.Lambda.SQSEvents;
 using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.Interfaces;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Gateway;
+using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure;
 using HousingSearchListener.V1.UseCase;
 using HousingSearchListener.V1.UseCase.Interfaces;
@@ -13,6 +16,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Threading.Tasks;
+using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -37,7 +41,10 @@ namespace HousingSearchListener
         {
             services.AddHttpClient();
 
-            services.AddScoped<IESEntityFactory, ESEntityFactory>();
+            services.AddScoped<ITenuresFactory, TenuresFactory>();
+            services.AddScoped<ITransactionFactory, TransactionsFactory>();
+            services.AddScoped<IPersonFactory, PersonFactory>();
+            services.AddScoped<IAccountFactory, AccountFactory>();
             services.AddScoped<IEsGateway, EsGateway>();
             services.AddScoped<IPersonApiGateway, PersonApiGateway>();
             services.AddScoped<ITenureApiGateway, TenureApiGateway>();
@@ -57,6 +64,9 @@ namespace HousingSearchListener
             services.AddScoped<IRemovePersonFromTenureUseCase, RemovePersonFromTenureUseCase>();
             services.AddScoped<IUpdateAccountDetailsUseCase, UpdateAccountDetailsUseCase>();
             services.AddScoped<IIndexTransactionUseCase, IndexTransactionUseCase>();
+            services.AddScoped<IAccountDbGateway, AccountDynamoDbGateway>();
+            services.AddScoped<IAccountCreateUseCase, AccountCreatedUseCase>();
+            services.AddScoped<IAccountUpdateUseCase, AccountUpdatedUseCase>();
 
             base.ConfigureServices(services);
         }
@@ -82,6 +92,34 @@ namespace HousingSearchListener
                 try
                 {
                     IMessageProcessing processor = entityEvent.CreateUseCaseForMessage(ServiceProvider);
+
+                    string eventType = default;
+                    if (entityEvent.EventType != null)
+                    {
+                        eventType = entityEvent.EventType;
+                    }
+                    else
+                    {
+                        eventType = EventTypes.Unknown;
+                    }
+
+                    switch (eventType)
+                    {
+                        case EventTypes.AccountCreatedEvent:
+                            {
+                                processor = ServiceProvider.GetService<IAccountCreateUseCase>();
+                                break;
+                            }
+                        case EventTypes.AccountUpdatedEvent:
+                            {
+                                processor = ServiceProvider.GetService<IAccountUpdateUseCase>();
+                                break;
+                            }
+                        case EventTypes.Unknown:
+                        default:
+                            throw new ArgumentException($"Unknown event type: {entityEvent.EventType} on message id: {message.MessageId}");
+                    }
+
                     if (processor != null)
                         await processor.ProcessMessageAsync(entityEvent).ConfigureAwait(false);
                     else

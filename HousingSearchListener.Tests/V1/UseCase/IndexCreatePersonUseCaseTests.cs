@@ -4,6 +4,7 @@ using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Gateway;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
@@ -21,7 +22,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
     {
         private readonly Mock<IPersonApiGateway> _mockPersonApi;
         private readonly Mock<IEsGateway> _mockEsGateway;
-        private readonly IESEntityFactory _esEntityFactory;
+        private readonly PersonFactory _personFactory;
         private readonly IndexCreatePersonUseCase _sut;
 
         private readonly EntityEventSns _message;
@@ -36,9 +37,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             _mockPersonApi = new Mock<IPersonApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
-            _esEntityFactory = new ESEntityFactory();
+            _personFactory = new PersonFactory();
             _sut = new IndexCreatePersonUseCase(_mockEsGateway.Object,
-                _mockPersonApi.Object, _esEntityFactory);
+                _mockPersonApi.Object, _personFactory);
 
             _message = CreateMessage();
             _person = CreatePerson(_message.EntityId);
@@ -64,7 +65,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private bool VerifyPersonIndexed(QueryablePerson esPerson)
         {
-            esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(_person));
+            esPerson.Should().BeEquivalentTo(_personFactory.CreatePerson(_person));
             return true;
         }
 

@@ -13,5 +13,7 @@
         public const string AccountCreatedEvent = "AccountCreatedEvent";
         public const string AccountUpdatedEvent = "AccountUpdatedEvent";
         public const string TransactionCreatedEvent = "TransactionCreatedEvent";
+
+        public const string Unknown = "Unknown";
     }
 }

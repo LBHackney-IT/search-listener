@@ -15,6 +15,7 @@ namespace HousingSearchListener.V1.Gateway
         private readonly IElasticClient _elasticClient;
         private readonly ILogger<EsGateway> _logger;
 
+        public const string IndexAccounts = "accounts";
         public const string IndexNamePersons = "persons";
         public const string IndexNameTenures = "tenures";
         public const string IndexNameAssets = "assets";
@@ -46,16 +47,21 @@ namespace HousingSearchListener.V1.Gateway
             _logger.LogDebug($"Updating '{IndexNamePersons}' index for person id {esPerson.Id}");
             return await ESIndex(esPerson, IndexNamePersons);
         }
-
         [LogCall]
-        public async Task<IndexResponse> IndexTenure(QueryableTenure esTenure)
+        public async Task<IndexResponse> IndexAccount(Hackney.Shared.HousingSearch.Gateways.Models.Accounts.QueryableAccount esAccount)
+        {
+            if (esAccount is null) throw new ArgumentNullException(nameof(esAccount));
+
+            _logger.LogDebug($"Updating '{IndexNamePersons}' index for person id {esAccount.Id}");
+            return await ESIndex(esAccount, IndexAccounts);
+        }
+        public async Task<IndexResponse> IndexTenure(Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenure esTenure)
         {
             if (esTenure is null) throw new ArgumentNullException(nameof(esTenure));
 
             _logger.LogDebug($"Updating '{IndexNameTenures}' index for tenure id {esTenure.Id}");
             return await ESIndex(esTenure, IndexNameTenures);
         }
-
         [LogCall]
         public async Task<IndexResponse> IndexAsset(QueryableAsset esAsset)
         {
@@ -92,6 +98,11 @@ namespace HousingSearchListener.V1.Gateway
         {
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
             return await GetById<QueryablePerson>(id, IndexNamePersons);
+        }
+
+        Task<Hackney.Shared.HousingSearch.Gateways.Models.Accounts.QueryableTenure> IEsGateway.GetTenureById(string id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

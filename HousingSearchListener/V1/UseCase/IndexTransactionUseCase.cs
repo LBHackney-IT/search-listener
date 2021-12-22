@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
-using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.Interfaces;
 using HousingSearchListener.V1.Gateway;
 using HousingSearchListener.V1.Infrastructure;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
@@ -16,13 +16,13 @@ namespace HousingSearchListener.V1.UseCase
     {
         private readonly IEsGateway _esGateway;
         private readonly IFinancialTransactionApiGateway _financialTransactionApiGateway;
-        private readonly IESEntityFactory _esEntityFactory;
+        private readonly ITransactionFactory _transactionFactory;
 
-        public IndexTransactionUseCase(IEsGateway esGateway, IFinancialTransactionApiGateway financialTransactionApiGateway, IESEntityFactory esEntityFactory)
+        public IndexTransactionUseCase(IEsGateway esGateway, IFinancialTransactionApiGateway financialTransactionApiGateway, ITransactionFactory transactionFactory)
         {
             _esGateway = esGateway;
             _financialTransactionApiGateway = financialTransactionApiGateway;
-            _esEntityFactory = esEntityFactory;
+            _transactionFactory = transactionFactory;
         }
 
         [LogCall]
@@ -42,7 +42,7 @@ namespace HousingSearchListener.V1.UseCase
             if (transaction is null) throw new EntityNotFoundException<Transaction>(message.EntityId);
 
             // 3. Create Transaction Asset
-            var esTransaction = _esEntityFactory.CreateQueryableTransaction(transaction);
+            var esTransaction = _transactionFactory.CreateQueryableTransaction(transaction);
             await _esGateway.IndexTransaction(esTransaction);
         }
     }

@@ -5,6 +5,8 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.Interfaces;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Gateway;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
@@ -26,7 +28,8 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly Mock<IPersonApiGateway> _mockPersonApi;
         private readonly Mock<IEsGateway> _mockEsGateway;
         private readonly Mock<IIndexCreatePersonUseCase> _mockCreatePersonUseCase;
-        private readonly IESEntityFactory _esEntityFactory;
+        private readonly IPersonFactory _personFactory;
+        private readonly TenuresFactory _tenureFactory;
         private readonly IndexUpdatePersonUseCase _sut;
 
         private readonly EntityEventSns _message;
@@ -43,10 +46,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockPersonApi = new Mock<IPersonApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
             _mockCreatePersonUseCase = new Mock<IIndexCreatePersonUseCase>();
-            _esEntityFactory = new ESEntityFactory();
-
+            _tenureFactory = new TenuresFactory();
+            _personFactory = new PersonFactory();
             _sut = new IndexUpdatePersonUseCase(_mockEsGateway.Object, _mockPersonApi.Object,
-                _mockTenureApi.Object, _esEntityFactory);
+                _mockTenureApi.Object, _personFactory);
 
             _message = CreateMessage();
             _tenure = CreateTenure(_message.EntityId);
@@ -133,7 +136,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private bool VerifyTenureIndexed(QueryableTenure esTenure)
         {
-            esTenure.Should().BeEquivalentTo(_esEntityFactory.CreateQueryableTenure(_tenure));
+            esTenure.Should().BeEquivalentTo(_tenureFactory.CreateQueryableTenure(_tenure));
             return true;
         }
     }

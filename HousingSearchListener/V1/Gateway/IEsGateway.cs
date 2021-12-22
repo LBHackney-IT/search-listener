@@ -1,17 +1,20 @@
 ﻿using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
-using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using Nest;
 using System.Threading.Tasks;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
+using Hackney.Shared.HousingSearch.Gateways.Models.Accounts;
+using QueryableTenure = Hackney.Shared.HousingSearch.Gateways.Models.Accounts.QueryableTenure;
 
 namespace HousingSearchListener.V1.Gateway
 {
     public interface IEsGateway
     {
+        Task<IndexResponse> IndexAccount(QueryableAccount esAccount);
+
         Task<IndexResponse> IndexPerson(QueryablePerson esPerson);
 
-        Task<IndexResponse> IndexTenure(QueryableTenure esTenure);
+        Task<IndexResponse> IndexTenure(Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenure esTenure);
 
         Task<IndexResponse> IndexAsset(QueryableAsset esAsset);
 

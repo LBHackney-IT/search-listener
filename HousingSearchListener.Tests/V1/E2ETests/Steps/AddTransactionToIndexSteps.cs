@@ -4,7 +4,7 @@ using FluentAssertions;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using HousingSearchListener.V1.Domain.Transaction;
-using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Nest;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
@@ -13,7 +13,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
     public class AddTransactionToIndexSteps : BaseSteps
     {
-        private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
+        private readonly TransactionsFactory _transactionFactory = new TransactionsFactory();
 
         public AddTransactionToIndexSteps()
         {
@@ -38,7 +38,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                 .ConfigureAwait(false);
 
             var transactionInIndex = result.Source;
-            transactionInIndex.Should().BeEquivalentTo(_entityFactory.CreateQueryableTransaction(transaction));
+            transactionInIndex.Should().BeEquivalentTo(_transactionFactory.CreateQueryableTransaction(transaction));
         }
     }
 }

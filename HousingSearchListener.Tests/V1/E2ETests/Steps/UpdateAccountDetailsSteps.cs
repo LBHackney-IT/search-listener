@@ -5,6 +5,7 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Account;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Nest;
 using System;
@@ -16,7 +17,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
     public class UpdateAccountDetailsSteps : BaseSteps
     {
-        private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
+        private readonly TenuresFactory _tenureFactory = new TenuresFactory();
 
         public UpdateAccountDetailsSteps()
         {
@@ -63,7 +64,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                        .ConfigureAwait(false);
 
             var tenureInIndex = result.Source;
-            tenureInIndex.Should().BeEquivalentTo(_entityFactory.CreateQueryableTenure(tenure),
+            tenureInIndex.Should().BeEquivalentTo(_tenureFactory.CreateQueryableTenure(tenure),
                                                   c => c.Excluding(y => y.PaymentReference));
             tenureInIndex.PaymentReference.Should().Be(newPaymentReference);
         }

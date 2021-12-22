@@ -7,6 +7,7 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Account;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Gateway;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
@@ -28,7 +29,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly Mock<IEsGateway> _mockEsGateway;
         private readonly UpdateAccountDetailsUseCase _sut;
 
-        private readonly ESEntityFactory _entityFactory;
+        private readonly TenuresFactory _tenureFactory;
         private readonly EntityEventSns _message;
         private readonly AccountResponseObject _account;
         private readonly TenureInformation _tenure;
@@ -44,7 +45,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public UpdateAccountDetailsUseCaseTests()
         {
             _fixture = new Fixture();
-            _entityFactory = new ESEntityFactory();
+            _tenureFactory = new TenuresFactory();
 
             _mockAccountApi = new Mock<IAccountApiGateway>();
             _mockTenureApi = new Mock<ITenureApiGateway>();
@@ -92,7 +93,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private QueryableTenure CreateQueryableTenure(TenureInformation tenure)
         {
-            return _entityFactory.CreateQueryableTenure(tenure);
+            return _tenureFactory.CreateQueryableTenure(tenure);
         }
 
         private List<QueryablePerson> CreateQueryablePersons(TenureInformation tenure)

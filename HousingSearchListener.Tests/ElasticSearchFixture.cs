@@ -4,7 +4,6 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Factories;
 using Microsoft.Extensions.Hosting;
 using Nest;
 using System;
@@ -17,6 +16,7 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using HousingSearchListener.V1.Domain.Transaction;
 using Xunit;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 
 namespace HousingSearchListener.Tests
 {
@@ -28,7 +28,9 @@ namespace HousingSearchListener.Tests
 
         private readonly MockApplicationFactory _factory;
         private readonly IHost _host;
-        private readonly ESEntityFactory _esEntityFactory = new ESEntityFactory();
+        private readonly TenuresFactory _tenuresFactory = new TenuresFactory();
+        private readonly PersonFactory _personFactory = new PersonFactory();
+        private readonly TransactionsFactory _transactionsFactory = new TransactionsFactory();
 
         private static readonly string IndexNamePersons = "persons";
         private static readonly string IndexNameTenures = "tenures";
@@ -136,7 +138,7 @@ namespace HousingSearchListener.Tests
 
         public async Task GivenAPersonIsIndexedWithDifferentInfo(Person person)
         {
-            var esPerson = _esEntityFactory.CreatePerson(person);
+            var esPerson = _personFactory.CreatePerson(person);
             esPerson.Firstname = "Old";
             esPerson.Surname = "Macdonald";
             esPerson.Tenures = new List<QueryablePersonTenure>();
@@ -146,19 +148,19 @@ namespace HousingSearchListener.Tests
 
         public async Task GivenATenureIsIndexed(TenureInformation tenure)
         {
-            var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+            var esTenure = _tenuresFactory.CreateQueryableTenure(tenure);
             var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
         }
         public async Task GivenATransactionIsIndexed(TransactionResponseObject transaction)
         {
-            var esTransaction = _esEntityFactory.CreateQueryableTransaction(transaction);
+            var esTransaction = _transactionsFactory.CreateQueryableTransaction(transaction);
             var request = new IndexRequest<QueryableTransaction>(esTransaction, IndexNameTransactions);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
         }
         public async Task GivenATenureIsIndexedWithDifferentInfo(TenureInformation tenure)
         {
-            var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+            var esTenure = _tenuresFactory.CreateQueryableTenure(tenure);
             esTenure.EndOfTenureDate = null;
             esTenure.PaymentReference = null;
             esTenure.TenuredAsset.FullAddress = "Somewhere";
