@@ -43,11 +43,9 @@ namespace HousingSearchListener.V1.Gateway
         public async Task<Account> GetByIdAsync(Guid accountId)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {accountId}");
-            //var result = await _dynamoDbContext.LoadAsync<Hackney.Shared.HousingSearch.Gateways.Entities.Accounts.AccountDbEntity>(accountId).ConfigureAwait(false);
-            var result = await _dynamoDbContext.LoadAsync<AccountDbEntity>(accountId).ConfigureAwait(false);
-            //var result = await _dynamoDbContext.LoadAsync<Account>(accountId).ConfigureAwait(false);
+            var result = await _dynamoDbContext.LoadAsync<Hackney.Shared.HousingSearch.Gateways.Entities.Accounts.AccountDbEntity>(accountId).ConfigureAwait(false);
 
-            return result.ToDomain();
+            return result.ToAccount();
         }
 
         /// <summary>
