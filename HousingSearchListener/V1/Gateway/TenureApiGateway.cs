@@ -1,5 +1,7 @@
-﻿using Hackney.Core.Logging;
+﻿using Hackney.Core.Http;
+using Hackney.Core.Logging;
 using HousingSearchListener.V1.Domain.Tenure;
+using HousingSearchListener.V1.Gateway.Interfaces;
 using System;
 using System.Threading.Tasks;
 

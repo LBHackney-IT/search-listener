@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using HousingSearchListener.V1.Infrastructure;
+using Hackney.Core.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit;
@@ -11,7 +11,7 @@ namespace HousingSearchListener.Tests.V1.Infrastructure
         [Fact]
         public void CreateJsonOptionsTest()
         {
-            var options = JsonOptions.CreateJsonOptions();
+            var options = JsonOptions.Create();
 
             options.PropertyNamingPolicy.Should().Be(JsonNamingPolicy.CamelCase);
             options.WriteIndented.Should().BeTrue();

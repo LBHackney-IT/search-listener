@@ -4,7 +4,7 @@ using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
-using HousingSearchListener.V1.Gateway;
+using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
 using Moq;

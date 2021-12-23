@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Hackney.Core.Logging;
 using HousingSearchListener.V1.Domain.Transaction;
+using HousingSearchListener.V1.Gateway.Interfaces;
 
 namespace HousingSearchListener.V1.Gateway
 {
@@ -11,13 +12,14 @@ namespace HousingSearchListener.V1.Gateway
         private const string FinancialTransactionApiUrl = "FinancialTransactionApiUrl";
         private const string FinancialTransactionApiToken = "FinancialTransactionApiToken";
 
-        private readonly IApiGateway _apiGateway;
+        private readonly INewtonsoftApiGateway _apiGateway;
 
-        public FinancialTransactionApiGateway(IApiGateway apiGateway)
+        public FinancialTransactionApiGateway(INewtonsoftApiGateway apiGateway)
         {
             _apiGateway = apiGateway;
             _apiGateway.Initialise(ApiName, FinancialTransactionApiUrl, FinancialTransactionApiToken);
         }
+
         [LogCall]
         public async Task<TransactionResponseObject> GetTransactionByIdAsync(Guid id, Guid targetId, Guid correlationId)
         {

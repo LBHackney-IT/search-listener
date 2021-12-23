@@ -1,9 +1,9 @@
-﻿using Hackney.Core.Logging;
+﻿using Hackney.Core.Http;
+using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using HousingSearchListener.V1.Factories;
-using HousingSearchListener.V1.Gateway;
-using HousingSearchListener.V1.Infrastructure;
+using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using System;
@@ -32,7 +32,7 @@ namespace HousingSearchListener.V1.UseCase
 
             // 1. Extract Transaction Target Id
             var transactionEventData = JsonSerializer.Deserialize<Transaction>(message?.EventData?.NewData?.ToString() ??
-                                                                               string.Empty, JsonOptions.CreateJsonOptions());
+                                                                               string.Empty, JsonOptions.Create());
 
             // 2. Get Transaction from Financial Transaction API
             var transaction = await _financialTransactionApiGateway.GetTransactionByIdAsync(message.EntityId,

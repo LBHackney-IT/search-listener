@@ -2,7 +2,7 @@
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Domain.Account;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Gateway;
+using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using System;

@@ -13,13 +13,14 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.Gateway
 {
-    // TODO - Move somewhere common (Hackney.Core.Http ?)
-
-    public class ApiGateway : IApiGateway
+    /// <summary>
+    /// Gateway to load data from other APIs
+    /// </summary>
+    [Obsolete("We need to use ApiGateway from package Hackney.Core.Http. This one will be used only in TransactionApiGateway to allow custom attributes")]
+    public class NewtonsoftApiGateway : INewtonsoftApiGateway
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
-        private readonly static JsonSerializerOptions _jsonOptions = CreateJsonOptions();
 
         public string ApiRoute { get; private set; }
         public string ApiToken { get; private set; }
@@ -28,21 +29,10 @@ namespace HousingSearchListener.V1.Gateway
 
         private bool _initialised = false;
 
-        public ApiGateway(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public NewtonsoftApiGateway(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
-        }
-
-        protected static JsonSerializerOptions CreateJsonOptions()
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            options.Converters.Add(new JsonStringEnumConverter());
-            return options;
         }
 
         public void Initialise(string apiName, string configKeyApiUrl, string configKeyApiToken, Dictionary<string, string> headers = null)
