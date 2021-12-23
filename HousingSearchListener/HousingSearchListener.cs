@@ -94,7 +94,6 @@ namespace HousingSearchListener
             base.ConfigureServices(services);
         }
 
-
         public async Task FunctionHandler(SQSEvent snsEvent, ILambdaContext context)
         {
             // Do this in parallel???
@@ -108,14 +107,6 @@ namespace HousingSearchListener
         private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
         {
             context.Logger.LogLine($"Processing message {message.MessageId}");
-
-            //var fakeEvent = new EntityEventSns
-            //{
-            //    Id = Guid.Parse("6900e3f3-9de0-4235-8e39-3cd1b7f89313"),
-            //    EntityId = Guid.Parse("6900e3f3-9de0-4235-8e39-3cd1b7f89313"),
-            //    EventType = "AccountCreatedEvent"
-            //};
-            //string fakeEventJson = JsonSerializer.Serialize(fakeEvent, _jsonOptions);
 
             var entityEvent = JsonSerializer.Deserialize<EntityEventSns>(message.Body, _jsonOptions);
 
