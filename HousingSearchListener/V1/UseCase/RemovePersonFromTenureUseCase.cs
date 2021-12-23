@@ -58,19 +58,20 @@ namespace HousingSearchListener.V1.UseCase
                 person.Tenures.Remove(person.Tenures.First(x => x.Id == tenure.Id));
 
             // 5. Update the person.PersonType list if necessary
-            UpdatePersonType(person);
+            await UpdatePersonType(person);
 
             // 6. Update the indexes
             await UpdateTenureIndexAsync(tenure).ConfigureAwait(false);
             await UpdatePersonIndexAsync(person).ConfigureAwait(false);
         }
 
-        private void UpdatePersonType(Person person)
+        private async Task UpdatePersonType(Person person)
         {
-            var getTenureFromIndexTasks = person.Tenures.Select(x => _esGateway.GetTenureById(x.Id)).ToArray();
-            Task.WaitAll(getTenureFromIndexTasks);
+            var getTenureFromIndexTasks = person.Tenures.Select(x =>_esGateway.GetTenureById(x.Id)).ToArray();
+            //Task.WaitAll(getTenureFromIndexTasks);
+            var queryableTenures = await Task.WhenAll(getTenureFromIndexTasks);
 
-            var personTypes = getTenureFromIndexTasks.Select(x => GetPersonTypeForTenure(x.Result, person.Id)).ToList();
+            var personTypes = queryableTenures.Select(x => GetPersonTypeForTenure(x, person.Id)).ToList();
             person.PersonTypes = personTypes;
         }
 

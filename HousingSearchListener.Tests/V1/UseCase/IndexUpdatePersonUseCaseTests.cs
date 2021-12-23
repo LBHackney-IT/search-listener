@@ -4,7 +4,6 @@ using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Factories.Interfaces;
 using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Gateway;
@@ -49,7 +48,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _tenureFactory = new TenuresFactory();
             _personFactory = new PersonFactory();
             _sut = new IndexUpdatePersonUseCase(_mockEsGateway.Object, _mockPersonApi.Object,
-                _mockTenureApi.Object, _personFactory);
+                _mockTenureApi.Object, _personFactory, _tenureFactory);
 
             _message = CreateMessage();
             _tenure = CreateTenure(_message.EntityId);

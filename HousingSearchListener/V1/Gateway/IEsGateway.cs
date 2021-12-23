@@ -4,7 +4,7 @@ using Nest;
 using System.Threading.Tasks;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Accounts;
-using QueryableTenure = Hackney.Shared.HousingSearch.Gateways.Models.Accounts.QueryableTenure;
+using QueryableTenure = Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenure;
 
 namespace HousingSearchListener.V1.Gateway
 {

@@ -43,6 +43,10 @@ namespace HousingSearchListener.V1.Factories
                         break;
                     }
                 case EventTypes.AccountCreatedEvent:
+                    {
+                        processor = serviceProvider.GetService<IAccountCreateUseCase>();
+                        break;
+                    }
                 case EventTypes.AccountUpdatedEvent:
                     {
                         processor = serviceProvider.GetService<IUpdateAccountDetailsUseCase>();

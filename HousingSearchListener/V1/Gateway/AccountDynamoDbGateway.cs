@@ -9,7 +9,6 @@ using HousingSearchListener.V1.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.Gateway
@@ -44,9 +43,11 @@ namespace HousingSearchListener.V1.Gateway
         public async Task<Account> GetByIdAsync(Guid accountId)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for id {accountId}");
-            var result = await _dynamoDbContext.LoadAsync<Hackney.Shared.HousingSearch.Gateways.Entities.Accounts.AccountDbEntity>(accountId).ConfigureAwait(false);
+            //var result = await _dynamoDbContext.LoadAsync<Hackney.Shared.HousingSearch.Gateways.Entities.Accounts.AccountDbEntity>(accountId).ConfigureAwait(false);
+            var result = await _dynamoDbContext.LoadAsync<AccountDbEntity>(accountId).ConfigureAwait(false);
+            //var result = await _dynamoDbContext.LoadAsync<Account>(accountId).ConfigureAwait(false);
 
-            return EntityFactory.AccountToDatabase(result);
+            return result.ToDomain();
         }
 
         /// <summary>
@@ -72,8 +73,7 @@ namespace HousingSearchListener.V1.Gateway
             };
 
             var response = await _amazonDynamoDb.QueryAsync(request).ConfigureAwait(false);
-            //response.ToAccounts()
-            List<Account> data = EntityFactory.AccountToDabase(response.ToAccounts());
+            List<Account> data = QueryResponseExtension.ToAccounts(response);
 
             return data;
         }

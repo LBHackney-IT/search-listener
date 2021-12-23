@@ -99,10 +99,5 @@ namespace HousingSearchListener.V1.Gateway
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
             return await GetById<QueryablePerson>(id, IndexNamePersons);
         }
-
-        Task<Hackney.Shared.HousingSearch.Gateways.Models.Accounts.QueryableTenure> IEsGateway.GetTenureById(string id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

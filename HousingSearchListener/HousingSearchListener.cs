@@ -12,6 +12,7 @@ using HousingSearchListener.V1.UseCase;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
@@ -40,6 +41,7 @@ namespace HousingSearchListener
         protected override void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
+            services.ConfigureDynamoDB();
 
             services.AddScoped<ITenuresFactory, TenuresFactory>();
             services.AddScoped<ITransactionFactory, TransactionsFactory>();
@@ -85,7 +87,7 @@ namespace HousingSearchListener
         {
             context.Logger.LogLine($"Processing message {message.MessageId}");
 
-            var entityEvent = JsonSerializer.Deserialize<EntityEventSns>(message.Body, _jsonOptions);
+            var entityEvent = JsonConvert.DeserializeObject<EntityEventSns>(message.Body);
 
             using (Logger.BeginScope("CorrelationId: {CorrelationId}", entityEvent.CorrelationId))
             {
@@ -93,38 +95,17 @@ namespace HousingSearchListener
                 {
                     IMessageProcessing processor = entityEvent.CreateUseCaseForMessage(ServiceProvider);
 
-                    string eventType = default;
-                    if (entityEvent.EventType != null)
-                    {
-                        eventType = entityEvent.EventType;
-                    }
-                    else
-                    {
-                        eventType = EventTypes.Unknown;
-                    }
-
-                    switch (eventType)
-                    {
-                        case EventTypes.AccountCreatedEvent:
-                            {
-                                processor = ServiceProvider.GetService<IAccountCreateUseCase>();
-                                break;
-                            }
-                        case EventTypes.AccountUpdatedEvent:
-                            {
-                                processor = ServiceProvider.GetService<IAccountUpdateUseCase>();
-                                break;
-                            }
-                        case EventTypes.Unknown:
-                        default:
-                            throw new ArgumentException($"Unknown event type: {entityEvent.EventType} on message id: {message.MessageId}");
-                    }
-
                     if (processor != null)
+                    {
                         await processor.ProcessMessageAsync(entityEvent).ConfigureAwait(false);
+                    }
+
                     else
+                    {
                         Logger.LogInformation($"No processors available for message so it will be ignored. " +
-                            $"Message id: {message.MessageId}; type: {entityEvent.EventType}; version: {entityEvent.Version}; entity id: {entityEvent.EntityId}");
+                           $"Message id: {message.MessageId}; type: {entityEvent.EventType}; version: {entityEvent.Version}; entity id: {entityEvent.EntityId}");
+                    }
+                       
                 }
                 catch (Exception ex)
                 {

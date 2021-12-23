@@ -1,11 +1,36 @@
-﻿using Hackney.Shared.HousingSearch.Domain.Accounts;
-using System;
+﻿using HousingSearchListener.V1.Domain.Account;
+using HousingSearchListener.V1.Infrastructure;
 using System.Linq;
 
 namespace HousingSearchListener.V1.Factories
 {
     public static class EntityFactory
     {
+        public static Account ToDomain(this AccountDbEntity databaseEntity)
+        {
+            return databaseEntity == null ? null : new Account
+            {
+                Id = databaseEntity.Id,
+                ParentAccountId = databaseEntity.ParentAccountId,
+                PaymentReference = databaseEntity.PaymentReference,
+                AccountBalance = databaseEntity.AccountBalance,
+                ConsolidatedBalance = databaseEntity.ConsolidatedBalance,
+                AccountStatus = databaseEntity.AccountStatus,
+                EndDate = databaseEntity.EndDate,
+                CreatedBy = databaseEntity.CreatedBy,
+                CreatedAt = databaseEntity.CreatedAt,
+                LastUpdatedBy = databaseEntity.LastUpdatedBy,
+                LastUpdatedAt = databaseEntity.LastUpdatedAt,
+                StartDate = databaseEntity.StartDate,
+                TargetId = databaseEntity.TargetId,
+                TargetType = databaseEntity.TargetType,
+                AccountType = databaseEntity.AccountType,
+                AgreementType = databaseEntity.AgreementType,
+                RentGroupType = databaseEntity.RentGroupType,
+                ConsolidatedCharges = databaseEntity.ConsolidatedCharges,
+                Tenure = databaseEntity.Tenure
+            };
+        }
         public static Hackney.Shared.HousingSearch.Gateways.Entities.Accounts.AccountDbEntity AccountToDatabase(this Account account)
         {
             return account == null ? null : new Hackney.Shared.HousingSearch.Gateways.Entities.Accounts.AccountDbEntity
@@ -69,5 +94,7 @@ namespace HousingSearchListener.V1.Factories
                 Description = tenureType.Description
             };
         }
+
+
     }
 }
