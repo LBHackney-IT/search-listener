@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase.Interfaces
 {
-    interface IAccountCreateUseCase : IMessageProcessing
+    public interface IAccountCreateUseCase : IMessageProcessing
     {
         Task ProcessMessageAsync(AccountSnsModel message);
     }

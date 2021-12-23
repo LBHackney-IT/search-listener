@@ -7,6 +7,8 @@ using Hackney.Core.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Strategies;
 
 namespace HousingSearchListener
 {
@@ -32,6 +34,12 @@ namespace HousingSearchListener
             services.AddLogCallAspect();
 
             ConfigureServices(services);
+
+            // TODO - Remove if not using DynamoDb
+            if (Configuration.GetValue<bool>("DynamoDb_LocalMode"))
+            {
+                AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
+            }
 
             ServiceProvider = services.BuildServiceProvider();
             ServiceProvider.UseLogCall();

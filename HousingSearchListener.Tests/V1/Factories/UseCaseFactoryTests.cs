@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.UseCase;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using Moq;
 using System;
@@ -105,6 +106,13 @@ namespace HousingSearchListener.Tests.V1.Factories
         public void CreateUseCaseForMessageTestAccountCreatedEvent()
         {
             _event = ConstructEvent(EventTypes.AccountCreatedEvent);
+            TestMessageProcessingCreation<IAccountCreateUseCase>(_event);
+        }
+        
+        [Fact]
+        public void UpdateUseCaseForMessageTestAccountUpdatedEvent()
+        {
+            _event = ConstructEvent(EventTypes.AccountUpdatedEvent);
             TestMessageProcessingCreation<IUpdateAccountDetailsUseCase>(_event);
         }
         [Fact]
