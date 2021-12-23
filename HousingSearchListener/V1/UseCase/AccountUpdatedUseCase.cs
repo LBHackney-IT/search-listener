@@ -1,7 +1,8 @@
 ﻿using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Accounts;
 using Hackney.Shared.HousingSearch.Domain.Accounts.Enum;
-using HousingSearchListener.V1.Boundary;
+using HousingSearchListener.V1.Factories.Interfaces;
+using HousingSearchListener.V1.Gateway;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
@@ -13,20 +14,25 @@ namespace HousingSearchListener.V1.UseCase
 {
     public class AccountUpdatedUseCase : IAccountUpdateUseCase
     {
-        private readonly IAccountDbGateway _gateway;
+        private readonly IEsGateway _esGateway;
+        private readonly IAccountDbGateway _accountApiGateway;
+        private readonly IAccountFactory _accountFactory;
 
-        public AccountUpdatedUseCase(IAccountDbGateway gateway)
+        public AccountUpdatedUseCase(IAccountDbGateway accountApiGateway, IAccountFactory accountFactory, IEsGateway esGateway)
         {
-            _gateway = gateway;
+            _accountApiGateway = accountApiGateway;
+            _accountFactory = accountFactory;
+            _esGateway = esGateway;
         }
-        public async Task ProcessMessageAsync(AccountSnsModel message)
+
+        public async Task ProcessMessageAsync(EntityEventSns message)
         {
             if (message is null)
             {
                 throw new ArgumentNullException(nameof(message));
             }
             //Get details account of current Entity
-            var entity = await _gateway.GetByIdAsync(message.EntityId).ConfigureAwait(false);
+            var entity = await _accountApiGateway.GetByIdAsync(message.EntityId).ConfigureAwait(false);
 
             if (entity is null)
             {
@@ -36,30 +42,30 @@ namespace HousingSearchListener.V1.UseCase
             await HandleAccountBalanceCalculation(entity);
         }
 
-        public Task ProcessMessageAsync(EntityEventSns message)
-        {
-            throw new NotImplementedException();
-        }
-
         private async Task HandleAccountBalanceCalculation(Account entity)
         {
-            var totalBalance = entity.AccountBalance;
-            var masterEntityToGetId = entity.Id;
+            var initialTotalBalance = entity.AccountBalance;
+            var masterEntity = entity;
+
             //check if account type is not master 
             if (entity.AccountType != AccountType.Master)
             {
-                var masterEntity = await _gateway.GetByIdAsync(entity.ParentAccountId).ConfigureAwait(false);
-                totalBalance = masterEntity.AccountBalance;
-                masterEntityToGetId = masterEntity.Id;
-                //entity.Id = masterEntity.Id;
+                masterEntity = await _accountApiGateway.GetByIdAsync(entity.ParentAccountId).ConfigureAwait(false);
+                initialTotalBalance = masterEntity.AccountBalance;
             }
-            var allSubAccounts = await _gateway.GetByParentIdAsync(masterEntityToGetId).ConfigureAwait(false);
+            var allSubAccounts = await _accountApiGateway.GetByParentIdAsync(masterEntity.Id).ConfigureAwait(false);
 
             if (allSubAccounts.Any())
             {
-                totalBalance += allSubAccounts.Sum(a => a.AccountBalance);
+                initialTotalBalance += allSubAccounts.Sum(a => a.AccountBalance);
             }
-            await _gateway.UpdateAccountBalance(masterEntityToGetId, totalBalance).ConfigureAwait(false);
+
+            var esMasterAccount = _accountFactory.ToQueryableAccount(masterEntity);
+            esMasterAccount.AccountBalance = initialTotalBalance;
+
+            await _esGateway.IndexAccount(esMasterAccount);
+
+            await _accountApiGateway.UpdateAccountBalance(esMasterAccount.Id, initialTotalBalance).ConfigureAwait(false);
         }
     }
 }

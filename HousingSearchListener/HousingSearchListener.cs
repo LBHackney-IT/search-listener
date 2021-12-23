@@ -1,5 +1,9 @@
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
+using Amazon.Runtime;
+using Hackney.Core.DynamoDb;
 using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Factories;
@@ -12,13 +16,10 @@ using HousingSearchListener.V1.UseCase;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
-using Hackney.Core.DynamoDb;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -42,7 +43,26 @@ namespace HousingSearchListener
         protected override void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
-            services.ConfigureDynamoDB();
+            bool result = false;
+            bool.TryParse(Environment.GetEnvironmentVariable("DynamoDb_LocalMode"), out result);
+            if (result)
+            {
+                string url = Environment.GetEnvironmentVariable("DynamoDb_LocalServiceUrl");
+                var accessKey = Environment.GetEnvironmentVariable("DynamoDb_LocalAccessKey");
+                var secretKey = Environment.GetEnvironmentVariable("DynamoDb_LocalSecretKey");
+                services.AddSingleton<IAmazonDynamoDB>(sp =>
+                {
+                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = url };
+                    var credentials = new BasicAWSCredentials(accessKey, secretKey);
+                    return new AmazonDynamoDBClient(credentials, clientConfig);
+                });
+            }
+            else
+            {
+                services.AddAWSService<IAmazonDynamoDB>();
+            }
+
+            services.AddScoped((Func<IServiceProvider, IDynamoDBContext>)((IServiceProvider sp) => new DynamoDBContext(sp.GetService<IAmazonDynamoDB>())));
 
             services.AddScoped<ITenuresFactory, TenuresFactory>();
             services.AddScoped<ITransactionFactory, TransactionsFactory>();
@@ -74,6 +94,7 @@ namespace HousingSearchListener
             base.ConfigureServices(services);
         }
 
+
         public async Task FunctionHandler(SQSEvent snsEvent, ILambdaContext context)
         {
             // Do this in parallel???
@@ -88,7 +109,15 @@ namespace HousingSearchListener
         {
             context.Logger.LogLine($"Processing message {message.MessageId}");
 
-            var entityEvent = JsonConvert.DeserializeObject<EntityEventSns>(message.Body);
+            //var fakeEvent = new EntityEventSns
+            //{
+            //    Id = Guid.Parse("6900e3f3-9de0-4235-8e39-3cd1b7f89313"),
+            //    EntityId = Guid.Parse("6900e3f3-9de0-4235-8e39-3cd1b7f89313"),
+            //    EventType = "AccountCreatedEvent"
+            //};
+            //string fakeEventJson = JsonSerializer.Serialize(fakeEvent, _jsonOptions);
+
+            var entityEvent = JsonSerializer.Deserialize<EntityEventSns>(message.Body, _jsonOptions);
 
             using (Logger.BeginScope("CorrelationId: {CorrelationId}", entityEvent.CorrelationId))
             {
