@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
+using Hackney.Core.Http;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Gateway;
 using Moq;
