@@ -1,11 +1,11 @@
 ﻿using AutoFixture;
 using Hackney.Core.Testing.Shared.E2E;
-using HousingSearchListener.V1.Domain.Account;
+using HousingSearchListener.V1.Boundary.Response;
 using System;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
-    public class AccountApiFixture : BaseApiFixture<AccountResponseObject>
+    public class AccountApiFixture : BaseApiFixture<AccountResponse>
     {
         private readonly Fixture _fixture = new Fixture();
 
@@ -24,14 +24,14 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
             }
         }
 
-        private AccountResponseObject ConstructAccountResponseObject(Guid id)
+        private AccountResponse ConstructAccountResponseObject(Guid id)
         {
-            return _fixture.Build<AccountResponseObject>()
+            return _fixture.Build<AccountResponse>()
                                                  .With(x => x.Id, id)
-                                                 .With(x => x.StartDate, DateTime.UtcNow.AddMonths(-1).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ"))
-                                                 .With(x => x.EndDate, "")
-                                                 .With(x => x.CreatedAt, DateTime.UtcNow.AddMinutes(-60).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ"))
-                                                 .With(x => x.LastUpdatedAt, DateTime.UtcNow.AddMinutes(-60).ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ"))
+                                                 .With(x => x.StartDate, DateTime.UtcNow.AddMonths(-1))
+                                                 .With(x => x.EndDate, (DateTime?)null)
+                                                 .With(x => x.CreatedAt, DateTime.UtcNow.AddMinutes(-60))
+                                                 .With(x => x.LastUpdatedAt, DateTime.UtcNow.AddMinutes(-60))
                                                  .Create();
         }
 
@@ -40,7 +40,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
             // Nothing to do here
         }
 
-        public AccountResponseObject GivenTheAccountExists(Guid id)
+        public AccountResponse GivenTheAccountExists(Guid id)
         {
             ResponseObject = ConstructAccountResponseObject(id);
 

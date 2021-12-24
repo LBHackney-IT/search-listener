@@ -1,0 +1,21 @@
+{
+  "Records": [
+    {
+      "messageId": "4dac820c-046a-4a3e-9c02-8eb5bf193e3c",
+      "receiptHandle": "MessageReceiptHandle",
+      "body": "{\r\n  \"id\": \"4dac820c-046a-4a3e-9c02-8eb5bf193e3c\",\r\n  \"eventType\": \"AccountUpdatedEvent\",\r\n  \"sourceDomain\": null,\r\n  \"sourceSystem\": null,\r\n  \"version\": null,\r\n  \"correlationId\": \"00000000-0000-0000-0000-000000000000\",\r\n  \"dateTime\": \"0001-01-01T00:00:00\",\r\n  \"user\": null,\r\n  \"entityId\": \"4dac820c-046a-4a3e-9c02-8eb5bf193e3c\",\r\n  \"eventData\": {\r\n    \"oldData\": null,\r\n    \"newData\": null\r\n  }\r\n}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1523232000000",
+        "SenderId": "123456789012",
+        "ApproximateFirstReceiveTimestamp": "1523232000001"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "7b270e59b47ff90a553787216d55d91d",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:{partition}:sqs:{region}:123456789012:MyQueue",
+      "awsRegion": "{region}"
+    }
+  ]
+}
+

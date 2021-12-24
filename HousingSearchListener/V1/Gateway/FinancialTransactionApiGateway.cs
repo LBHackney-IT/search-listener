@@ -18,6 +18,7 @@ namespace HousingSearchListener.V1.Gateway
             _apiGateway = apiGateway;
             _apiGateway.Initialise(ApiName, FinancialTransactionApiUrl, FinancialTransactionApiToken);
         }
+
         [LogCall]
         public async Task<TransactionResponseObject> GetTransactionByIdAsync(Guid id, Guid targetId, Guid correlationId)
         {

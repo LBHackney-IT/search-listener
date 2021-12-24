@@ -1,16 +1,11 @@
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
-using Amazon.Runtime;
-using Hackney.Core.DynamoDb;
 using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Factories.Interfaces;
 using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Gateway;
-using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure;
 using HousingSearchListener.V1.UseCase;
 using HousingSearchListener.V1.UseCase.Interfaces;
@@ -43,26 +38,6 @@ namespace HousingSearchListener
         protected override void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
-            bool result = false;
-            bool.TryParse(Environment.GetEnvironmentVariable("DynamoDb_LocalMode"), out result);
-            if (result)
-            {
-                string url = Environment.GetEnvironmentVariable("DynamoDb_LocalServiceUrl");
-                var accessKey = Environment.GetEnvironmentVariable("DynamoDb_LocalAccessKey");
-                var secretKey = Environment.GetEnvironmentVariable("DynamoDb_LocalSecretKey");
-                services.AddSingleton<IAmazonDynamoDB>(sp =>
-                {
-                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = url };
-                    var credentials = new BasicAWSCredentials(accessKey, secretKey);
-                    return new AmazonDynamoDBClient(credentials, clientConfig);
-                });
-            }
-            else
-            {
-                services.AddAWSService<IAmazonDynamoDB>();
-            }
-
-            services.AddScoped((Func<IServiceProvider, IDynamoDBContext>)((IServiceProvider sp) => new DynamoDBContext(sp.GetService<IAmazonDynamoDB>())));
 
             services.AddScoped<ITenuresFactory, TenuresFactory>();
             services.AddScoped<ITransactionFactory, TransactionsFactory>();
@@ -85,11 +60,9 @@ namespace HousingSearchListener
             services.AddScoped<IIndexTenureUseCase, IndexTenureUseCase>();
             services.AddScoped<IAddPersonToTenureUseCase, AddPersonToTenureUseCase>();
             services.AddScoped<IRemovePersonFromTenureUseCase, RemovePersonFromTenureUseCase>();
-            services.AddScoped<IUpdateAccountDetailsUseCase, UpdateAccountDetailsUseCase>();
+            services.AddScoped<IAccountUpdatedUseCase, AccountUpdatedUseCase>();
             services.AddScoped<IIndexTransactionUseCase, IndexTransactionUseCase>();
-            services.AddScoped<IAccountDbGateway, AccountDynamoDbGateway>();
             services.AddScoped<IAccountCreateUseCase, AccountCreatedUseCase>();
-            services.AddScoped<IAccountUpdateUseCase, AccountUpdatedUseCase>();
 
             base.ConfigureServices(services);
         }

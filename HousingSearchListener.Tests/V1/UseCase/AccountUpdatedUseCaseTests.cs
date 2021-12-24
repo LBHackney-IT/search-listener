@@ -4,7 +4,7 @@ using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
-using HousingSearchListener.V1.Domain.Account;
+using HousingSearchListener.V1.Boundary.Response;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Factories.QueryableFactories;
@@ -22,16 +22,16 @@ using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 namespace HousingSearchListener.Tests.V1.UseCase
 {
     [Collection("LogCall collection")]
-    public class UpdateAccountDetailsUseCaseTests
+    public class AccountUpdatedUseCaseTests
     {
         private readonly Mock<IAccountApiGateway> _mockAccountApi;
         private readonly Mock<ITenureApiGateway> _mockTenureApi;
         private readonly Mock<IEsGateway> _mockEsGateway;
-        private readonly UpdateAccountDetailsUseCase _sut;
+        private readonly AccountUpdatedUseCase _sut;
 
         private readonly TenuresFactory _tenureFactory;
         private readonly EntityEventSns _message;
-        private readonly AccountResponseObject _account;
+        private readonly AccountResponse _account;
         private readonly TenureInformation _tenure;
         private readonly QueryableAsset _esAsset;
         private readonly QueryableTenure _esTenure;
@@ -42,7 +42,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private const string DateFormat = "yyyy-MM-ddTHH\\:mm\\:ss.fffffffZ";
         private const string TheNewPaymentReference = "some-new-payment-reference";
 
-        public UpdateAccountDetailsUseCaseTests()
+        public AccountUpdatedUseCaseTests()
         {
             _fixture = new Fixture();
             _tenureFactory = new TenuresFactory();
@@ -50,8 +50,8 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockAccountApi = new Mock<IAccountApiGateway>();
             _mockTenureApi = new Mock<ITenureApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
-            _sut = new UpdateAccountDetailsUseCase(_mockEsGateway.Object,
-                _mockAccountApi.Object, _mockTenureApi.Object);
+            _sut = new AccountUpdatedUseCase(_mockEsGateway.Object,
+                _mockAccountApi.Object, _mockTenureApi.Object, new AccountFactory());
 
             _account = CreateAccount();
             _tenure = CreateTenure(_account.TargetId);
@@ -113,11 +113,11 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
-        private AccountResponseObject CreateAccount()
+        private AccountResponse CreateAccount()
         {
-            return _fixture.Build<AccountResponseObject>()
-                           .With(x => x.StartDate, DateTime.UtcNow.AddMonths(-6).ToString(DateFormat))
-                           .With(x => x.EndDate, (string)null)
+            return _fixture.Build<AccountResponse>()
+                           .With(x => x.StartDate, DateTime.UtcNow.AddMonths(-6))
+                           .With(x => x.EndDate, (DateTime?)null)
                            .With(x => x.PaymentReference, TheNewPaymentReference)
                            .Create();
         }
@@ -157,10 +157,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ProcessMessageAsyncTestGetAccountReturnsNullThrows()
         {
             _mockAccountApi.Setup(x => x.GetAccountByIdAsync(_message.EntityId, _message.CorrelationId))
-                                        .ReturnsAsync((AccountResponseObject)null);
+                                        .ReturnsAsync((AccountResponse)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<EntityNotFoundException<AccountResponseObject>>();
+            func.Should().ThrowAsync<EntityNotFoundException<AccountResponse>>();
         }
 
         [Fact]

@@ -2,7 +2,7 @@
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
-using HousingSearchListener.V1.Domain.Account;
+using HousingSearchListener.V1.Boundary.Response;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Factories.QueryableFactories;
@@ -37,8 +37,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public void ThenAnAccountNotFoundExceptionIsThrown(Guid id)
         {
             _lastException.Should().NotBeNull();
-            _lastException.Should().BeOfType(typeof(EntityNotFoundException<AccountResponseObject>));
-            (_lastException as EntityNotFoundException<AccountResponseObject>).Id.Should().Be(id);
+            _lastException.Should().BeOfType(typeof(EntityNotFoundException<AccountResponse>));
+            (_lastException as EntityNotFoundException<AccountResponse>).Id.Should().Be(id);
         }
 
         public void ThenATenureNotFoundExceptionIsThrown(Guid id)
