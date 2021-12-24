@@ -37,7 +37,7 @@ namespace HousingSearchListener.V1.Infrastructure.Converters
                 }
             }
 
-            throw new ArgumentException("Not found.", nameof(description));
+            throw new ArgumentException($"Transaction type with value {description} can not be found.", nameof(description));
         }
     }
 }
