@@ -12,9 +12,9 @@ namespace HousingSearchListener.V1.Domain.Account
 
         public AccountTenure ToTenure()
         {
-            return AccountTenure.Create(TenureId, 
-                TenureType?.ToTenureType(), 
-                FullAddress, 
+            return AccountTenure.Create(TenureId,
+                TenureType?.ToTenureType(),
+                FullAddress,
                 PrimaryTenants?.Select(_ => _.ToPrimaryTenant()).ToList());
         }
     }

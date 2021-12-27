@@ -6,9 +6,7 @@
       "workingDirectory": ".\\bin\\$(Configuration)\\netcoreapp3.1",
       "executablePath": "%USERPROFILE%\\.dotnet\\tools\\dotnet-lambda-test-tool-3.1.exe",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "DynamoDb_LocalMode": "true",
-        "DynamoDb_LocalServiceUrl": "http://localhost:8000"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }

@@ -67,7 +67,7 @@ namespace HousingSearchListener.V1.UseCase
 
         private async Task UpdatePersonType(Person person)
         {
-            var getTenureFromIndexTasks = person.Tenures.Select(x =>_esGateway.GetTenureById(x.Id)).ToArray();
+            var getTenureFromIndexTasks = person.Tenures.Select(x => _esGateway.GetTenureById(x.Id)).ToArray();
             var queryableTenures = await Task.WhenAll(getTenureFromIndexTasks);
 
             var personTypes = queryableTenures.Select(x => GetPersonTypeForTenure(x, person.Id)).ToList();
