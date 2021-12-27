@@ -7,6 +7,7 @@ using Nest;
 using System;
 using System.Threading.Tasks;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
+using HousingSearchListener.V1.Gateway.Interfaces;
 
 namespace HousingSearchListener.V1.Gateway
 {

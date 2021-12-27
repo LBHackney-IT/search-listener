@@ -1,7 +1,7 @@
-﻿using System;
-using Hackney.Shared.HousingSearch.Domain.Transactions;
+﻿using Hackney.Shared.HousingSearch.Domain.Transactions;
+using HousingSearchListener.V1.Infrastructure.Converters;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System;
 
 namespace HousingSearchListener.V1.Domain.Transaction
 {
@@ -30,7 +30,7 @@ namespace HousingSearchListener.V1.Domain.Transaction
 
         public string TransactionSource { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(StringToTransactionTypeConverter))]
         public TransactionType TransactionType { get; set; }
 
         public DateTime TransactionDate { get; set; }

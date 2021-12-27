@@ -1,7 +1,8 @@
 ﻿using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Accounts;
+using HousingSearchListener.V1.Boundary.Response;
 using HousingSearchListener.V1.Factories.Interfaces;
-using HousingSearchListener.V1.Gateway;
+using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using System;
@@ -32,7 +33,7 @@ namespace HousingSearchListener.V1.UseCase
 
             if (account == null)
             {
-                throw new EntityNotFoundException<Account>(message.EntityId);
+                throw new EntityNotFoundException<AccountResponse>(message.EntityId);
             }
 
             var esAccount = _accountFactory.ToQueryableAccount(account.ToDomain());

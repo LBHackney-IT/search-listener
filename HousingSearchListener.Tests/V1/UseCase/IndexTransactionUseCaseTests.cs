@@ -1,20 +1,19 @@
-﻿using System;
-using System.Text.Json;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using FluentAssertions;
+using Hackney.Core.Http;
 using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using HousingSearchListener.V1.Domain.Transaction;
-using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Factories.Interfaces;
 using HousingSearchListener.V1.Factories.QueryableFactories;
-using HousingSearchListener.V1.Gateway;
-using HousingSearchListener.V1.Infrastructure;
+using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
 using Moq;
+using System;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Xunit;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 
@@ -121,7 +120,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                 .With(x => x.Id, _message.EntityId)
                 .With(x => x.TargetId, _targetId)
                 .Create();
-            _message.EventData.NewData = JsonSerializer.Serialize(transactionData, JsonOptions.CreateJsonOptions());
+            _message.EventData.NewData = JsonSerializer.Serialize(transactionData, JsonOptions.Create());
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 

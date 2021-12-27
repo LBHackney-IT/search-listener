@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace HousingSearchListener.V1.Gateway
+namespace HousingSearchListener.V1.Gateway.Interfaces
 {
     public interface IAccountApiGateway
     {

@@ -3,8 +3,8 @@ using Amazon.Lambda.SQSEvents;
 using Amazon.Lambda.TestUtilities;
 using AutoFixture;
 using FluentAssertions;
+using Hackney.Core.Http;
 using Hackney.Core.Sns;
-using HousingSearchListener.V1.Infrastructure;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
     public class BaseSteps
     {
-        protected readonly JsonSerializerOptions _jsonOptions = JsonOptions.CreateJsonOptions();
+        protected readonly JsonSerializerOptions _jsonOptions = JsonOptions.Create();
         protected readonly Fixture _fixture = new Fixture();
         protected Exception _lastException;
         protected string _eventType;
@@ -91,7 +91,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                 await fn.FunctionHandler(sqsEvent, lambdaContext).ConfigureAwait(false);
             };
 
-            _lastException = await Record.ExceptionAsync(func);
+            _lastException = await Record.ExceptionAsync(func).ConfigureAwait(false);
         }
 
         public void ThenTheCorrelationIdWasUsedInTheApiCall(List<string> receivedCorrelationIds)

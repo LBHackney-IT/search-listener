@@ -12,7 +12,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
     [Collection("LogCall collection")]
     public class FinancialTransactionApiGatewayTests
     {
-        private readonly Mock<IApiGateway> _mockApiGateway;
+        private readonly Mock<INewtonsoftApiGateway> _mockApiGateway;
 
         private static readonly Guid _id = Guid.NewGuid();
         private static readonly Guid _targetId = Guid.NewGuid();
@@ -26,7 +26,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
 
         public FinancialTransactionApiGatewayTests()
         {
-            _mockApiGateway = new Mock<IApiGateway>();
+            _mockApiGateway = new Mock<INewtonsoftApiGateway>();
             _mockApiGateway.SetupGet(x => x.ApiName).Returns(ApiName);
             _mockApiGateway.SetupGet(x => x.ApiRoute).Returns(FinancialTransactionApiRoute);
             _mockApiGateway.SetupGet(x => x.ApiToken).Returns(FinancialTransactionApiToken);

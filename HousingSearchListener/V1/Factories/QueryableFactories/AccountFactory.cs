@@ -37,13 +37,13 @@ namespace HousingSearchListener.V1.Factories.QueryableFactories
                 StartDate = account.StartDate,
                 TargetId = account.TargetId,
                 TargetType = account.TargetType,
-                ConsolidatedCharges = (List<QueryableConsolidatedCharge>)(account.ConsolidatedCharges?.Select(p =>
+                ConsolidatedCharges = account.ConsolidatedCharges?.Select(p =>
                     new QueryableConsolidatedCharge
                     {
                         Amount = p.Amount,
                         Frequency = p.Frequency,
                         Type = p.Type
-                    })),
+                    }).ToList(),
                 Tenure = new QueryableAccountTenure
                 {
                     FullAddress = account.Tenure.FullAddress,

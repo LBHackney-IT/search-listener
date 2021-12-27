@@ -4,7 +4,6 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Boundary.Response;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Nest;
@@ -21,7 +20,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
         public UpdateAccountDetailsSteps()
         {
-            _eventType = EventTypes.AccountCreatedEvent;
+            _eventType = EventTypes.AccountUpdatedEvent;
         }
 
         public async Task WhenTheFunctionIsTriggered(Guid accountId)

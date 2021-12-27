@@ -6,7 +6,7 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Accounts;
 using QueryableTenure = Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenure;
 
-namespace HousingSearchListener.V1.Gateway
+namespace HousingSearchListener.V1.Gateway.Interfaces
 {
     public interface IEsGateway
     {

@@ -14,13 +14,12 @@
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.1.0" />
     <PackageReference Include="Amazon.Lambda.SNSEvents" Version="2.0.0" />
     <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.0.0" />
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.2.4" />
-    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.1" />
     <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.8.3" />
     <PackageReference Include="DeepCloner" Version="0.10.2" />
-    <PackageReference Include="Hackney.Core.DynamoDb" Version="1.51.0" />
+    <PackageReference Include="Hackney.Core.Http" Version="1.63.0" />
     <PackageReference Include="Hackney.Core.Logging" Version="1.30.0" />
     <PackageReference Include="Hackney.Core.Sns" Version="1.49.0" />
+    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.23.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
@@ -46,12 +45,6 @@
   <ItemGroup>
     <Folder Include="V1\Gateway\Interfaces\" />
     <Folder Include="V1\Infrastructure\Enum\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Hackney.Shared.HousingSearch">
-      <HintPath>..\..\housing-search-shared\Hackney.Shared.HousingSearch\bin\Debug\netstandard2.1\Hackney.Shared.HousingSearch.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

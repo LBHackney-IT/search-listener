@@ -1,12 +1,12 @@
-﻿using HousingSearchListener.V1.Domain.Person;
-using HousingSearchListener.V1.Gateway;
+﻿using Hackney.Core.Logging;
+using Hackney.Core.Sns;
+using HousingSearchListener.V1.Domain.Person;
+using HousingSearchListener.V1.Factories.Interfaces;
+using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using System;
 using System.Threading.Tasks;
-using Hackney.Core.Logging;
-using Hackney.Core.Sns;
-using HousingSearchListener.V1.Factories.Interfaces;
 
 namespace HousingSearchListener.V1.UseCase
 {
