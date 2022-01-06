@@ -10,6 +10,5 @@ namespace HousingSearchListener.V1.Factories.Interfaces
         QueryableAssetTenure CreateAssetQueryableTenure(TenureInformation tenure);
         QueryableTenure CreateQueryableTenure(TenureInformation tenure);
         List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers);
-
     }
 }

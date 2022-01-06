@@ -10,6 +10,11 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="V1\Infrastructure\Enum\**" />
+    <EmbeddedResource Remove="V1\Infrastructure\Enum\**" />
+    <None Remove="V1\Infrastructure\Enum\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="1.2.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.1.0" />
     <PackageReference Include="Amazon.Lambda.SNSEvents" Version="2.0.0" />
@@ -44,7 +49,6 @@
 
   <ItemGroup>
     <Folder Include="V1\Gateway\Interfaces\" />
-    <Folder Include="V1\Infrastructure\Enum\" />
   </ItemGroup>
 
 </Project>

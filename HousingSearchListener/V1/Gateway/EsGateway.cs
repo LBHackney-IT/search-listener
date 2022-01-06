@@ -48,6 +48,7 @@ namespace HousingSearchListener.V1.Gateway
             _logger.LogDebug($"Updating '{IndexNamePersons}' index for person id {esPerson.Id}");
             return await ESIndex(esPerson, IndexNamePersons);
         }
+
         [LogCall]
         public async Task<IndexResponse> IndexAccount(Hackney.Shared.HousingSearch.Gateways.Models.Accounts.QueryableAccount esAccount)
         {
@@ -56,6 +57,7 @@ namespace HousingSearchListener.V1.Gateway
             _logger.LogDebug($"Updating '{IndexNamePersons}' index for person id {esAccount.Id}");
             return await ESIndex(esAccount, IndexAccounts);
         }
+
         public async Task<IndexResponse> IndexTenure(Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenure esTenure)
         {
             if (esTenure is null) throw new ArgumentNullException(nameof(esTenure));
@@ -63,6 +65,7 @@ namespace HousingSearchListener.V1.Gateway
             _logger.LogDebug($"Updating '{IndexNameTenures}' index for tenure id {esTenure.Id}");
             return await ESIndex(esTenure, IndexNameTenures);
         }
+
         [LogCall]
         public async Task<IndexResponse> IndexAsset(QueryableAsset esAsset)
         {
@@ -71,6 +74,7 @@ namespace HousingSearchListener.V1.Gateway
             _logger.LogDebug($"Updating '{IndexNameAssets}' index for asset id {esAsset.Id}");
             return await ESIndex(esAsset, IndexNameAssets);
         }
+
         [LogCall]
         public async Task<IndexResponse> IndexTransaction(QueryableTransaction esTransaction)
         {

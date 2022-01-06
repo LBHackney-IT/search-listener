@@ -1,14 +1,12 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Reflection;
-using Amazon.XRay.Recorder.Handlers.AwsSdk;
+﻿using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Amazon.XRay.Recorder.Core;
-using Amazon.XRay.Recorder.Core.Strategies;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Reflection;
 
 namespace HousingSearchListener
 {
@@ -34,12 +32,6 @@ namespace HousingSearchListener
             services.AddLogCallAspect();
 
             ConfigureServices(services);
-
-            // TODO - Remove if not using DynamoDb
-            if (Configuration.GetValue<bool>("DynamoDb_LocalMode"))
-            {
-                AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
-            }
 
             ServiceProvider = services.BuildServiceProvider();
             ServiceProvider.UseLogCall();
