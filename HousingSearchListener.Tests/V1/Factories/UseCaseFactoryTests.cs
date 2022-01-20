@@ -108,13 +108,6 @@ namespace HousingSearchListener.Tests.V1.Factories
             _event = ConstructEvent(EventTypes.AccountCreatedEvent);
             TestMessageProcessingCreation<IAccountCreateUseCase>(_event);
         }
-
-        [Fact]
-        public void UpdateUseCaseForMessageTestAccountUpdatedEvent()
-        {
-            _event = ConstructEvent(EventTypes.AccountUpdatedEvent);
-            TestMessageProcessingCreation<IAccountUpdatedUseCase>(_event);
-        }
         [Fact]
         public void CreateUseCaseForMessageTestTransactionCreatedEvent()
         {

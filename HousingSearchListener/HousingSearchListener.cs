@@ -63,7 +63,6 @@ namespace HousingSearchListener
             services.AddScoped<IIndexTenureUseCase, IndexTenureUseCase>();
             services.AddScoped<IAddPersonToTenureUseCase, AddPersonToTenureUseCase>();
             services.AddScoped<IRemovePersonFromTenureUseCase, RemovePersonFromTenureUseCase>();
-            services.AddScoped<IAccountUpdatedUseCase, AccountUpdatedUseCase>();
             services.AddScoped<IIndexTransactionUseCase, IndexTransactionUseCase>();
             services.AddScoped<IAccountCreateUseCase, AccountCreatedUseCase>();
 
