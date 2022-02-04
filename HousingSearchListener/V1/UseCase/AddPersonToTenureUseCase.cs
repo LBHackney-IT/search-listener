@@ -3,7 +3,7 @@ using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.Interfaces;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
@@ -20,15 +20,17 @@ namespace HousingSearchListener.V1.UseCase
         private readonly IEsGateway _esGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
         private readonly IPersonApiGateway _personApiGateway;
-        private readonly IESEntityFactory _esEntityFactory;
+        private readonly IPersonFactory _personFactory;
+        private readonly ITenuresFactory _tenuresFactory;
 
         public AddPersonToTenureUseCase(IEsGateway esGateway, ITenureApiGateway tenureApiGateway,
-            IPersonApiGateway personApiGateway, IESEntityFactory esEntityFactory)
+            IPersonApiGateway personApiGateway, IPersonFactory personFactory, ITenuresFactory tenuresFactory)
         {
             _esGateway = esGateway;
             _tenureApiGateway = tenureApiGateway;
             _personApiGateway = personApiGateway;
-            _esEntityFactory = esEntityFactory;
+            _personFactory = personFactory;
+            _tenuresFactory = tenuresFactory;
         }
 
         [LogCall]
@@ -85,13 +87,13 @@ namespace HousingSearchListener.V1.UseCase
 
         private async Task UpdateTenureIndexAsync(TenureInformation tenure)
         {
-            var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+            var esTenure = _tenuresFactory.CreateQueryableTenure(tenure);
             await _esGateway.IndexTenure(esTenure);
         }
 
         private async Task UpdatePersonIndexAsync(Person person)
         {
-            var esPerson = _esEntityFactory.CreatePerson(person);
+            var esPerson = _personFactory.CreatePerson(person);
             await _esGateway.IndexPerson(esPerson);
         }
 

@@ -16,6 +16,7 @@ namespace HousingSearchListener.V1.Gateway
         private readonly IElasticClient _elasticClient;
         private readonly ILogger<EsGateway> _logger;
 
+        public const string IndexAccounts = "accounts";
         public const string IndexNamePersons = "persons";
         public const string IndexNameTenures = "tenures";
         public const string IndexNameAssets = "assets";
@@ -49,7 +50,15 @@ namespace HousingSearchListener.V1.Gateway
         }
 
         [LogCall]
-        public async Task<IndexResponse> IndexTenure(QueryableTenure esTenure)
+        public async Task<IndexResponse> IndexAccount(Hackney.Shared.HousingSearch.Gateways.Models.Accounts.QueryableAccount esAccount)
+        {
+            if (esAccount is null) throw new ArgumentNullException(nameof(esAccount));
+
+            _logger.LogDebug($"Updating '{IndexNamePersons}' index for person id {esAccount.Id}");
+            return await ESIndex(esAccount, IndexAccounts);
+        }
+
+        public async Task<IndexResponse> IndexTenure(Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenure esTenure)
         {
             if (esTenure is null) throw new ArgumentNullException(nameof(esTenure));
 
@@ -65,6 +74,7 @@ namespace HousingSearchListener.V1.Gateway
             _logger.LogDebug($"Updating '{IndexNameAssets}' index for asset id {esAsset.Id}");
             return await ESIndex(esAsset, IndexNameAssets);
         }
+
         [LogCall]
         public async Task<IndexResponse> IndexTransaction(QueryableTransaction esTransaction)
         {

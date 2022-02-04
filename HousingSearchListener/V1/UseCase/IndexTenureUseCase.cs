@@ -3,7 +3,7 @@ using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.Interfaces;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
@@ -18,14 +18,14 @@ namespace HousingSearchListener.V1.UseCase
     {
         private readonly IEsGateway _esGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
-        private readonly IESEntityFactory _esEntityFactory;
+        private readonly ITenuresFactory _tenureFactory;
 
         public IndexTenureUseCase(IEsGateway esGateway, ITenureApiGateway tenureApiGateway,
-            IESEntityFactory esPersonFactory)
+            ITenuresFactory tenureFactory)
         {
             _esGateway = esGateway;
             _tenureApiGateway = tenureApiGateway;
-            _esEntityFactory = esPersonFactory;
+            _tenureFactory = tenureFactory;
         }
 
         [LogCall]
@@ -50,7 +50,7 @@ namespace HousingSearchListener.V1.UseCase
                 UpdatePersonTenure(p, tenure);
 
             // 4. Update the ES indexes
-            var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+            var esTenure = _tenureFactory.CreateQueryableTenure(tenure);
             await _esGateway.IndexTenure(esTenure);
             await UpdateAssetForTenure(tenure, queryableAsset);
             await UpdatePersonsForTenure(persons);
@@ -87,7 +87,7 @@ namespace HousingSearchListener.V1.UseCase
 
         private async Task UpdateAssetForTenure(TenureInformation tenure, QueryableAsset queryableAsset)
         {
-            queryableAsset.Tenure = _esEntityFactory.CreateAssetQueryableTenure(tenure);
+            queryableAsset.Tenure = _tenureFactory.CreateAssetQueryableTenure(tenure);
             await _esGateway.IndexAsset(queryableAsset);
         }
 

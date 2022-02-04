@@ -3,6 +3,7 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Nest;
 using System;
@@ -14,7 +15,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
     public class AddPersonToIndexSteps : BaseSteps
     {
-        private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
+        private readonly PersonFactory _personFactory = new PersonFactory();
 
         public AddPersonToIndexSteps()
         {
@@ -41,7 +42,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                        .ConfigureAwait(false);
 
             var personInIndex = result.Source;
-            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person));
+            personInIndex.Should().BeEquivalentTo(_personFactory.CreatePerson(person));
         }
 
         public async Task ThenTheIndexIsUpdatedWithTheUpdatedPersonTenure(

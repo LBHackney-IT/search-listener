@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Hackney.Core.Http;
-using HousingSearchListener.V1.Domain.Account;
+using HousingSearchListener.V1.Boundary.Response;
 using HousingSearchListener.V1.Gateway;
 using Moq;
 using System;
@@ -48,11 +48,11 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public void GetAccountByIdAsyncExceptionThrown()
         {
             var exMessage = "This is an exception";
-            _mockApiGateway.Setup(x => x.GetByIdAsync<AccountResponseObject>(Route, _id, _correlationId))
+            _mockApiGateway.Setup(x => x.GetByIdAsync<AccountResponse>(Route, _id, _correlationId))
                            .ThrowsAsync(new Exception(exMessage));
 
             var sut = new AccountApiGateway(_mockApiGateway.Object);
-            Func<Task<AccountResponseObject>> func =
+            Func<Task<AccountResponse>> func =
                 async () => await sut.GetAccountByIdAsync(_id, _correlationId).ConfigureAwait(false);
 
             func.Should().ThrowAsync<Exception>().WithMessage(exMessage);
@@ -70,9 +70,9 @@ namespace HousingSearchListener.Tests.V1.Gateway
         [Fact]
         public async Task GetAccountByIdAsyncCallReturnsAccount()
         {
-            var account = new Fixture().Create<AccountResponseObject>();
+            var account = new Fixture().Create<AccountResponse>();
 
-            _mockApiGateway.Setup(x => x.GetByIdAsync<AccountResponseObject>(Route, _id, _correlationId))
+            _mockApiGateway.Setup(x => x.GetByIdAsync<AccountResponse>(Route, _id, _correlationId))
                            .ReturnsAsync(account);
 
             var sut = new AccountApiGateway(_mockApiGateway.Object);

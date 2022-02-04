@@ -4,7 +4,7 @@ using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.Interfaces;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
@@ -21,15 +21,17 @@ namespace HousingSearchListener.V1.UseCase
         private readonly IEsGateway _esGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
         private readonly IPersonApiGateway _personApiGateway;
-        private readonly IESEntityFactory _esEntityFactory;
+        private readonly IPersonFactory _personFactory;
+        private readonly ITenuresFactory _tenuresFactory;
 
         public RemovePersonFromTenureUseCase(IEsGateway esGateway, ITenureApiGateway tenureApiGateway,
-            IPersonApiGateway personApiGateway, IESEntityFactory esEntityFactory)
+            IPersonApiGateway personApiGateway, IPersonFactory personFactory, ITenuresFactory tenuresFactory)
         {
             _esGateway = esGateway;
             _tenureApiGateway = tenureApiGateway;
             _personApiGateway = personApiGateway;
-            _esEntityFactory = esEntityFactory;
+            _personFactory = personFactory;
+            _tenuresFactory = tenuresFactory;
         }
 
         [LogCall]
@@ -56,19 +58,19 @@ namespace HousingSearchListener.V1.UseCase
                 person.Tenures.Remove(person.Tenures.First(x => x.Id == tenure.Id));
 
             // 5. Update the person.PersonType list if necessary
-            UpdatePersonType(person);
+            await UpdatePersonType(person);
 
             // 6. Update the indexes
             await UpdateTenureIndexAsync(tenure).ConfigureAwait(false);
             await UpdatePersonIndexAsync(person).ConfigureAwait(false);
         }
 
-        private void UpdatePersonType(Person person)
+        private async Task UpdatePersonType(Person person)
         {
             var getTenureFromIndexTasks = person.Tenures.Select(x => _esGateway.GetTenureById(x.Id)).ToArray();
-            Task.WaitAll(getTenureFromIndexTasks);
+            var queryableTenures = await Task.WhenAll(getTenureFromIndexTasks);
 
-            var personTypes = getTenureFromIndexTasks.Select(x => GetPersonTypeForTenure(x.Result, person.Id)).ToList();
+            var personTypes = queryableTenures.Select(x => GetPersonTypeForTenure(x, person.Id)).ToList();
             person.PersonTypes = personTypes;
         }
 
@@ -80,13 +82,13 @@ namespace HousingSearchListener.V1.UseCase
 
         private async Task UpdateTenureIndexAsync(TenureInformation tenure)
         {
-            var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+            var esTenure = _tenuresFactory.CreateQueryableTenure(tenure);
             await _esGateway.IndexTenure(esTenure);
         }
 
         private async Task UpdatePersonIndexAsync(Person person)
         {
-            var esPerson = _esEntityFactory.CreatePerson(person);
+            var esPerson = _personFactory.CreatePerson(person);
             await _esGateway.IndexPerson(esPerson);
         }
 

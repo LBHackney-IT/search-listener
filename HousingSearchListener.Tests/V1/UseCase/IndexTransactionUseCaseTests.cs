@@ -5,7 +5,8 @@ using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Transactions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using HousingSearchListener.V1.Domain.Transaction;
-using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.Interfaces;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
@@ -23,7 +24,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
     {
         private readonly Mock<IFinancialTransactionApiGateway> _mockTransactionApi;
         private readonly Mock<IEsGateway> _mockEsGateway;
-        private readonly IESEntityFactory _esEntityFactory;
+        private readonly ITransactionFactory _transactionFactory;
         private readonly IndexTransactionUseCase _sut;
 
         private readonly EntityEventSns _message;
@@ -39,9 +40,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             _mockTransactionApi = new Mock<IFinancialTransactionApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
-            _esEntityFactory = new ESEntityFactory();
+            _transactionFactory = new TransactionsFactory();
             _sut = new IndexTransactionUseCase(_mockEsGateway.Object,
-                _mockTransactionApi.Object, _esEntityFactory);
+                _mockTransactionApi.Object, _transactionFactory);
 
             _message = CreateMessage();
             _transaction = CreateTransaction(_message.EntityId);

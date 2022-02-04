@@ -2,7 +2,7 @@
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.Interfaces;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
@@ -18,15 +18,16 @@ namespace HousingSearchListener.V1.UseCase
         private readonly IEsGateway _esGateway;
         private readonly IPersonApiGateway _personApiGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
-        private readonly IESEntityFactory _esEntityFactory;
-
+        private readonly IPersonFactory _personFactory;
+        private readonly ITenuresFactory _tenuresFactory;
         public IndexUpdatePersonUseCase(IEsGateway esGateway, IPersonApiGateway personApiGateway, ITenureApiGateway tenureApiGateway,
-            IESEntityFactory esEntityFactory)
+            IPersonFactory personFactory, ITenuresFactory tenuresFactory)
         {
             _esGateway = esGateway;
             _personApiGateway = personApiGateway;
             _tenureApiGateway = tenureApiGateway;
-            _esEntityFactory = esEntityFactory;
+            _personFactory = personFactory;
+            _tenuresFactory = tenuresFactory;
         }
 
         [LogCall]
@@ -40,7 +41,7 @@ namespace HousingSearchListener.V1.UseCase
             if (person is null) throw new EntityNotFoundException<Person>(message.EntityId);
 
             // 2. Update the ES index
-            var esPerson = _esEntityFactory.CreatePerson(person);
+            var esPerson = _personFactory.CreatePerson(person);
             await _esGateway.IndexPerson(esPerson);
 
             //3.  Get tenures for person
@@ -72,7 +73,7 @@ namespace HousingSearchListener.V1.UseCase
                     householdMember.FullName = person.FullName;
                     householdMember.DateOfBirth = person.DateOfBirth;
 
-                    var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
+                    var esTenure = _tenuresFactory.CreateQueryableTenure(tenure);
 
                     listOfUpdateTenureIndexTasks.Add(_esGateway.IndexTenure(esTenure));
                 }

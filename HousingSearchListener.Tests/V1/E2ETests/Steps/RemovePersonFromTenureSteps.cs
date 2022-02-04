@@ -4,7 +4,7 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Nest;
 using System;
@@ -15,7 +15,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
     public class RemovePersonFromTenureSteps : BaseSteps
     {
-        private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
+        private readonly PersonFactory _personFactory = new PersonFactory();
+        private readonly TenuresFactory _tenuresFactory = new TenuresFactory();
 
         public RemovePersonFromTenureSteps()
         {
@@ -43,7 +44,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                        .ConfigureAwait(false);
 
             var personInIndex = result.Source;
-            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person), c => c.Excluding(y => y.Tenures));
+            personInIndex.Should().BeEquivalentTo(_personFactory.CreatePerson(person), c => c.Excluding(y => y.Tenures));
             personInIndex.Tenures.Should().NotContain(x => x.Id == tenureId.ToString());
         }
 
@@ -61,7 +62,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                        .ConfigureAwait(false);
 
             var tenureInIndex = result.Source;
-            tenureInIndex.Should().BeEquivalentTo(_entityFactory.CreateQueryableTenure(tenure));
+            tenureInIndex.Should().BeEquivalentTo(_tenuresFactory.CreateQueryableTenure(tenure));
         }
 
         public async Task ThenTheIndexedTenureHasThePersonRemoved(
@@ -71,7 +72,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                        .ConfigureAwait(false);
 
             var tenureInIndex = result.Source;
-            tenureInIndex.Should().BeEquivalentTo(_entityFactory.CreateQueryableTenure(tenure), c => c.Excluding(y => y.HouseholdMembers));
+            tenureInIndex.Should().BeEquivalentTo(_tenuresFactory.CreateQueryableTenure(tenure), c => c.Excluding(y => y.HouseholdMembers));
             tenureInIndex.HouseholdMembers.Should().NotContain(x => x.Id == personId.ToString());
         }
 
@@ -82,7 +83,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                        .ConfigureAwait(false);
 
             var personInIndex = result.Source;
-            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person),
+            personInIndex.Should().BeEquivalentTo(_personFactory.CreatePerson(person),
                                                   c => c.Excluding(y => y.Tenures).Excluding(z => z.PersonTypes));
             personInIndex.Tenures.Should().HaveCount(person.Tenures.Count - 1);
             personInIndex.Tenures.Should().NotContain(x => x.Id == tenureId.ToString());

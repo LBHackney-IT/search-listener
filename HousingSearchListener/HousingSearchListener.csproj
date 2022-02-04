@@ -10,6 +10,11 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="V1\Infrastructure\Enum\**" />
+    <EmbeddedResource Remove="V1\Infrastructure\Enum\**" />
+    <None Remove="V1\Infrastructure\Enum\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="1.2.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.1.0" />
     <PackageReference Include="Amazon.Lambda.SNSEvents" Version="2.0.0" />
@@ -19,7 +24,7 @@
     <PackageReference Include="Hackney.Core.Http" Version="1.63.0" />
     <PackageReference Include="Hackney.Core.Logging" Version="1.30.0" />
     <PackageReference Include="Hackney.Core.Sns" Version="1.49.0" />
-    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.22.0" />
+    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.23.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
@@ -40,6 +45,10 @@
     <Content Include="appsettings.LocalDevelopment.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="V1\Gateway\Interfaces\" />
   </ItemGroup>
 
 </Project>

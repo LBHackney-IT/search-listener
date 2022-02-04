@@ -1,6 +1,6 @@
 ﻿using Hackney.Core.Http;
 using Hackney.Core.Logging;
-using HousingSearchListener.V1.Domain.Account;
+using HousingSearchListener.V1.Boundary.Response;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -22,10 +22,10 @@ namespace HousingSearchListener.V1.Gateway
         }
 
         [LogCall]
-        public async Task<AccountResponseObject> GetAccountByIdAsync(Guid id, Guid correlationId)
+        public async Task<AccountResponse> GetAccountByIdAsync(Guid id, Guid correlationId)
         {
             var route = $"{_apiGateway.ApiRoute}/accounts/{id}";
-            return await _apiGateway.GetByIdAsync<AccountResponseObject>(route, id, correlationId);
+            return await _apiGateway.GetByIdAsync<AccountResponse>(route, id, correlationId);
         }
     }
 }

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Reflection;
-using Amazon.XRay.Recorder.Handlers.AwsSdk;
+﻿using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Reflection;
 
 namespace HousingSearchListener
 {

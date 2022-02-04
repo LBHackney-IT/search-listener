@@ -4,7 +4,7 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Nest;
 using System;
@@ -16,7 +16,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
     public class AddPersonToTenureSteps : BaseSteps
     {
-        private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
+        private readonly PersonFactory _personFactory = new PersonFactory();
+        private readonly TenuresFactory _tenuresFactory = new TenuresFactory();
 
         public AddPersonToTenureSteps()
         {
@@ -44,7 +45,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                        .ConfigureAwait(false);
 
             var personInIndex = result.Source;
-            personInIndex.Should().BeEquivalentTo(_entityFactory.CreatePerson(person),
+            personInIndex.Should().BeEquivalentTo(_personFactory.CreatePerson(person),
                                                   c => c.Excluding(x => x.Tenures)
                                                         .Excluding(x => x.PersonTypes));
 
@@ -72,7 +73,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                        .ConfigureAwait(false);
 
             var tenureInIndex = result.Source;
-            tenureInIndex.Should().BeEquivalentTo(_entityFactory.CreateQueryableTenure(tenure));
+            tenureInIndex.Should().BeEquivalentTo(_tenuresFactory.CreateQueryableTenure(tenure));
         }
     }
 }

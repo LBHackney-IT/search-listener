@@ -6,7 +6,7 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
-using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
@@ -26,7 +26,8 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly Mock<ITenureApiGateway> _mockTenureApi;
         private readonly Mock<IPersonApiGateway> _mockPersonApi;
         private readonly Mock<IEsGateway> _mockEsGateway;
-        private readonly IESEntityFactory _esEntityFactory;
+        private readonly PersonFactory _personFactory;
+        private readonly TenuresFactory _tenuresFactory;
         private readonly RemovePersonFromTenureUseCase _sut;
 
         private readonly EntityEventSns _message;
@@ -43,9 +44,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockPersonApi = new Mock<IPersonApiGateway>();
             _mockTenureApi = new Mock<ITenureApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
-            _esEntityFactory = new ESEntityFactory();
+            _personFactory = new PersonFactory();
+            _tenuresFactory = new TenuresFactory();
             _sut = new RemovePersonFromTenureUseCase(_mockEsGateway.Object,
-                _mockTenureApi.Object, _mockPersonApi.Object, _esEntityFactory);
+                _mockTenureApi.Object, _mockPersonApi.Object, _personFactory, _tenuresFactory);
 
             _tenure = CreateTenure();
             _message = CreateMessage(Guid.Parse(_tenure.Id));
@@ -162,7 +164,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private bool VerifyPersonIndexed(QueryablePerson esPerson, Person startingPerson)
         {
-            esPerson.Should().BeEquivalentTo(_esEntityFactory.CreatePerson(startingPerson),
+            esPerson.Should().BeEquivalentTo(_personFactory.CreatePerson(startingPerson),
                                              c => c.Excluding(y => y.Tenures).Excluding(y => y.PersonTypes));
             esPerson.Tenures.Should().NotContain(x => x.Id == _tenure.Id);
             esPerson.PersonTypes.Should().HaveCount(2);
@@ -172,7 +174,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private bool VerifyTenureIndexed(QueryableTenure esTenure)
         {
-            esTenure.Should().BeEquivalentTo(_esEntityFactory.CreateQueryableTenure(_tenure));
+            esTenure.Should().BeEquivalentTo(_tenuresFactory.CreateQueryableTenure(_tenure));
             return true;
         }
 

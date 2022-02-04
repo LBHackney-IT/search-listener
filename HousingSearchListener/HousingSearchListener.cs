@@ -4,6 +4,8 @@ using Hackney.Core.Http;
 using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Factories;
+using HousingSearchListener.V1.Factories.Interfaces;
+using HousingSearchListener.V1.Factories.QueryableFactories;
 using HousingSearchListener.V1.Gateway;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure;
@@ -39,7 +41,10 @@ namespace HousingSearchListener
         {
             services.AddHttpClient();
 
-            services.AddScoped<IESEntityFactory, ESEntityFactory>();
+            services.AddScoped<ITenuresFactory, TenuresFactory>();
+            services.AddScoped<ITransactionFactory, TransactionsFactory>();
+            services.AddScoped<IPersonFactory, PersonFactory>();
+            services.AddScoped<IAccountFactory, AccountFactory>();
             services.AddScoped<IEsGateway, EsGateway>();
             services.AddScoped<IPersonApiGateway, PersonApiGateway>();
             services.AddScoped<ITenureApiGateway, TenureApiGateway>();
@@ -58,8 +63,8 @@ namespace HousingSearchListener
             services.AddScoped<IIndexTenureUseCase, IndexTenureUseCase>();
             services.AddScoped<IAddPersonToTenureUseCase, AddPersonToTenureUseCase>();
             services.AddScoped<IRemovePersonFromTenureUseCase, RemovePersonFromTenureUseCase>();
-            services.AddScoped<IUpdateAccountDetailsUseCase, UpdateAccountDetailsUseCase>();
             services.AddScoped<IIndexTransactionUseCase, IndexTransactionUseCase>();
+            services.AddScoped<IAccountCreateUseCase, AccountCreatedUseCase>();
 
             base.ConfigureServices(services);
         }
@@ -85,11 +90,17 @@ namespace HousingSearchListener
                 try
                 {
                     IMessageProcessing processor = entityEvent.CreateUseCaseForMessage(ServiceProvider);
+
                     if (processor != null)
+                    {
                         await processor.ProcessMessageAsync(entityEvent).ConfigureAwait(false);
+                    }
+
                     else
+                    {
                         Logger.LogInformation($"No processors available for message so it will be ignored. " +
-                            $"Message id: {message.MessageId}; type: {entityEvent.EventType}; version: {entityEvent.Version}; entity id: {entityEvent.EntityId}");
+                           $"Message id: {message.MessageId}; type: {entityEvent.EventType}; version: {entityEvent.Version}; entity id: {entityEvent.EntityId}");
+                    }
                 }
                 catch (Exception ex)
                 {
