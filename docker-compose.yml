@@ -8,6 +8,7 @@ services:
        dockerfile: HousingSearchListener.Tests/Dockerfile
        args:
        - LBHPACKAGESTOKEN=${LBHPACKAGESTOKEN}
+       - SONAR_TOKEN=${SONAR_TOKEN}
      ports:
        - 3000:3000
      environment:
