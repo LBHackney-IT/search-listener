@@ -53,7 +53,12 @@ namespace HousingSearchListener.V1.Factories
                         processor = serviceProvider.GetService<IIndexTransactionUseCase>();
                         break;
                     }
-
+                case EventTypes.AssetCreatedEvent:
+                    {
+                        processor = serviceProvider.GetService<IIndexCreateAssetUseCase>();
+                        break;
+                    }
+                    
                 default:
                     throw new ArgumentException($"Unknown event type: {entityEvent.EventType}");
             }

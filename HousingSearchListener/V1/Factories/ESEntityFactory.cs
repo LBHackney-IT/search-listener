@@ -1,3 +1,4 @@
+using Hackney.Shared.HousingSearch.Domain.Asset;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
@@ -140,5 +141,22 @@ namespace HousingSearchListener.V1.Factories
                 LastUpdatedBy = transaction.LastUpdatedBy
             };
         }
+
+        /*public QueryableAsset CreateAsset(Asset asset)
+        {
+            return new QueryableAsset
+            {
+                Id = person.Id,
+                DateOfBirth = person.DateOfBirth,
+                Title = person.Title,
+                Firstname = person.FirstName,
+                Surname = person.Surname,
+                Middlename = person.MiddleName,
+                PreferredFirstname = person.PreferredFirstName,
+                PreferredSurname = person.PreferredSurname,
+                PersonTypes = person.PersonTypes,
+                Tenures = person.Tenures != null ? CreatePersonTenures(person.Tenures) : new List<QueryablePersonTenure>()
+            };
+        }*/
     }
 }
