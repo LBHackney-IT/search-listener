@@ -1,4 +1,3 @@
-using Hackney.Shared.HousingSearch.Domain.Asset;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
@@ -11,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
 using QueryableTenuredAsset = Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenuredAsset;
-
+    
 namespace HousingSearchListener.V1.Factories
 {
     public class ESEntityFactory : IESEntityFactory
@@ -142,21 +141,34 @@ namespace HousingSearchListener.V1.Factories
             };
         }
 
-        /*public QueryableAsset CreateAsset(Asset asset)
+            
+        public QueryableAsset CreateAsset(Hackney.Shared.HousingSearch.Domain.Asset.Asset asset)
         {
-            return new QueryableAsset
-            {
-                Id = person.Id,
-                DateOfBirth = person.DateOfBirth,
-                Title = person.Title,
-                Firstname = person.FirstName,
-                Surname = person.Surname,
-                Middlename = person.MiddleName,
-                PreferredFirstname = person.PreferredFirstName,
-                PreferredSurname = person.PreferredSurname,
-                PersonTypes = person.PersonTypes,
-                Tenures = person.Tenures != null ? CreatePersonTenures(person.Tenures) : new List<QueryablePersonTenure>()
-            };
-        }*/
+            QueryableAsset queryableAsset = new QueryableAsset();
+            QueryableAssetAddress assetAddress = new QueryableAssetAddress();
+            QueryableAssetTenure assetTenure = new QueryableAssetTenure();
+            queryableAsset.Id = asset.Id;
+            queryableAsset.AssetId = asset.AssetId;
+            queryableAsset.AssetType = asset.AssetType;
+            queryableAsset.IsAssetCautionaryAlerted = asset.IsAssetCautionaryAlerted;
+
+            assetAddress.AddressLine1 = asset.AssetAddress.AddressLine1;
+            assetAddress.AddressLine2 = asset.AssetAddress.AddressLine2;
+            assetAddress.AddressLine3 = asset.AssetAddress.AddressLine3;
+            assetAddress.AddressLine4 = asset.AssetAddress.AddressLine4;
+            assetAddress.PostCode = asset.AssetAddress.PostCode;
+            assetAddress.Uprn = asset.AssetAddress.Uprn;
+            assetAddress.PostPreamble = asset.AssetAddress.PostPreamble;
+            queryableAsset.AssetAddress = assetAddress;
+
+            assetTenure.Id = asset.Tenure.Id;
+            assetTenure.StartOfTenureDate = asset.Tenure.StartOfTenureDate;
+            assetTenure.EndOfTenureDate = asset.Tenure.EndOfTenureDate;
+            assetTenure.PaymentReference = asset.Tenure.PaymentReference;
+            assetTenure.Type = asset.Tenure.Type;
+            queryableAsset.Tenure = assetTenure;
+            
+            return queryableAsset;
+        }
     }
 }
