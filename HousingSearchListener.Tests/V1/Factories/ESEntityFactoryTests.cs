@@ -10,6 +10,8 @@ using System.Linq;
 using HousingSearchListener.V1.Domain.Transaction;
 using Xunit;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
+using Tenure = HousingSearchListener.V1.Domain.Person.Tenure;
+using Hackney.Shared.HousingSearch.Domain.Asset;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
@@ -146,6 +148,23 @@ namespace HousingSearchListener.Tests.V1.Factories
 
             result.Sender.FullName.Should().Be(domainTransaction.Person.FullName);
             result.Sender.Id.Should().Be(domainTransaction.Person.Id);
+        }
+
+        [Fact]
+        public void CreateAssetTest()
+        {
+            var domainAsset = _fixture.Create<Asset>();
+
+            var result = _sut.CreateAsset(domainAsset);
+            result.Id.Should().Be(domainAsset.Id);
+            result.AssetId.Should().Be(domainAsset.AssetId);
+            result.AssetAddress.Should().Be(domainAsset.AssetAddress);
+            result.AssetType.Should().Be(domainAsset.AssetType);
+            result.IsAssetCautionaryAlerted.Should().Be(domainAsset.IsAssetCautionaryAlerted);
+            result.AssetCharacteristics.Should().Be(domainAsset.AssetCharacteristics);
+            result.AssetManagement.Should().Be(domainAsset.AssetManagement);
+            result.ParentAssetIds.Should().Be(domainAsset.ParentAssetIds);
+            result.RootAsset.Should().Be(domainAsset.RootAsset);
         }
     }
 }
