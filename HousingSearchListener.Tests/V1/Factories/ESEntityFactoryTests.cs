@@ -159,7 +159,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             .With(x => x.AssetCharacteristics, _fixture.Create<AssetCharacteristics>())
             .With(x => x.AssetManagement, _fixture.Create<AssetManagement>())
             .Create();
-            
+
             var result = _sut.CreateAsset(domainAsset);
             result.Id.Should().Be(domainAsset.Id);
             result.AssetId.Should().Be(domainAsset.AssetId);

@@ -141,7 +141,7 @@ namespace HousingSearchListener.V1.Factories
             };
         }
 
-            
+
         public QueryableAsset CreateAsset(Hackney.Shared.HousingSearch.Domain.Asset.Asset asset)
         {
             QueryableAsset queryableAsset = new QueryableAsset();
@@ -149,14 +149,14 @@ namespace HousingSearchListener.V1.Factories
             QueryableAssetTenure assetTenure = new QueryableAssetTenure();
             QueryableAssetCharacteristics assetCharacteristics = new QueryableAssetCharacteristics();
             QueryableAssetManagement assetManagement = new QueryableAssetManagement();
-            
+
             queryableAsset.Id = asset.Id;
             queryableAsset.AssetId = asset.AssetId;
             queryableAsset.AssetType = asset.AssetType;
             queryableAsset.IsAssetCautionaryAlerted = asset.IsAssetCautionaryAlerted;
             queryableAsset.ParentAssetIds = asset.ParentAssetIds;
             queryableAsset.RootAsset = asset.RootAsset;
-            
+
             assetAddress.AddressLine1 = asset.AssetAddress.AddressLine1;
             assetAddress.AddressLine2 = asset.AssetAddress.AddressLine2;
             assetAddress.AddressLine3 = asset.AssetAddress.AddressLine3;
