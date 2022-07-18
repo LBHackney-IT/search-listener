@@ -113,5 +113,12 @@ namespace HousingSearchListener.Tests.V1.Factories
             _event = ConstructEvent(EventTypes.TransactionCreatedEvent);
             TestMessageProcessingCreation<IIndexTransactionUseCase>(_event);
         }
+
+        [Fact]
+        public void CreateUseCaseForMessageTestAssetCreatedEvent()
+        {
+            _event = ConstructEvent(EventTypes.AssetCreatedEvent);
+            TestMessageProcessingCreation<IIndexCreateAssetUseCase>(_event);
+        }
     }
 }

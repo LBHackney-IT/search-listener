@@ -153,16 +153,23 @@ namespace HousingSearchListener.Tests.V1.Factories
         [Fact]
         public void CreateAssetTest()
         {
-            var domainAsset = _fixture.Create<Asset>();
 
+            var domainAsset = _fixture.Build<Asset>()
+            .With(x => x.AssetAddress, _fixture.Create<AssetAddress>())
+            .With(x => x.AssetCharacteristics, _fixture.Create<AssetCharacteristics>())
+            .With(x => x.AssetManagement, _fixture.Create<AssetManagement>())
+            .Create();
+            
             var result = _sut.CreateAsset(domainAsset);
             result.Id.Should().Be(domainAsset.Id);
             result.AssetId.Should().Be(domainAsset.AssetId);
-            result.AssetAddress.Should().Be(domainAsset.AssetAddress);
+            result.AssetAddress.AddressLine1.Should().Be(domainAsset.AssetAddress.AddressLine1);
+            result.AssetAddress.PostCode.Should().Be(domainAsset.AssetAddress.PostCode);
             result.AssetType.Should().Be(domainAsset.AssetType);
             result.IsAssetCautionaryAlerted.Should().Be(domainAsset.IsAssetCautionaryAlerted);
-            result.AssetCharacteristics.Should().Be(domainAsset.AssetCharacteristics);
-            result.AssetManagement.Should().Be(domainAsset.AssetManagement);
+            result.AssetCharacteristics.NumberOfBedrooms.Should().Be(domainAsset.AssetCharacteristics.NumberOfBedrooms);
+            result.AssetCharacteristics.PrivateBathroom.Should().Be(domainAsset.AssetCharacteristics.PrivateBathroom);
+            result.AssetManagement.PropertyOccupiedStatus.Should().Be(domainAsset.AssetManagement.PropertyOccupiedStatus);
             result.ParentAssetIds.Should().Be(domainAsset.ParentAssetIds);
             result.RootAsset.Should().Be(domainAsset.RootAsset);
         }
