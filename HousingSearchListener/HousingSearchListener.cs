@@ -62,7 +62,7 @@ namespace HousingSearchListener
             services.AddScoped<IUpdateAccountDetailsUseCase, UpdateAccountDetailsUseCase>();
             services.AddScoped<IIndexTransactionUseCase, IndexTransactionUseCase>();
             services.AddScoped<IIndexCreateAssetUseCase, IndexCreateAssetUseCase>();
-            
+
             base.ConfigureServices(services);
         }
 

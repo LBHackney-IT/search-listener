@@ -21,7 +21,7 @@ namespace HousingSearchListener.V1.Gateway
             _apiGateway = apiGateway;
             _apiGateway.Initialise(ApiName, AssetApiUrl, AssetApiToken);
         }
-        
+
         [LogCall]
         public async Task<Asset> GetAssetByIdAsync(Guid id, Guid correlationId)
         {
