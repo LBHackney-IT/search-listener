@@ -348,3 +348,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+/testEnvironments.json
+/docker-compose.dcproj
+/docker-compose.override.yml
+/HousingSearchListener.Tests/Properties/launchSettings.json
