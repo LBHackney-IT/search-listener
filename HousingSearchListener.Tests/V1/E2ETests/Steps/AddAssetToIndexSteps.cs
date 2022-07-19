@@ -27,7 +27,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             await TriggerFunction(CreateMessage(eventMsg));
         }
 
-        public void ThenAAssetNotFoundExceptionIsThrown(Guid id)
+        public void ThenAnAssetNotFoundExceptionIsThrown(Guid id)
         {
             _lastException.Should().NotBeNull();
             _lastException.Should().BeOfType(typeof(EntityNotFoundException<Asset>));
@@ -37,7 +37,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public async Task ThenTheIndexIsUpdatedWithTheAsset(
             Asset Asset, IElasticClient esClient)
         {
-            var result = await esClient.GetAsync<QueryableAsset>(Asset.Id, g => g.Index("Assets"))
+            var result = await esClient.GetAsync<QueryableAsset>(Asset.Id, g => g.Index("assets"))
                                        .ConfigureAwait(false);
 
             var AssetInIndex = result.Source;

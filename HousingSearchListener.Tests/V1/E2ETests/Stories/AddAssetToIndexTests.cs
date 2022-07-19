@@ -10,24 +10,22 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
 {
     [Story(
         AsA = "SQS Tenure Listener",
-        IWant = "a function to process the person created and updated messages",
-        SoThat = "The person details are set in the index")]
+        IWant = "a function to process the Asset created and updated messages",
+        SoThat = "The Asset details are set in the index")]
     [Collection("ElasticSearch collection")]
-    public class AddPersonToIndexTests : IDisposable
+    public class AddAssetToIndexTests : IDisposable
     {
         private readonly ElasticSearchFixture _esFixture;
-        private readonly PersonApiFixture _personApiFixture;
-        private readonly TenureApiFixture _tenureApiFixture;
+        private readonly AssetApiFixture _AssetApiFixture;
 
-        private readonly AddPersonToIndexSteps _steps;
+        private readonly AddAssetToIndexSteps _steps;
 
-        public AddPersonToIndexTests(ElasticSearchFixture esFixture)
+        public AddAssetToIndexTests(ElasticSearchFixture esFixture)
         {
             _esFixture = esFixture;
-            _personApiFixture = new PersonApiFixture();
-            _tenureApiFixture = new TenureApiFixture();
+            _AssetApiFixture = new AssetApiFixture();
 
-            _steps = new AddPersonToIndexSteps();
+            _steps = new AddAssetToIndexSteps();
         }
 
         public void Dispose()
@@ -41,62 +39,32 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
-                _personApiFixture.Dispose();
-                _tenureApiFixture.Dispose();
+                _AssetApiFixture.Dispose();
 
                 _disposed = true;
             }
         }
 
         [Theory]
-        [InlineData(EventTypes.PersonCreatedEvent)]
-        [InlineData(EventTypes.PersonUpdatedEvent)]
-        public void PersonNotFound(string eventType)
+        [InlineData(EventTypes.AssetCreatedEvent)]
+        public void AssetNotFound(string eventType)
         {
-            var personId = Guid.NewGuid();
-            this.Given(g => _personApiFixture.GivenThePersonDoesNotExist(personId))
-                .When(w => _steps.WhenTheFunctionIsTriggered(personId, eventType))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
-                .Then(t => _steps.ThenAPersonNotFoundExceptionIsThrown(personId))
+            var AssetId = Guid.NewGuid();
+            this.Given(g => _AssetApiFixture.GivenTheAssetDoesNotExist(AssetId))
+                .When(w => _steps.WhenTheFunctionIsTriggered(AssetId, eventType))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_AssetApiFixture.ReceivedCorrelationIds))
+                .Then(t => _steps.ThenAnAssetNotFoundExceptionIsThrown(AssetId))
                 .BDDfy();
         }
 
         [Fact]
-        public void PersonCreatedAddedToIndex()
+        public void AssetCreatedAddedToIndex()
         {
-            var personId = Guid.NewGuid();
-            this.Given(g => _personApiFixture.GivenThePersonExists(personId))
-                .And(h => _esFixture.GivenAPersonIsNotIndexed(_personApiFixture.ResponseObject))
-                .When(w => _steps.WhenTheFunctionIsTriggered(personId, EventTypes.PersonCreatedEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
-                .Then(t => _steps.ThenTheIndexIsUpdatedWithThePerson(_personApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
-                .BDDfy();
-        }
-
-        [Fact]
-        public void PersonUpdateInIndex()
-        {
-            var personId = Guid.NewGuid();
-            this.Given(g => _personApiFixture.GivenThePersonExists(personId))
-                .And(h => _esFixture.GivenAPersonIsIndexedWithDifferentInfo(_personApiFixture.ResponseObject))
-                .When(w => _steps.WhenTheFunctionIsTriggered(personId, EventTypes.PersonUpdatedEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
-                .Then(t => _steps.ThenTheIndexIsUpdatedWithThePerson(_personApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
-                .BDDfy();
-        }
-
-        [Fact]
-        public void TenureUpdateInIndex()
-        {
-            var personId = Guid.NewGuid();
-            this.Given(g => _personApiFixture.GivenThePersonExists(personId))
-                .And(h => _tenureApiFixture.GivenTheTenureExists(
-                                                Guid.Parse(_personApiFixture.ResponseObject.Tenures.First().Id), personId))
-                .And(h => _esFixture.GivenAPersonIsIndexedWithDifferentInfo(_personApiFixture.ResponseObject))
-                .When(w => _steps.WhenTheFunctionIsTriggered(personId, EventTypes.PersonUpdatedEvent))
-                .Then(t => _steps.ThenTheIndexIsUpdatedWithTheUpdatedPersonTenure(_personApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_personApiFixture.ReceivedCorrelationIds))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_tenureApiFixture.ReceivedCorrelationIds))
+            var AssetId = Guid.NewGuid();
+            this.Given(g => _AssetApiFixture.GivenTheAssetExists(AssetId))
+                .When(w => _steps.WhenTheFunctionIsTriggered(AssetId, EventTypes.AssetCreatedEvent))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_AssetApiFixture.ReceivedCorrelationIds))
+                .Then(t => _steps.ThenTheIndexIsUpdatedWithTheAsset(_AssetApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
     }
