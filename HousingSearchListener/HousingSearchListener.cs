@@ -44,6 +44,7 @@ namespace HousingSearchListener
             services.AddScoped<IPersonApiGateway, PersonApiGateway>();
             services.AddScoped<ITenureApiGateway, TenureApiGateway>();
             services.AddScoped<IAccountApiGateway, AccountApiGateway>();
+            services.AddScoped<IAssetApiGateway, AssetApiGateway>();
             services.AddScoped<IFinancialTransactionApiGateway, FinancialTransactionApiGateway>();
 
             // Transient because otherwise all gateway's that use it will get the same instance,
@@ -60,6 +61,7 @@ namespace HousingSearchListener
             services.AddScoped<IRemovePersonFromTenureUseCase, RemovePersonFromTenureUseCase>();
             services.AddScoped<IUpdateAccountDetailsUseCase, UpdateAccountDetailsUseCase>();
             services.AddScoped<IIndexTransactionUseCase, IndexTransactionUseCase>();
+            services.AddScoped<IIndexCreateAssetUseCase, IndexCreateAssetUseCase>();
 
             base.ConfigureServices(services);
         }

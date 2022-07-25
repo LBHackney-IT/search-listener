@@ -10,6 +10,8 @@ using System.Linq;
 using HousingSearchListener.V1.Domain.Transaction;
 using Xunit;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
+using Tenure = HousingSearchListener.V1.Domain.Person.Tenure;
+using Hackney.Shared.Asset.Domain;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
@@ -146,6 +148,30 @@ namespace HousingSearchListener.Tests.V1.Factories
 
             result.Sender.FullName.Should().Be(domainTransaction.Person.FullName);
             result.Sender.Id.Should().Be(domainTransaction.Person.Id);
+        }
+
+        [Fact]
+        public void CreateAssetTest()
+        {
+
+            var domainAsset = _fixture.Build<Asset>()
+            .With(x => x.AssetAddress, _fixture.Create<AssetAddress>())
+            .With(x => x.AssetCharacteristics, _fixture.Create<AssetCharacteristics>())
+            .With(x => x.AssetManagement, _fixture.Create<AssetManagement>())
+            .Create();
+
+            var result = _sut.CreateAsset(domainAsset);
+            result.Id.Should().Be(domainAsset.Id.ToString());
+            result.AssetId.Should().Be(domainAsset.AssetId);
+            result.AssetAddress.AddressLine1.Should().Be(domainAsset.AssetAddress.AddressLine1);
+            result.AssetAddress.PostCode.Should().Be(domainAsset.AssetAddress.PostCode);
+            result.AssetType.Should().Be(domainAsset.AssetType.ToString());
+            result.AssetCharacteristics.IsStepFree.Should().Be(domainAsset.AssetCharacteristics.IsStepFree);
+            result.AssetCharacteristics.NumberOfBedrooms.Should().Be(domainAsset.AssetCharacteristics.NumberOfBedrooms);
+            result.AssetCharacteristics.HasPrivateBathroom.Should().Be(domainAsset.AssetCharacteristics.HasPrivateBathroom);
+            result.AssetManagement.PropertyOccupiedStatus.Should().Be(domainAsset.AssetManagement.PropertyOccupiedStatus);
+            result.ParentAssetIds.Should().Be(domainAsset.ParentAssetIds);
+            result.RootAsset.Should().Be(domainAsset.RootAsset);
         }
     }
 }

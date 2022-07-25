@@ -1,3 +1,4 @@
+using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
@@ -139,6 +140,64 @@ namespace HousingSearchListener.V1.Factories
                 LastUpdatedAt = transaction.LastUpdatedAt,
                 LastUpdatedBy = transaction.LastUpdatedBy
             };
+        }
+
+
+        public QueryableAsset CreateAsset(Asset asset)
+        {
+            QueryableAsset queryableAsset = new QueryableAsset();
+            QueryableAssetAddress assetAddress = new QueryableAssetAddress();
+            QueryableAssetTenure assetTenure = new QueryableAssetTenure();
+            QueryableAssetCharacteristics assetCharacteristics = new QueryableAssetCharacteristics();
+            QueryableAssetManagement assetManagement = new QueryableAssetManagement();
+
+            queryableAsset.Id = asset.Id.ToString();
+            queryableAsset.AssetId = asset.AssetId;
+            queryableAsset.AssetType = asset.AssetType.ToString();
+            queryableAsset.ParentAssetIds = asset.ParentAssetIds;
+            queryableAsset.RootAsset = asset.RootAsset;
+
+            assetAddress.AddressLine1 = asset.AssetAddress.AddressLine1;
+            assetAddress.AddressLine2 = asset.AssetAddress.AddressLine2;
+            assetAddress.AddressLine3 = asset.AssetAddress.AddressLine3;
+            assetAddress.AddressLine4 = asset.AssetAddress.AddressLine4;
+            assetAddress.PostCode = asset.AssetAddress.PostCode;
+            assetAddress.Uprn = asset.AssetAddress.Uprn;
+            assetAddress.PostPreamble = asset.AssetAddress.PostPreamble;
+            queryableAsset.AssetAddress = assetAddress;
+
+            assetTenure.Id = asset.Tenure.Id;
+            assetTenure.StartOfTenureDate = asset.Tenure.StartOfTenureDate.ToString();
+            assetTenure.EndOfTenureDate = asset.Tenure.EndOfTenureDate.ToString();
+            assetTenure.PaymentReference = asset.Tenure.PaymentReference;
+            assetTenure.Type = asset.Tenure.Type;
+            queryableAsset.Tenure = assetTenure;
+
+            assetCharacteristics.HasStairs = asset.AssetCharacteristics.HasStairs;
+            assetCharacteristics.NumberOfBedrooms = asset.AssetCharacteristics.NumberOfBedrooms;
+            assetCharacteristics.NumberOfBedSpaces = asset.AssetCharacteristics.NumberOfBedSpaces;
+            assetCharacteristics.NumberOfCots = asset.AssetCharacteristics.NumberOfCots;
+            assetCharacteristics.NumberOfLifts = asset.AssetCharacteristics.NumberOfLifts;
+            assetCharacteristics.NumberOfLivingRooms = asset.AssetCharacteristics.NumberOfLivingRooms;
+            assetCharacteristics.HasPrivateBathroom = asset.AssetCharacteristics.HasPrivateBathroom;
+            assetCharacteristics.HasPrivateKitchen = asset.AssetCharacteristics.HasPrivateKitchen;
+            assetCharacteristics.IsStepFree = asset.AssetCharacteristics.IsStepFree;
+            assetCharacteristics.WindowType = asset.AssetCharacteristics.WindowType;
+            assetCharacteristics.YearConstructed = asset.AssetCharacteristics.YearConstructed;
+            queryableAsset.AssetCharacteristics = assetCharacteristics;
+
+            assetManagement.Agent = asset.AssetManagement.Agent;
+            assetManagement.AreaOfficeName = asset.AssetManagement.AreaOfficeName;
+            assetManagement.IsCouncilProperty = asset.AssetManagement.IsCouncilProperty;
+            assetManagement.IsNoRepairsMaintenance = asset.AssetManagement.IsNoRepairsMaintenance;
+            assetManagement.IsTMOManaged = asset.AssetManagement.IsTMOManaged;
+            assetManagement.ManagingOrganisation = asset.AssetManagement.ManagingOrganisation;
+            assetManagement.ManagingOrganisationId = asset.AssetManagement.ManagingOrganisationId;
+            assetManagement.Owner = asset.AssetManagement.Owner;
+            assetManagement.PropertyOccupiedStatus = asset.AssetManagement.PropertyOccupiedStatus;
+            queryableAsset.AssetManagement = assetManagement;
+
+            return queryableAsset;
         }
     }
 }

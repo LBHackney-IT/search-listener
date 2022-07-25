@@ -2,6 +2,8 @@
 {
     public static class FixtureConstants
     {
+        public static string AssetApiRoute => "http://localhost:5578/api/v1/";
+        public static string AssetApiToken => "sdjkhfgsdkjfgsdjfgh";
         public static string PersonApiRoute => "http://localhost:5678/api/v1/";
         public static string PersonApiToken => "sdjkhfgsdkjfgsdjfgh";
 
