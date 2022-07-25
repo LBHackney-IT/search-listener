@@ -31,7 +31,8 @@ functions:
       AssetApiUrl: ${ssm:/housing-tl/${self:provider.stage}/asset-api-url}
       AssetApiToken: ${ssm:/housing-tl/${self:provider.stage}/asset-api-token}      
     events:
-      - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housing_search_listener_queue/arn} 
+      - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housing_search_listener_queue/arn}
+      - sqs: ${ssm:/sqs-queue/${self:provider.stage}/asset/arn}
 resources:
   Resources:
     LambdaSecurityGroup:
