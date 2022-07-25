@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Gateway.Interfaces;
-using Hackney.Shared.HousingSearch.Domain.Asset;
+using Hackney.Shared.Asset.Domain;
 
 namespace HousingSearchListener.V1.UseCase
 {

@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Hackney.Core.Sns;
-using Hackney.Shared.HousingSearch.Domain.Asset;
+using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
@@ -55,7 +55,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private Asset CreateAsset(Guid entityId)
         {
             return _fixture.Build<Asset>()
-                           .With(x => x.Id, entityId.ToString())
+                           .With(x => x.Id, entityId)
                            .Create();
         }
 

@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using Hackney.Shared.HousingSearch.Domain.Asset;
+using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Factories;

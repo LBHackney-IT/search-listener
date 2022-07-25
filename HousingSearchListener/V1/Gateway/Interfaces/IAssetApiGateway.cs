@@ -1,4 +1,4 @@
-﻿using Hackney.Shared.HousingSearch.Domain.Asset;
+﻿using Hackney.Shared.Asset.Domain;
 using System;
 using System.Threading.Tasks;
 

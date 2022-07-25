@@ -1,6 +1,6 @@
 ﻿using AutoFixture;
 using Hackney.Core.Testing.Shared.E2E;
-using Hackney.Shared.HousingSearch.Domain.Asset;
+using Hackney.Shared.Asset.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +34,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
         public Asset GivenTheAssetExists(Guid id)
         {
             ResponseObject = _fixture.Build<Asset>()
-                                     .With(x => x.Id, id.ToString())
+                                     .With(x => x.Id, id)
                                      .Create();
 
             return ResponseObject;

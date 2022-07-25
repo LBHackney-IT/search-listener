@@ -1,3 +1,4 @@
+using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
@@ -142,7 +143,7 @@ namespace HousingSearchListener.V1.Factories
         }
 
 
-        public QueryableAsset CreateAsset(Hackney.Shared.HousingSearch.Domain.Asset.Asset asset)
+        public QueryableAsset CreateAsset(Asset asset)
         {
             QueryableAsset queryableAsset = new QueryableAsset();
             QueryableAssetAddress assetAddress = new QueryableAssetAddress();
@@ -150,10 +151,9 @@ namespace HousingSearchListener.V1.Factories
             QueryableAssetCharacteristics assetCharacteristics = new QueryableAssetCharacteristics();
             QueryableAssetManagement assetManagement = new QueryableAssetManagement();
 
-            queryableAsset.Id = asset.Id;
+            queryableAsset.Id = asset.Id.ToString();
             queryableAsset.AssetId = asset.AssetId;
-            queryableAsset.AssetType = asset.AssetType;
-            queryableAsset.IsAssetCautionaryAlerted = asset.IsAssetCautionaryAlerted;
+            queryableAsset.AssetType = asset.AssetType.ToString();
             queryableAsset.ParentAssetIds = asset.ParentAssetIds;
             queryableAsset.RootAsset = asset.RootAsset;
 
@@ -167,21 +167,21 @@ namespace HousingSearchListener.V1.Factories
             queryableAsset.AssetAddress = assetAddress;
 
             assetTenure.Id = asset.Tenure.Id;
-            assetTenure.StartOfTenureDate = asset.Tenure.StartOfTenureDate;
-            assetTenure.EndOfTenureDate = asset.Tenure.EndOfTenureDate;
+            assetTenure.StartOfTenureDate = asset.Tenure.StartOfTenureDate.ToString();
+            assetTenure.EndOfTenureDate = asset.Tenure.EndOfTenureDate.ToString();
             assetTenure.PaymentReference = asset.Tenure.PaymentReference;
             assetTenure.Type = asset.Tenure.Type;
             queryableAsset.Tenure = assetTenure;
 
-            assetCharacteristics.GroundFloor = asset.AssetCharacteristics.GroundFloor;
+            assetCharacteristics.HasStairs = asset.AssetCharacteristics.HasStairs;
             assetCharacteristics.NumberOfBedrooms = asset.AssetCharacteristics.NumberOfBedrooms;
             assetCharacteristics.NumberOfBedSpaces = asset.AssetCharacteristics.NumberOfBedSpaces;
             assetCharacteristics.NumberOfCots = asset.AssetCharacteristics.NumberOfCots;
             assetCharacteristics.NumberOfLifts = asset.AssetCharacteristics.NumberOfLifts;
             assetCharacteristics.NumberOfLivingRooms = asset.AssetCharacteristics.NumberOfLivingRooms;
-            assetCharacteristics.PrivateBathroom = asset.AssetCharacteristics.PrivateBathroom;
-            assetCharacteristics.PrivateKitchen = asset.AssetCharacteristics.PrivateKitchen;
-            assetCharacteristics.StepFree = asset.AssetCharacteristics.StepFree;
+            assetCharacteristics.HasPrivateBathroom = asset.AssetCharacteristics.HasPrivateBathroom;
+            assetCharacteristics.HasPrivateKitchen = asset.AssetCharacteristics.HasPrivateKitchen;
+            assetCharacteristics.IsStepFree = asset.AssetCharacteristics.IsStepFree;
             assetCharacteristics.WindowType = asset.AssetCharacteristics.WindowType;
             assetCharacteristics.YearConstructed = asset.AssetCharacteristics.YearConstructed;
             queryableAsset.AssetCharacteristics = assetCharacteristics;

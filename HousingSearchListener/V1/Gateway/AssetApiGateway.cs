@@ -1,6 +1,6 @@
 ﻿using Hackney.Core.Http;
 using Hackney.Core.Logging;
-using Hackney.Shared.HousingSearch.Domain.Asset;
+using Hackney.Shared.Asset.Domain;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using System;
