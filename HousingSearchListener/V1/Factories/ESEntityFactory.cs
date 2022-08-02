@@ -195,6 +195,7 @@ namespace HousingSearchListener.V1.Factories
             assetManagement.ManagingOrganisationId = asset.AssetManagement.ManagingOrganisationId;
             assetManagement.Owner = asset.AssetManagement.Owner;
             assetManagement.PropertyOccupiedStatus = asset.AssetManagement.PropertyOccupiedStatus;
+            assetManagement.IsTemporaryAccomodation = asset.AssetManagement.IsTemporaryAccomodation;
             queryableAsset.AssetManagement = assetManagement;
 
             return queryableAsset;
