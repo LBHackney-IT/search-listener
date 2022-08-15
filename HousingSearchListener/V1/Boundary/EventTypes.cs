@@ -15,5 +15,6 @@
         public const string TransactionCreatedEvent = "TransactionCreatedEvent";
 
         public const string AssetCreatedEvent = "AssetCreatedEvent";
+        public const string AssetUpdatedEvent = "AssetUpdatedEvent";
     }
 }

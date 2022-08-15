@@ -157,20 +157,20 @@ namespace HousingSearchListener.V1.Factories
             queryableAsset.ParentAssetIds = asset.ParentAssetIds;
             queryableAsset.RootAsset = asset.RootAsset;
 
-            assetAddress.AddressLine1 = asset.AssetAddress.AddressLine1;
-            assetAddress.AddressLine2 = asset.AssetAddress.AddressLine2;
-            assetAddress.AddressLine3 = asset.AssetAddress.AddressLine3;
-            assetAddress.AddressLine4 = asset.AssetAddress.AddressLine4;
-            assetAddress.PostCode = asset.AssetAddress.PostCode;
-            assetAddress.Uprn = asset.AssetAddress.Uprn;
-            assetAddress.PostPreamble = asset.AssetAddress.PostPreamble;
+            assetAddress.AddressLine1 = asset.AssetAddress?.AddressLine1;
+            assetAddress.AddressLine2 = asset.AssetAddress?.AddressLine2;
+            assetAddress.AddressLine3 = asset.AssetAddress?.AddressLine3;
+            assetAddress.AddressLine4 = asset.AssetAddress?.AddressLine4;
+            assetAddress.PostCode = asset.AssetAddress?.PostCode;
+            assetAddress.Uprn = asset.AssetAddress?.Uprn;
+            assetAddress.PostPreamble = asset.AssetAddress?.PostPreamble;
             queryableAsset.AssetAddress = assetAddress;
 
-            assetTenure.Id = asset.Tenure.Id;
-            assetTenure.StartOfTenureDate = asset.Tenure.StartOfTenureDate.ToString();
-            assetTenure.EndOfTenureDate = asset.Tenure.EndOfTenureDate.ToString();
-            assetTenure.PaymentReference = asset.Tenure.PaymentReference;
-            assetTenure.Type = asset.Tenure.Type;
+            assetTenure.Id = asset.Tenure?.Id;
+            assetTenure.StartOfTenureDate = asset.Tenure?.StartOfTenureDate.ToString();
+            assetTenure.EndOfTenureDate = asset.Tenure?.EndOfTenureDate.ToString();
+            assetTenure.PaymentReference = asset.Tenure?.PaymentReference;
+            assetTenure.Type = asset.Tenure?.Type;
             queryableAsset.Tenure = assetTenure;
 
             assetCharacteristics.HasStairs = asset.AssetCharacteristics.HasStairs;
@@ -186,15 +186,15 @@ namespace HousingSearchListener.V1.Factories
             assetCharacteristics.YearConstructed = asset.AssetCharacteristics.YearConstructed;
             queryableAsset.AssetCharacteristics = assetCharacteristics;
 
-            assetManagement.Agent = asset.AssetManagement.Agent;
-            assetManagement.AreaOfficeName = asset.AssetManagement.AreaOfficeName;
+            assetManagement.Agent = asset.AssetManagement?.Agent;
+            assetManagement.AreaOfficeName = asset.AssetManagement?.AreaOfficeName;
             assetManagement.IsCouncilProperty = asset.AssetManagement.IsCouncilProperty;
             assetManagement.IsNoRepairsMaintenance = asset.AssetManagement.IsNoRepairsMaintenance;
             assetManagement.IsTMOManaged = asset.AssetManagement.IsTMOManaged;
-            assetManagement.ManagingOrganisation = asset.AssetManagement.ManagingOrganisation;
+            assetManagement.ManagingOrganisation = asset.AssetManagement?.ManagingOrganisation;
             assetManagement.ManagingOrganisationId = asset.AssetManagement.ManagingOrganisationId;
-            assetManagement.Owner = asset.AssetManagement.Owner;
-            assetManagement.PropertyOccupiedStatus = asset.AssetManagement.PropertyOccupiedStatus;
+            assetManagement.Owner = asset.AssetManagement?.Owner;
+            assetManagement.PropertyOccupiedStatus = asset.AssetManagement?.PropertyOccupiedStatus;
             queryableAsset.AssetManagement = assetManagement;
 
             return queryableAsset;
