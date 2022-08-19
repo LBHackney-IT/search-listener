@@ -193,8 +193,10 @@ namespace HousingSearchListener.V1.Factories
             assetManagement.IsTMOManaged = asset.AssetManagement.IsTMOManaged;
             assetManagement.ManagingOrganisation = asset.AssetManagement?.ManagingOrganisation;
             assetManagement.ManagingOrganisationId = asset.AssetManagement.ManagingOrganisationId;
-            assetManagement.Owner = asset.AssetManagement?.Owner;
-            assetManagement.PropertyOccupiedStatus = asset.AssetManagement?.PropertyOccupiedStatus;
+            assetManagement.Owner = asset.AssetManagement.Owner;
+            assetManagement.PropertyOccupiedStatus = asset.AssetManagement.PropertyOccupiedStatus;
+            assetManagement.IsTemporaryAccomodation = asset.AssetManagement.IsTemporaryAccomodation;
+
             queryableAsset.AssetManagement = assetManagement;
 
             return queryableAsset;
