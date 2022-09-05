@@ -200,6 +200,7 @@ namespace HousingSearchListener.V1.Factories
 
             queryableAsset.AssetManagement = assetManagement;
 
+            assetLocation.FloorNo = asset.AssetLocation.FloorNo;
             queryableAsset.AssetLocation = assetLocation;
 
             return queryableAsset;
