@@ -12,6 +12,8 @@ using Xunit;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
 using Tenure = HousingSearchListener.V1.Domain.Person.Tenure;
 using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.HousingSearch.Domain.Process;
+using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
@@ -172,6 +174,35 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.AssetManagement.PropertyOccupiedStatus.Should().Be(domainAsset.AssetManagement.PropertyOccupiedStatus);
             result.ParentAssetIds.Should().Be(domainAsset.ParentAssetIds);
             result.RootAsset.Should().Be(domainAsset.RootAsset);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CreatesQueryableProcessFromProcessRecord(bool hasPreviousStates)
+        {
+            // Given
+            var process = _fixture.Create<Process>();
+            if (!hasPreviousStates) process.PreviousStates = new List<ProcessState>();
+
+            // When
+            var result = _sut.CreateProcess(process);
+
+            // Then
+            result.Id.Should().Be(process.Id.ToString());
+            result.ProcessName.Should().Be(process.ProcessName.ToString());
+            result.State.Should().Be(process.CurrentState.State);
+
+            var createdAt = process.PreviousStates.Count > 0 ? process.PreviousStates.Min(x => x.CreatedAt) : process.CurrentState.CreatedAt;
+            result.CreatedAt.Should().Be(createdAt.ToLongDateString());
+
+            foreach (var relatedEntity in result.RelatedEntities)
+            {
+                var processRelatedEntity = process.RelatedEntities.Find(x => x.Id.ToString() == relatedEntity.Id);
+                relatedEntity.TargetType.Should().BeEquivalentTo(processRelatedEntity.TargetType);
+                relatedEntity.SubType.Should().BeEquivalentTo(processRelatedEntity.SubType);
+                relatedEntity.Description.Should().BeEquivalentTo(processRelatedEntity.Description);
+            }
         }
     }
 }

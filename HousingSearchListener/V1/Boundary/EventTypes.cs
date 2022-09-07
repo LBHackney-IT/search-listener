@@ -16,5 +16,7 @@
 
         public const string AssetCreatedEvent = "AssetCreatedEvent";
         public const string AssetUpdatedEvent = "AssetUpdatedEvent";
+
+        public const string ProcessStartedEvent = "ProcessStartedEvent";
     }
 }
