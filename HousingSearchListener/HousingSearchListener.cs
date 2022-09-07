@@ -1,9 +1,11 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
+using Hackney.Core.Http;
 using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway;
+using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure;
 using HousingSearchListener.V1.UseCase;
 using HousingSearchListener.V1.UseCase.Interfaces;
@@ -22,7 +24,7 @@ namespace HousingSearchListener
     [ExcludeFromCodeCoverage]
     public class HousingSearchListener : BaseFunction
     {
-        private readonly static JsonSerializerOptions _jsonOptions = JsonOptions.CreateJsonOptions();
+        private readonly static JsonSerializerOptions _jsonOptions = JsonOptions.Create();
 
         /// <summary>
         /// Default constructor. This constructor is used by Lambda to construct the instance. When invoked in a Lambda environment
@@ -42,10 +44,13 @@ namespace HousingSearchListener
             services.AddScoped<IPersonApiGateway, PersonApiGateway>();
             services.AddScoped<ITenureApiGateway, TenureApiGateway>();
             services.AddScoped<IAccountApiGateway, AccountApiGateway>();
+            services.AddScoped<IAssetApiGateway, AssetApiGateway>();
+            services.AddScoped<IFinancialTransactionApiGateway, FinancialTransactionApiGateway>();
 
             // Transient because otherwise all gateway's that use it will get the same instance,
             // which is not the desired result.
-            services.AddTransient<IApiGateway, ApiGateway>();
+            services.AddTransient<INewtonsoftApiGateway, NewtonsoftApiGateway>();
+            services.AddApiGateway();
 
             services.ConfigureElasticSearch(Configuration);
 
@@ -55,6 +60,9 @@ namespace HousingSearchListener
             services.AddScoped<IAddPersonToTenureUseCase, AddPersonToTenureUseCase>();
             services.AddScoped<IRemovePersonFromTenureUseCase, RemovePersonFromTenureUseCase>();
             services.AddScoped<IUpdateAccountDetailsUseCase, UpdateAccountDetailsUseCase>();
+            services.AddScoped<IIndexTransactionUseCase, IndexTransactionUseCase>();
+            services.AddScoped<IIndexCreateAssetUseCase, IndexCreateAssetUseCase>();
+            services.AddScoped<IUpdateAssetUseCase, UpdateAssetUseCase>();
 
             base.ConfigureServices(services);
         }

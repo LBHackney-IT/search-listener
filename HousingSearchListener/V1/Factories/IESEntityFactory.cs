@@ -4,6 +4,10 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using System.Collections.Generic;
+using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
+using HousingSearchListener.V1.Domain.Transaction;
+using Person = HousingSearchListener.V1.Domain.Person.Person;
+using Hackney.Shared.Asset.Domain;
 
 namespace HousingSearchListener.V1.Factories
 {
@@ -13,5 +17,7 @@ namespace HousingSearchListener.V1.Factories
         QueryableTenure CreateQueryableTenure(TenureInformation tenure);
         List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers);
         QueryableAssetTenure CreateAssetQueryableTenure(TenureInformation tenure);
+        QueryableTransaction CreateQueryableTransaction(TransactionResponseObject transaction);
+        QueryableAsset CreateAsset(Asset asset);
     }
 }

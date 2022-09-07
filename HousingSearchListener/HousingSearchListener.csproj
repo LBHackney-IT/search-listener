@@ -10,15 +10,22 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="V1\Domain\Asset\**" />
+    <EmbeddedResource Remove="V1\Domain\Asset\**" />
+    <None Remove="V1\Domain\Asset\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="1.2.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.1.0" />
     <PackageReference Include="Amazon.Lambda.SNSEvents" Version="2.0.0" />
     <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.0.0" />
     <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.8.3" />
     <PackageReference Include="DeepCloner" Version="0.10.2" />
+    <PackageReference Include="Hackney.Core.Http" Version="1.63.0" />
     <PackageReference Include="Hackney.Core.Logging" Version="1.30.0" />
     <PackageReference Include="Hackney.Core.Sns" Version="1.49.0" />
-    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.5.0" />
+    <PackageReference Include="Hackney.Shared.Asset" Version="0.14.0" />
+    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.40.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />

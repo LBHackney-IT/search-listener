@@ -1,11 +1,14 @@
 ﻿using FluentAssertions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Nest;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 
@@ -63,6 +66,26 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             assetInIndex.Tenure.PaymentReference.Should().Be(tenure.PaymentReference);
             assetInIndex.Tenure.StartOfTenureDate.Should().Be(tenure.StartOfTenureDate);
             assetInIndex.Tenure.Type.Should().Be(tenure.TenureType.Description);
+        }
+
+        public async Task ThenThePersonIndexIsUpdatedWithTheTenure(
+            TenureInformation tenure, IElasticClient esClient)
+        {
+            foreach (var hm in tenure.HouseholdMembers)
+            {
+                var result = await esClient.GetAsync<QueryablePerson>(hm.Id, g => g.Index("persons"))
+                                           .ConfigureAwait(false);
+                var p = result.Source;
+                var pt = p.Tenures.FirstOrDefault(x => x.Id == tenure.Id);
+                pt.Should().NotBeNull();
+
+                pt.AssetFullAddress.Should().Be(tenure.TenuredAsset.FullAddress);
+                pt.EndDate.Should().Be(tenure.EndOfTenureDate);
+                pt.Id.Should().Be(tenure.Id);
+                pt.PaymentReference.Should().Be(tenure.PaymentReference);
+                pt.StartDate.Should().Be(tenure.StartOfTenureDate);
+                pt.Type.Should().Be(tenure.TenureType.Description);
+            }
         }
     }
 }

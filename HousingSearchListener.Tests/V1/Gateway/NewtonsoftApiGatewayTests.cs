@@ -18,22 +18,20 @@ using Xunit;
 
 namespace HousingSearchListener.Tests.V1.Gateway
 {
-    // TODO - Move somewhere common (Hackney.Core.Http ?)
-
-    public class ApiGatewayTests
+    public class NewtonsoftApiGatewayTests
     {
         private readonly Mock<IHttpClientFactory> _mockHttpClientFactory;
         private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler;
         private IConfiguration _configuration;
         private readonly HttpClient _httpClient;
-        private readonly ApiGateway _sut;
+        private readonly NewtonsoftApiGateway _sut;
 
         private readonly static JsonSerializerOptions _jsonOptions = CreateJsonOptions();
         private static readonly Guid _correlationId = Guid.NewGuid();
         private const string ApiRoute = "https://some-domain.com/api/";
         private const string ApiToken = "dksfghjskueygfakseygfaskjgfsdjkgfdkjsgfdkjgf";
 
-        public ApiGatewayTests()
+        public NewtonsoftApiGatewayTests()
         {
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
@@ -49,7 +47,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
 
-            _sut = new ApiGateway(_mockHttpClientFactory.Object, _configuration);
+            _sut = new NewtonsoftApiGateway(_mockHttpClientFactory.Object, _configuration);
             _sut.Initialise("ApiName", "ApiUrl", "ApiToken");
         }
 
@@ -127,7 +125,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         [Fact]
         public void ApiGatewayConstructorTest()
         {
-            var sut = new ApiGateway(_mockHttpClientFactory.Object, _configuration);
+            var sut = new NewtonsoftApiGateway(_mockHttpClientFactory.Object, _configuration);
             sut.ApiName.Should().BeNull();
             sut.ApiRoute.Should().BeNull();
             sut.ApiToken.Should().BeNull();
@@ -156,7 +154,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
 
-            var sut = new ApiGateway(_mockHttpClientFactory.Object, _configuration);
+            var sut = new NewtonsoftApiGateway(_mockHttpClientFactory.Object, _configuration);
             Action act = () => sut.Initialise("ApiName", "ApiUrl", "ApiToken");
             act.Should().Throw<ArgumentException>();
         }
@@ -174,7 +172,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
 
-            var sut = new ApiGateway(_mockHttpClientFactory.Object, _configuration);
+            var sut = new NewtonsoftApiGateway(_mockHttpClientFactory.Object, _configuration);
             Action act = () => sut.Initialise("ApiName", "ApiUrl", "ApiToken");
             act.Should().Throw<ArgumentException>();
         }
@@ -182,7 +180,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         [Fact]
         public void InitialiseTestSucceeds()
         {
-            var sut = new ApiGateway(_mockHttpClientFactory.Object, _configuration);
+            var sut = new NewtonsoftApiGateway(_mockHttpClientFactory.Object, _configuration);
             sut.Initialise("ApiName", "ApiUrl", "ApiToken");
 
             sut.ApiName.Should().Be("ApiName");
@@ -198,7 +196,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             {
                 { "key", "some-value" }
             };
-            var sut = new ApiGateway(_mockHttpClientFactory.Object, _configuration);
+            var sut = new NewtonsoftApiGateway(_mockHttpClientFactory.Object, _configuration);
             sut.Initialise("ApiName", "ApiUrl", "ApiToken", headers);
 
             sut.ApiName.Should().Be("ApiName");
@@ -213,7 +211,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             var id = Guid.NewGuid();
             var route = $"{ApiRoute}accounts/{id}";
 
-            var sut = new ApiGateway(_mockHttpClientFactory.Object, _configuration);
+            var sut = new NewtonsoftApiGateway(_mockHttpClientFactory.Object, _configuration);
             Func<Task<SomeResponseObject>> act =
                 async () => await sut.GetByIdAsync<SomeResponseObject>(route, id, _correlationId).ConfigureAwait(false);
             act.Should().Throw<InvalidOperationException>();

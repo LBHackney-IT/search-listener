@@ -1,12 +1,15 @@
 ﻿using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
-using HousingSearchListener.V1.Gateway;
+using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase
@@ -41,16 +44,57 @@ namespace HousingSearchListener.V1.UseCase
             QueryableAsset queryableAsset = await _esGateway.GetAssetById(tenure.TenuredAsset.Id);
             if (queryableAsset is null) throw new AssetNotIndexedException(tenure.TenuredAsset.Id);
 
-            // 3. Update the ES indexes
+            // 3. Get all the person records for the tenure and update the tenure details
+            var persons = await GetPersonsForTenure(tenure);
+            foreach (var p in persons)
+                UpdatePersonTenure(p, tenure);
+
+            // 4. Update the ES indexes
             var esTenure = _esEntityFactory.CreateQueryableTenure(tenure);
             await _esGateway.IndexTenure(esTenure);
             await UpdateAssetForTenure(tenure, queryableAsset);
+            await UpdatePersonsForTenure(persons);
+        }
+
+        private void UpdatePersonTenure(QueryablePerson person, TenureInformation tenure)
+        {
+            var personTenure = person.Tenures.FirstOrDefault(x => x.Id == tenure.Id);
+            if (personTenure is null)
+            {
+                personTenure = new QueryablePersonTenure();
+                person.Tenures.Add(personTenure);
+            }
+            personTenure.AssetFullAddress = tenure.TenuredAsset.FullAddress;
+            personTenure.EndDate = tenure.EndOfTenureDate;
+            personTenure.PaymentReference = tenure.PaymentReference;
+            personTenure.StartDate = tenure.StartOfTenureDate;
+            personTenure.Type = tenure.TenureType.Description;
+        }
+
+        private async Task<List<QueryablePerson>> GetPersonsForTenure(TenureInformation tenure)
+        {
+            var persons = new List<QueryablePerson>();
+            foreach (var hm in tenure.HouseholdMembers)
+            {
+                var p = await _esGateway.GetPersonById(hm.Id).ConfigureAwait(false);
+                if (p is null)
+                    throw new EntityNotFoundException<QueryablePerson>(Guid.Parse(hm.Id));
+
+                persons.Add(p);
+            }
+            return persons;
         }
 
         private async Task UpdateAssetForTenure(TenureInformation tenure, QueryableAsset queryableAsset)
         {
             queryableAsset.Tenure = _esEntityFactory.CreateAssetQueryableTenure(tenure);
             await _esGateway.IndexAsset(queryableAsset);
+        }
+
+        private async Task UpdatePersonsForTenure(List<QueryablePerson> persons)
+        {
+            foreach (var qp in persons)
+                await _esGateway.IndexPerson(qp);
         }
     }
 }

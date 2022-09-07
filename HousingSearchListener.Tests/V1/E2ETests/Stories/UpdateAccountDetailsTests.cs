@@ -87,6 +87,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
                 .Then(t => _steps.ThenTheTenureIndexIsUpdated(_accountApiFixture.ResponseObject.PaymentReference,
                                                               _tenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .Then(t => _steps.ThenThePersonIndexIsUpdated(_accountApiFixture.ResponseObject.PaymentReference,
+                                                              _accountApiFixture.ResponseObject.AccountBalance,
                                                               _tenureApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
