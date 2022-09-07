@@ -6,6 +6,6 @@ namespace HousingSearchListener.V1.Gateway.Interfaces
 {
     public interface IProcessesApiGateway
     {
-        Task<Process> GetProcessesByIdAsync(Guid entityId, Guid correlationId);
+        Task<Process> GetProcessByIdAsync(Guid entityId, Guid correlationId);
     }
 }

@@ -3,6 +3,7 @@ using FluentAssertions;
 using Hackney.Core.Testing.Shared;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
+using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Gateway;
 using Microsoft.Extensions.Logging;
@@ -290,6 +291,49 @@ namespace HousingSearchListener.Tests.V1.Gateway
             response.Should().BeEquivalentTo(person);
 
             _cleanup.Add(async () => await _testFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("persons", person.Id))
+                                                                           .ConfigureAwait(false));
+        }
+
+        [Fact]
+        public void IndexNullProcessThrowsError()
+        {
+            Func<Task<IndexResponse>> func = async () => await _sut.IndexProcess(null).ConfigureAwait(false);
+            func.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task IndexProcessCallsEsClient()
+        {
+            var indexResponse = _fixture.Create<IndexResponse>();
+            var process = _fixture.Create<QueryableProcess>();
+            _mockEsClient.Setup(x => x.IndexAsync(It.IsAny<IndexRequest<QueryableProcess>>(), default(CancellationToken)))
+                         .ReturnsAsync(indexResponse);
+
+            var response = await _sut.IndexProcess(process).ConfigureAwait(false);
+
+            response.Should().Be(indexResponse);
+            _mockEsClient.Verify(x => x.IndexAsync(It.Is<IndexRequest<QueryableProcess>>(y => ValidateIndexRequest(y, process)),
+                                                   default(CancellationToken)), Times.Once);
+            _mockLogger.VerifyExact(LogLevel.Debug, $"Updating 'processes' index for process id {process.Id}", Times.Once());
+        }
+
+        [Fact]
+        public async Task IndexProcessSavesToEs()
+        {
+            var sut = new EsGateway(_testFixture.ElasticSearchClient, _mockLogger.Object);
+            var process = _fixture.Create<QueryableProcess>();
+
+            var response = await sut.IndexProcess(process).ConfigureAwait(false);
+
+            response.Should().NotBeNull();
+            response.Result.Should().Be(Result.Created);
+
+            var result = await _testFixture.ElasticSearchClient
+                                           .GetAsync<QueryableProcess>(process.Id, g => g.Index("processes"))
+                                           .ConfigureAwait(false);
+            result.Source.Should().BeEquivalentTo(process);
+
+            _cleanup.Add(async () => await _testFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("processes", process.Id))
                                                                            .ConfigureAwait(false));
         }
     }

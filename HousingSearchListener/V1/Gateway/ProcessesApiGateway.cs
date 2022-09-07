@@ -22,7 +22,7 @@ namespace HousingSearchListener.V1.Gateway
         }
 
         [LogCall]
-        public async Task<Process> GetProcessesByIdAsync(Guid id, Guid correlationId)
+        public async Task<Process> GetProcessByIdAsync(Guid id, Guid correlationId)
         {
             var route = $"{_apiGateway.ApiRoute}/process/{id}";
             return await _apiGateway.GetByIdAsync<Process>(route, id, correlationId);

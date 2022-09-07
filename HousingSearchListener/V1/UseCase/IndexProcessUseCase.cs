@@ -78,7 +78,7 @@ namespace HousingSearchListener.V1.UseCase
             if (message is null) throw new ArgumentNullException(nameof(message));
 
             // 1. Get process from Processes  API
-            var process = await _processesApiGateway.GetProcessesByIdAsync(message.EntityId, message.CorrelationId)
+            var process = await _processesApiGateway.GetProcessByIdAsync(message.EntityId, message.CorrelationId)
                                                     .ConfigureAwait(false);
             if (process is null) throw new EntityNotFoundException<Process>(message.EntityId);
 
