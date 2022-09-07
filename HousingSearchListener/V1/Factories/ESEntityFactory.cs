@@ -150,6 +150,7 @@ namespace HousingSearchListener.V1.Factories
             QueryableAssetTenure assetTenure = new QueryableAssetTenure();
             QueryableAssetCharacteristics assetCharacteristics = new QueryableAssetCharacteristics();
             QueryableAssetManagement assetManagement = new QueryableAssetManagement();
+            QueryableAssetLocation assetLocation = new QueryableAssetLocation();
 
             queryableAsset.Id = asset.Id.ToString();
             queryableAsset.AssetId = asset.AssetId;
@@ -198,6 +199,9 @@ namespace HousingSearchListener.V1.Factories
             assetManagement.IsTemporaryAccomodation = asset.AssetManagement.IsTemporaryAccomodation;
 
             queryableAsset.AssetManagement = assetManagement;
+
+            assetLocation.FloorNo = asset.AssetLocation.FloorNo;
+            queryableAsset.AssetLocation = assetLocation;
 
             return queryableAsset;
         }
