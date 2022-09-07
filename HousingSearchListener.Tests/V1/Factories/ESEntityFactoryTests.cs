@@ -160,6 +160,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             .With(x => x.AssetAddress, _fixture.Create<AssetAddress>())
             .With(x => x.AssetCharacteristics, _fixture.Create<AssetCharacteristics>())
             .With(x => x.AssetManagement, _fixture.Create<AssetManagement>())
+            .With(x => x.AssetLocation, _fixture.Create<AssetLocation>())
             .Create();
 
             var result = _sut.CreateAsset(domainAsset);
@@ -172,6 +173,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.AssetCharacteristics.NumberOfBedrooms.Should().Be(domainAsset.AssetCharacteristics.NumberOfBedrooms);
             result.AssetCharacteristics.HasPrivateBathroom.Should().Be(domainAsset.AssetCharacteristics.HasPrivateBathroom);
             result.AssetManagement.PropertyOccupiedStatus.Should().Be(domainAsset.AssetManagement.PropertyOccupiedStatus);
+            result.AssetLocation.FloorNo.Should().Be(domainAsset.AssetLocation.FloorNo);
             result.ParentAssetIds.Should().Be(domainAsset.ParentAssetIds);
             result.RootAsset.Should().Be(domainAsset.RootAsset);
         }

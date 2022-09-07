@@ -26,6 +26,7 @@
     </PackageReference>
     <PackageReference Include="Hackney.Core.Http" Version="1.63.0" />
     <PackageReference Include="Hackney.Core.Testing.Shared" Version="1.49.0" />
+    <PackageReference Include="Hackney.Shared.Asset" Version="0.14.0" />
     <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.41.0-feat-mttl-3104-0004" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
