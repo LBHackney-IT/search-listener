@@ -44,6 +44,10 @@ data "aws_ssm_parameter" "asset_sns_topic_arn" {
   name = "/sns-topic/development/asset/arn"
 }
 
+data "aws_ssm_parameter" "processes_sns_topic_arn" {
+  name = "/sns-topic/development/processes/arn"
+}
+
 terraform {
   backend "s3" {
     bucket  = "terraform-state-housing-development"
@@ -180,6 +184,13 @@ resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_t
 
 resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_asset_sns" {
   topic_arn            = data.aws_ssm_parameter.asset_sns_topic_arn.value
+  protocol             = "sqs"
+  endpoint             = aws_sqs_queue.housing_search_listener_queue.arn
+  raw_message_delivery = true
+}
+
+resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_processes_sns" {
+  topic_arn            = data.aws_ssm_parameter.processes_sns_topic_arn.value
   protocol             = "sqs"
   endpoint             = aws_sqs_queue.housing_search_listener_queue.arn
   raw_message_delivery = true

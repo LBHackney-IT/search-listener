@@ -8,6 +8,9 @@ using Hackney.Core.Sns;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using Hackney.Shared.HousingSearch.Domain.Process;
 using System.Collections.Generic;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.HousingSearch.Domain.Person;
 
 namespace HousingSearchListener.V1.UseCase
 {
@@ -44,6 +47,8 @@ namespace HousingSearchListener.V1.UseCase
                 case TargetType.tenure:
                     var tenure = await _tenureApiGateway.GetTenureByIdAsync(process.TargetId, correlationId)
                                                         .ConfigureAwait(false);
+                    if (tenure is null) throw new EntityNotFoundException<TenureInformation>(process.TargetId);
+
                     return new RelatedEntity
                     {
                         Id = Guid.Parse(tenure.Id),
@@ -51,6 +56,8 @@ namespace HousingSearchListener.V1.UseCase
                     };
                 case TargetType.person:
                     var person = await _personApiGateway.GetPersonByIdAsync(process.TargetId, correlationId).ConfigureAwait(false);
+                    if (person is null) throw new EntityNotFoundException<Person>(process.TargetId);
+
                     return new RelatedEntity
                     {
                         Id = Guid.Parse(person.Id),
@@ -59,6 +66,8 @@ namespace HousingSearchListener.V1.UseCase
                     };
                 case TargetType.asset:
                     var asset = await _assetApiGateway.GetAssetByIdAsync(process.TargetId, correlationId).ConfigureAwait(false);
+                    if (asset is null) throw new EntityNotFoundException<Asset>(process.TargetId);
+
                     var assetAddress = asset.AssetAddress;
                     var fullAddress = $"{assetAddress.AddressLine1} {assetAddress.AddressLine2} {assetAddress.AddressLine3} {assetAddress.AddressLine4} {assetAddress.PostCode}";
                     return new RelatedEntity
