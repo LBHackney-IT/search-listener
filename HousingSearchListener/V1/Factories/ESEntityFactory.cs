@@ -157,6 +157,7 @@ namespace HousingSearchListener.V1.Factories
             queryableAsset.AssetType = asset.AssetType.ToString();
             queryableAsset.ParentAssetIds = asset.ParentAssetIds;
             queryableAsset.RootAsset = asset.RootAsset;
+            queryableAsset.IsActive = asset.IsActive;
 
             assetAddress.AddressLine1 = asset.AssetAddress?.AddressLine1;
             assetAddress.AddressLine2 = asset.AssetAddress?.AddressLine2;
