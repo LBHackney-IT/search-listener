@@ -245,6 +245,8 @@ namespace HousingSearchListener.V1.Factories
             return new QueryableProcess
             {
                 Id = process.Id.ToString(),
+                TargetId = process.TargetId.ToString(),
+                TargetType = process.TargetType.ToString(),
                 ProcessName = process.ProcessName.ToString(),
                 State = process.CurrentState.State,
                 PatchAssignment = CreateQueryablePatchAssignment(process.PatchAssignment),

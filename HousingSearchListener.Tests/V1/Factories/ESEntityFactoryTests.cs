@@ -192,6 +192,8 @@ namespace HousingSearchListener.Tests.V1.Factories
 
             // Then
             result.Id.Should().Be(process.Id.ToString());
+            result.TargetId.Should().Be(process.TargetId.ToString());
+            result.TargetType.Should().Be(process.TargetType.ToString());
             result.ProcessName.Should().Be(process.ProcessName.ToString());
             result.State.Should().Be(process.CurrentState.State);
 
