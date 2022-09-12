@@ -23,6 +23,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public AddProcessToIndexSteps()
         {
             _eventType = EventTypes.ProcessStartedEvent;
+            _eventType = EventTypes.ProcessUpdatedEvent;
         }
 
         public async Task WhenTheFunctionIsTriggered(Guid ProcessId, string eventType)
@@ -125,19 +126,21 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             var expectedProcess = _entityFactory.CreateProcess(process);
             processInIndex.Should().BeEquivalentTo(processInIndex, c => c.Excluding(x => x.RelatedEntities));
 
-            processInIndex.RelatedEntities.Should().ContainSingle(x => x.Id == process.TargetId.ToString());
-            processInIndex.RelatedEntities.RemoveAll(x => x.Id == process.TargetId.ToString());
-
-            foreach (var relatedEntity in processInIndex.RelatedEntities)
+            if (_eventType == EventTypes.ProcessStartedEvent)
             {
-                var processRelatedEntity = expectedProcess.RelatedEntities.Find(x => x.Id.ToString() == relatedEntity.Id);
-                processRelatedEntity.Should().NotBeNull();
+                processInIndex.RelatedEntities.Should().ContainSingle(x => x.Id == process.TargetId.ToString());
+                processInIndex.RelatedEntities.RemoveAll(x => x.Id == process.TargetId.ToString());
 
-                relatedEntity.TargetType.Should().BeEquivalentTo(processRelatedEntity.TargetType);
-                relatedEntity.SubType.Should().BeEquivalentTo(processRelatedEntity.SubType);
-                relatedEntity.Description.Should().BeEquivalentTo(processRelatedEntity.Description);
+                foreach (var relatedEntity in processInIndex.RelatedEntities)
+                {
+                    var processRelatedEntity = expectedProcess.RelatedEntities.Find(x => x.Id.ToString() == relatedEntity.Id);
+                    processRelatedEntity.Should().NotBeNull();
+
+                    relatedEntity.TargetType.Should().BeEquivalentTo(processRelatedEntity.TargetType);
+                    relatedEntity.SubType.Should().BeEquivalentTo(processRelatedEntity.SubType);
+                    relatedEntity.Description.Should().BeEquivalentTo(processRelatedEntity.Description);
+                }
             }
-
         }
     }
 }

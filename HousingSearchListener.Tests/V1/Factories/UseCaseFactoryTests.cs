@@ -134,5 +134,15 @@ namespace HousingSearchListener.Tests.V1.Factories
             _event = ConstructEvent(EventTypes.ProcessStartedEvent);
             TestMessageProcessingCreation<IIndexProcessUseCase>(_event);
         }
+
+
+        [Fact]
+        public void CreateUseCaseForMessageTestProcessUpdatedEvent()
+        {
+            _event = ConstructEvent(EventTypes.ProcessUpdatedEvent);
+            TestMessageProcessingCreation<IUpdateProcessUseCase>(_event);
+        }
+
+
     }
 }

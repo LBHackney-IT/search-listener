@@ -91,6 +91,13 @@ namespace HousingSearchListener.Tests.V1.Gateway
             return _fixture.Build<QueryableAsset>()
                            .With(x => x.Id, Guid.NewGuid().ToString())
                            .Create();
+        } 
+        
+        private QueryableProcess CreateQueryableProcess()
+        {
+            return _fixture.Build<QueryableProcess>()
+                           .With(x => x.Id, Guid.NewGuid().ToString())
+                           .Create();
         }
 
         [Fact]
@@ -332,6 +339,33 @@ namespace HousingSearchListener.Tests.V1.Gateway
                                            .GetAsync<QueryableProcess>(process.Id, g => g.Index("processes"))
                                            .ConfigureAwait(false);
             result.Source.Should().BeEquivalentTo(process);
+
+            _cleanup.Add(async () => await _testFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("processes", process.Id))
+                                                                           .ConfigureAwait(false));
+        }
+
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void GetProcessByIdTestInvalidInputThrows(string id)
+        {
+            Func<Task<QueryableProcess>> func = async () => await _sut.GetProcessById(id).ConfigureAwait(false);
+            func.Should().ThrowAsync<ArgumentNullException>();
+        }
+
+        [Fact]
+        public async Task GetProcessByIdTestCallsEsClient()
+        {
+            var sut = new EsGateway(_testFixture.ElasticSearchClient, _mockLogger.Object);
+            var process = CreateQueryableProcess();
+            var request = new IndexRequest<QueryableProcess>(process, "processes");
+            await _testFixture.ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+
+            var response = await sut.GetProcessById(process.Id).ConfigureAwait(false);
+
+            response.Should().NotBeNull();
+            response.Should().BeEquivalentTo(process);
 
             _cleanup.Add(async () => await _testFixture.ElasticSearchClient.DeleteAsync(new DeleteRequest("processes", process.Id))
                                                                            .ConfigureAwait(false));
