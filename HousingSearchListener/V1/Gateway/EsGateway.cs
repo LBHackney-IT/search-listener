@@ -106,5 +106,12 @@ namespace HousingSearchListener.V1.Gateway
             if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
             return await GetById<QueryablePerson>(id, IndexNamePersons);
         }
+
+        [LogCall]
+        public async Task<QueryableProcess> GetProcessById(string id)
+        {
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+            return await GetById<QueryableProcess>(id, IndexNameProcesses);
+        }
     }
 }
