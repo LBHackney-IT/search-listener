@@ -24,6 +24,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler;
         private IConfiguration _configuration;
         private readonly HttpClient _httpClient;
+        [Obsolete]
         private readonly NewtonsoftApiGateway _sut;
 
         private readonly static JsonSerializerOptions _jsonOptions = CreateJsonOptions();
@@ -31,6 +32,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         private const string ApiRoute = "https://some-domain.com/api/";
         private const string ApiToken = "dksfghjskueygfakseygfaskjgfsdjkgfdkjsgfdkjgf";
 
+        [Obsolete]
         public NewtonsoftApiGatewayTests()
         {
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
@@ -123,6 +125,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         }
 
         [Fact]
+        [Obsolete]
         public void ApiGatewayConstructorTest()
         {
             var sut = new NewtonsoftApiGateway(_mockHttpClientFactory.Object, _configuration);
@@ -145,6 +148,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         [InlineData(null)]
         [InlineData("")]
         [InlineData("sdrtgdfstg")]
+        [Obsolete]
         public void InitialiseTestInvalidRouteConfigThrows(string invalidValue)
         {
             var inMemorySettings = new Dictionary<string, string> {
@@ -162,6 +166,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         [Theory]
         [InlineData(null)]
         [InlineData("")]
+        [Obsolete]
         public void InitialiseTestInvalidTokenConfigThrows(string invalidValue)
         {
             var inMemorySettings = new Dictionary<string, string> {
@@ -178,6 +183,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         }
 
         [Fact]
+        [Obsolete]
         public void InitialiseTestSucceeds()
         {
             var sut = new NewtonsoftApiGateway(_mockHttpClientFactory.Object, _configuration);
@@ -190,6 +196,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         }
 
         [Fact]
+        [Obsolete]
         public void InitialiseTestWithHeadersSucceeds()
         {
             var headers = new Dictionary<string, string>
@@ -206,6 +213,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         }
 
         [Fact]
+        [Obsolete]
         public void GetByIdAsyncTestNotInitialisedThrows()
         {
             var id = Guid.NewGuid();

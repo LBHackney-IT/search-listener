@@ -35,6 +35,7 @@ namespace HousingSearchListener
         {
         }
 
+        [Obsolete]
         protected override void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
@@ -65,7 +66,7 @@ namespace HousingSearchListener
             services.AddScoped<IIndexCreateAssetUseCase, IndexCreateAssetUseCase>();
             services.AddScoped<IUpdateAssetUseCase, UpdateAssetUseCase>();
             services.AddScoped<IIndexProcessUseCase, IndexProcessUseCase>();
-
+            services.AddScoped<IUpdateProcessUseCase, UpdateProcessUseCase>();
             base.ConfigureServices(services);
         }
 

@@ -25,5 +25,7 @@ namespace HousingSearchListener.V1.Gateway.Interfaces
         Task<QueryableTenure> GetTenureById(string id);
 
         Task<QueryablePerson> GetPersonById(string id);
+
+        Task<QueryableProcess> GetProcessById(string id);
     }
 }
