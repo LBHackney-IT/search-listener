@@ -1,6 +1,8 @@
 using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.HousingSearch.Domain.Process;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
+using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using HousingSearchListener.V1.Domain.Person;
@@ -204,6 +206,53 @@ namespace HousingSearchListener.V1.Factories
             queryableAsset.AssetLocation = assetLocation;
 
             return queryableAsset;
+        }
+
+        // Processes
+
+        private QueryablePatchAssignment CreateQueryablePatchAssignment(PatchAssignment patchAssignment)
+        {
+            return new QueryablePatchAssignment
+            {
+                PatchId = patchAssignment.PatchId,
+                PatchName = patchAssignment.PatchName,
+                ResponsibleEntityId = patchAssignment.ResponsibleEntityId,
+                ResponsibleName = patchAssignment.ResponsibleName
+            };
+        }
+
+        private List<QueryableRelatedEntity> CreateQueryableRelatedEntities(List<RelatedEntity> relatedEntities)
+        {
+            return relatedEntities.Select(x => new QueryableRelatedEntity
+            {
+                Id = x.Id.ToString(),
+                TargetType = x.TargetType,
+                SubType = x.SubType,
+                Description = x.Description
+            }).ToList();
+        }
+
+        private string GetCreatedAt(Process process)
+        {
+            if (process.PreviousStates.Count == 0)
+                return process.CurrentState.CreatedAt.ToLongDateString();
+
+            return process.PreviousStates.Min(x => x.CreatedAt).ToLongDateString();
+        }
+
+        public QueryableProcess CreateProcess(Process process)
+        {
+            return new QueryableProcess
+            {
+                Id = process.Id.ToString(),
+                TargetId = process.TargetId.ToString(),
+                TargetType = process.TargetType.ToString(),
+                ProcessName = process.ProcessName.ToString(),
+                State = process.CurrentState.State,
+                PatchAssignment = CreateQueryablePatchAssignment(process.PatchAssignment),
+                CreatedAt = GetCreatedAt(process),
+                RelatedEntities = process.RelatedEntities is null ? new List<QueryableRelatedEntity>() : CreateQueryableRelatedEntities(process.RelatedEntities)
+            };
         }
     }
 }
