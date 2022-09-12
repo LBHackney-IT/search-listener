@@ -35,6 +35,7 @@ namespace HousingSearchListener
         {
         }
 
+        [Obsolete]
         protected override void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();

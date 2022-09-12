@@ -91,8 +91,8 @@ namespace HousingSearchListener.Tests.V1.Gateway
             return _fixture.Build<QueryableAsset>()
                            .With(x => x.Id, Guid.NewGuid().ToString())
                            .Create();
-        } 
-        
+        }
+
         private QueryableProcess CreateQueryableProcess()
         {
             return _fixture.Build<QueryableProcess>()
