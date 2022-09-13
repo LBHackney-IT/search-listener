@@ -30,7 +30,7 @@ functions:
       FinancialTransactionApiToken: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-token}
       AssetApiUrl: ${ssm:/housing-tl/${self:provider.stage}/asset-api-url}
       AssetApiToken: ${ssm:/housing-tl/${self:provider.stage}/asset-api-token}
-      ProcessesApiUrl: ${ssm:/housing-tl/${self:provider:stage}/process-api-url-v1}
+      ProcessesApiUrl: ${ssm:/housing-tl/${self:provider.stage}/process-api-url-v1}
       ProcessesApiToken: ${ssm:/housing-tl/${self:provider.stage}/processes-api-token}
     events:
       - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housing_search_listener_queue/arn}
