@@ -21,13 +21,12 @@ namespace HousingSearchListener.Tests.V1.UseCase
     [Collection("LogCall collection")]
     public class UpdateProcessUseCaseTests
     {
-        private readonly Mock<IProcessesApiGateway> _mockProcessesApi;
         private readonly Mock<IEsGateway> _mockEsGateway;
         private readonly IESEntityFactory _esEntityFactory;
         private readonly UpdateProcessUseCase _sut;
 
         private readonly EntityEventSns _message;
-        private readonly Process _Process;
+        private readonly QueryableProcess _process;
 
         private readonly Fixture _fixture;
         private static readonly Guid _correlationId = Guid.NewGuid();
@@ -36,71 +35,56 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             _fixture = new Fixture();
 
-            _mockProcessesApi = new Mock<IProcessesApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
             _esEntityFactory = new ESEntityFactory();
-            _sut = new UpdateProcessUseCase(_mockEsGateway.Object,
-                _mockProcessesApi.Object, _esEntityFactory);
+            _sut = new UpdateProcessUseCase(_mockEsGateway.Object, _esEntityFactory);
 
             _message = CreateMessage();
-            _Process = CreateProcess(_message.EntityId);
+            _process = CreateProcess(_message.EntityId);
         }
 
         private EntityEventSns CreateMessage(string eventType = EventTypes.ProcessUpdatedEvent)
         {
+            var newData = _fixture.Build<ProcessStateChangeData>()
+                                  .With(x => x.State, "some state")
+                                  .Create();
+
+            var eventData = _fixture.Create<EventData>();
+            eventData.NewData = newData;
+
             return _fixture.Build<EntityEventSns>()
                            .With(x => x.EventType, eventType)
                            .With(x => x.CorrelationId, _correlationId)
+                           .With(x => x.EventData, eventData)
                            .Create();
         }
 
-        private Process CreateProcess(Guid entityId)
+        private QueryableProcess CreateProcess(Guid entityId)
         {
-            return _fixture.Build<Process>()
-                           .With(x => x.Id, entityId)
+            return _fixture.Build<QueryableProcess>()
+                           .With(x => x.Id, entityId.ToString())
                            .Create();
         }
 
         private bool VerifyProcessIndexed(QueryableProcess esProcess)
         {
-            esProcess.Should().BeEquivalentTo(_esEntityFactory.CreateProcess(_Process));
+            esProcess.Should().BeEquivalentTo(_process);
             return true;
         }
 
         [Fact]
-        public void ProcessMessageAsyncTestNullMessageThrows()
+        public void ProcessMessageAsyncTestThrowsErrorIfNullMessage()
         {
             Func<Task> func = async () => await _sut.ProcessMessageAsync(null).ConfigureAwait(false);
             func.Should().ThrowAsync<ArgumentNullException>();
         }
 
-        [Fact]
-        public void ProcessMessageAsyncTestGetProcessExceptionThrown()
-        {
-            var exMsg = "This is an error";
-            _mockProcessesApi.Setup(x => x.GetProcessByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ThrowsAsync(new Exception(exMsg));
-
-            Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
-        }
+        // todo: add test for if es process is null (gateway returns nothinh)
 
         [Fact]
-        public void ProcessMessageAsyncTestGetAssetReturnsNullThrows()
-        {
-            _mockProcessesApi.Setup(x => x.GetProcessByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ReturnsAsync((Process)null);
-
-            Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<EntityNotFoundException<Process>>();
-        }
-
-        [Fact]
-        public void ProcessMessageAsyncTestIndexProcessExceptionThrows()
+        public void ProcessMessageAsyncTestThrowsErrorOnIndexProcess()
         {
             var exMsg = "This is the last error";
-            _mockProcessesApi.Setup(x => x.GetProcessByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ReturnsAsync(_Process);
             _mockEsGateway.Setup(x => x.IndexProcess(It.IsAny<QueryableProcess>()))
                           .ThrowsAsync(new Exception(exMsg));
 
@@ -114,9 +98,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             _message.EventType = eventType;
 
-            _mockProcessesApi.Setup(x => x.GetProcessByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ReturnsAsync(_Process);
-
+            _mockEsGateway.Setup(x => x.GetProcessById(_message.EntityId.ToString())).ReturnsAsync(_process);
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
             _mockEsGateway.Verify(x => x.IndexProcess(It.Is<QueryableProcess>(y => VerifyProcessIndexed(y))), Times.Once);

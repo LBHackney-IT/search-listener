@@ -24,7 +24,6 @@ namespace HousingSearchListener.Tests.V1.UseCase
     [Collection("LogCall collection")]
     public class IndexProcessUseCaseTests
     {
-        private readonly Mock<IProcessesApiGateway> _mockProcessesApi;
         private readonly Mock<IPersonApiGateway> _mockPersonApi;
         private readonly Mock<ITenureApiGateway> _mockTenureApi;
         private readonly Mock<IAssetApiGateway> _mockAssetApi;
@@ -33,7 +32,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly IESEntityFactory _esEntityFactory;
         private readonly IndexProcessUseCase _sut;
 
-        private readonly EntityEventSns _message;
+        private EntityEventSns _message;
         private readonly Process _process;
 
         private readonly Fixture _fixture;
@@ -43,7 +42,6 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             _fixture = new Fixture();
 
-            _mockProcessesApi = new Mock<IProcessesApiGateway>();
             _mockPersonApi = new Mock<IPersonApiGateway>();
             _mockTenureApi = new Mock<ITenureApiGateway>();
             _mockAssetApi = new Mock<IAssetApiGateway>();
@@ -51,7 +49,6 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockEsGateway = new Mock<IEsGateway>();
             _esEntityFactory = new ESEntityFactory();
             _sut = new IndexProcessUseCase(_mockEsGateway.Object,
-                                           _mockProcessesApi.Object,
                                            _mockTenureApi.Object,
                                            _mockPersonApi.Object,
                                            _mockAssetApi.Object,
@@ -64,9 +61,13 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private EntityEventSns CreateMessage(string eventType = EventTypes.ProcessStartedEvent)
         {
+            var eventData = _fixture.Create<EventData>();
+            eventData.NewData = _process;
+
             return _fixture.Build<EntityEventSns>()
                 .With(x => x.EventType, eventType)
                 .With(x => x.CorrelationId, _correlationId)
+                .With(x => x.EventData, eventData)
                 .Create();
         }
         private Process CreateProcess(Guid entityId)
@@ -83,27 +84,16 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<ArgumentNullException>();
         }
 
-        [Fact]
-        public void ThrowsErrorfIfProcessesApiThrowsError()
-        {
-            var exMsg = "This is an error";
-            _mockProcessesApi.Setup(x => x.GetProcessByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ThrowsAsync(new Exception(exMsg));
+        // TODO: Update to if message does not contain new process 
+        // [Fact]
+        // public void ThrowsErrorfIfProcessDoesNotExist()
+        // {
+        //     _mockProcessesApi.Setup(x => x.GetProcessByIdAsync(_message.EntityId, _message.CorrelationId))
+        //                                .ReturnsAsync((Process)null);
 
-            Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
-        }
-
-
-        [Fact]
-        public void ThrowsErrorfIfProcessDoesNotExist()
-        {
-            _mockProcessesApi.Setup(x => x.GetProcessByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ReturnsAsync((Process)null);
-
-            Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<EntityNotFoundException<Process>>();
-        }
+        //     Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
+        //     func.Should().ThrowAsync<EntityNotFoundException<Process>>();
+        // }
 
         private Action<Func<Task>> SetUpTargetEntityApiToReturnNull(TargetType targetType)
         {
@@ -145,10 +135,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ThrowsErrorfIfTargetEntityDoesNotExist(TargetType targetType)
         {
             _process.TargetType = targetType;
-            var verifyTargetApiIsCalled = SetUpTargetEntityApiToReturnNull(targetType);
+            _message = CreateMessage();
 
-            _mockProcessesApi.Setup(x => x.GetProcessByIdAsync(_message.EntityId, _message.CorrelationId))
-                             .ReturnsAsync(_process);
+            var verifyTargetApiIsCalled = SetUpTargetEntityApiToReturnNull(targetType);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
@@ -159,8 +148,6 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ThrowsErrorfIfEsGatewayThrowsError()
         {
             var exMsg = "This is the last error";
-            _mockProcessesApi.Setup(x => x.GetProcessByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ReturnsAsync(_process);
             _mockEsGateway.Setup(x => x.IndexProcess(It.IsAny<QueryableProcess>()))
                           .ThrowsAsync(new Exception(exMsg));
 
@@ -217,12 +204,8 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public async Task InsertsIntoIndexCorrectly(TargetType targetType)
         {
             _process.TargetType = targetType;
+            _message = CreateMessage();
             var verifyTargetApiIsCalled = SetUpTargetEntityApi(targetType);
-
-            var clonedProcess = JsonConvert.DeserializeObject<Process>(JsonConvert.SerializeObject(_process));
-            // need to clone process so that we can check that RelatedEntities is changed
-            _mockProcessesApi.Setup(x => x.GetProcessByIdAsync(_message.EntityId, _message.CorrelationId))
-                             .ReturnsAsync(clonedProcess);
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 

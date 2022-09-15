@@ -11,27 +11,26 @@ using System.Collections.Generic;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Person;
+using System.Text.Json;
+using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 
 namespace HousingSearchListener.V1.UseCase
 {
     public class IndexProcessUseCase : IIndexProcessUseCase
     {
         private readonly IEsGateway _esGateway;
-        private readonly IProcessesApiGateway _processesApiGateway;
         private readonly ITenureApiGateway _tenureApiGateway;
         private readonly IPersonApiGateway _personApiGateway;
         private readonly IAssetApiGateway _assetApiGateway;
         private readonly IESEntityFactory _esProcessesFactory;
 
         public IndexProcessUseCase(IEsGateway esGateway,
-                                   IProcessesApiGateway processesApiGateway,
                                    ITenureApiGateway tenureApiGateway,
                                    IPersonApiGateway personApiGateway,
                                    IAssetApiGateway assetApiGateway,
                                    IESEntityFactory esProcessesFactory)
         {
             _esGateway = esGateway;
-            _processesApiGateway = processesApiGateway;
             _tenureApiGateway = tenureApiGateway;
             _personApiGateway = personApiGateway;
             _assetApiGateway = assetApiGateway;
@@ -86,10 +85,9 @@ namespace HousingSearchListener.V1.UseCase
         {
             if (message is null) throw new ArgumentNullException(nameof(message));
 
-            // 1. Get process from Processes  API
-            var process = await _processesApiGateway.GetProcessByIdAsync(message.EntityId, message.CorrelationId)
-                                                    .ConfigureAwait(false);
-            if (process is null) throw new EntityNotFoundException<Process>(message.EntityId);
+            // 1. Get process from message
+            var process = (Process)message.EventData.NewData;
+            if (process is null) throw new EntityNotFoundException<QueryableProcess>(message.EntityId);
 
             // 2. Get target entity from relevant API
             var targetRelatedEntity = await GetTargetRelatedEntity(process, message.CorrelationId).ConfigureAwait(false);
