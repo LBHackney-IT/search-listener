@@ -201,8 +201,8 @@ namespace HousingSearchListener.Tests.V1.Factories
             foreach (var relatedEntity in result.RelatedEntities)
             {
                 var processRelatedEntity = process.RelatedEntities.Find(x => x.Id.ToString() == relatedEntity.Id);
-                relatedEntity.TargetType.Should().BeEquivalentTo(processRelatedEntity.TargetType);
-                relatedEntity.SubType.Should().BeEquivalentTo(processRelatedEntity.SubType);
+                relatedEntity.TargetType.Should().Be(processRelatedEntity.TargetType.ToString());
+                relatedEntity.SubType.Should().Be(processRelatedEntity.SubType.ToString());
                 relatedEntity.Description.Should().BeEquivalentTo(processRelatedEntity.Description);
             }
         }

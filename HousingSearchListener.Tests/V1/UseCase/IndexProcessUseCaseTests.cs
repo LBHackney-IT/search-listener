@@ -184,8 +184,8 @@ namespace HousingSearchListener.Tests.V1.UseCase
             foreach (var relatedEntity in esProcess.RelatedEntities)
             {
                 var processRelatedEntity = _process.RelatedEntities.Find(x => x.Id.ToString() == relatedEntity.Id);
-                relatedEntity.TargetType.Should().BeEquivalentTo(processRelatedEntity.TargetType);
-                relatedEntity.SubType.Should().BeEquivalentTo(processRelatedEntity.SubType);
+                relatedEntity.TargetType.Should().Be(processRelatedEntity.TargetType.ToString());
+                relatedEntity.SubType.Should().Be(processRelatedEntity.SubType.ToString());
                 relatedEntity.Description.Should().BeEquivalentTo(processRelatedEntity.Description);
             }
             return true;
