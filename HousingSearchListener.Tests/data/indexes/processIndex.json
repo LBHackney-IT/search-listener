@@ -3,8 +3,7 @@
   "mappings": {
     "properties": {
       "createdAt": {
-        "type": "date",
-        "format": "MM/dd/yyyy HH:mm:ss"
+        "type": "date"
       },
       "id": {
         "type": "text",
