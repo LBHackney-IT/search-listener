@@ -3,15 +3,12 @@ using FluentAssertions;
 using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Process;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
-using HousingSearchListener.V1.Boundary;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
@@ -79,7 +76,14 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<ArgumentNullException>();
         }
 
-        // todo: add test for if es process is null (gateway returns nothinh)
+
+        [Fact]
+        public void ThrowsErrorfIfNewDataDoesNotContainStateChangeData()
+        {
+            _message.EventData = new EventData();
+            Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
+            func.Should().ThrowAsync<EntityNotFoundException<ProcessStateChangeData>>();
+        }
 
         [Fact]
         public void ProcessMessageAsyncTestThrowsErrorOnIndexProcess()
@@ -90,6 +94,15 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
+        }
+
+        [Fact]
+        public void ThrowsErrorfIfProcessDoesNotExistInES()
+        {
+            _mockEsGateway.Setup(x => x.GetProcessById(It.IsAny<string>())).ReturnsAsync((QueryableProcess)null);
+
+            Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
+            func.Should().ThrowAsync<EntityNotFoundException<QueryableProcess>>();
         }
 
         [Theory]

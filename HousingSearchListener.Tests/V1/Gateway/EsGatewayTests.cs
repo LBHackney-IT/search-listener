@@ -97,6 +97,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         {
             return _fixture.Build<QueryableProcess>()
                            .With(x => x.Id, Guid.NewGuid().ToString())
+                           .With(x => x.CreatedAt, _fixture.Create<DateTime>().ToString())
                            .Create();
         }
 
@@ -312,7 +313,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public async Task IndexProcessCallsEsClient()
         {
             var indexResponse = _fixture.Create<IndexResponse>();
-            var process = _fixture.Create<QueryableProcess>();
+            var process = CreateQueryableProcess();
             _mockEsClient.Setup(x => x.IndexAsync(It.IsAny<IndexRequest<QueryableProcess>>(), default(CancellationToken)))
                          .ReturnsAsync(indexResponse);
 
@@ -328,7 +329,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public async Task IndexProcessSavesToEs()
         {
             var sut = new EsGateway(_testFixture.ElasticSearchClient, _mockLogger.Object);
-            var process = _fixture.Create<QueryableProcess>();
+            var process = CreateQueryableProcess();
 
             var response = await sut.IndexProcess(process).ConfigureAwait(false);
 

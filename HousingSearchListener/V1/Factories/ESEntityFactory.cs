@@ -235,9 +235,9 @@ namespace HousingSearchListener.V1.Factories
         private string GetCreatedAt(Process process)
         {
             if (process.PreviousStates.Count == 0)
-                return process.CurrentState.CreatedAt.ToLongDateString();
+                return process.CurrentState.CreatedAt.ToString();
 
-            return process.PreviousStates.Min(x => x.CreatedAt).ToLongDateString();
+            return process.PreviousStates.Min(x => x.CreatedAt).ToString();
         }
 
         public QueryableProcess CreateProcess(Process process)

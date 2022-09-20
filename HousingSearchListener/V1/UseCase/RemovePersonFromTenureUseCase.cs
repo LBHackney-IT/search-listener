@@ -1,7 +1,7 @@
-﻿using Hackney.Core.Http;
-using Hackney.Core.Logging;
+﻿using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
+using HousingSearchApi.V1.Factories;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -11,7 +11,6 @@ using HousingSearchListener.V1.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.UseCase
@@ -100,14 +99,9 @@ namespace HousingSearchListener.V1.UseCase
 
         private static List<HouseholdMembers> GetHouseholdMembersFromEventData(object data)
         {
-            var dataDic = (data is Dictionary<string, object>) ? data as Dictionary<string, object> : ConvertFromObject<Dictionary<string, object>>(data);
+            var dataDic = (data is Dictionary<string, object>) ? data as Dictionary<string, object> : ObjectFactory.ConvertFromObject<Dictionary<string, object>>(data);
             var hmsObj = dataDic["householdMembers"];
-            return (hmsObj is List<HouseholdMembers>) ? hmsObj as List<HouseholdMembers> : ConvertFromObject<List<HouseholdMembers>>(hmsObj);
-        }
-
-        private static T ConvertFromObject<T>(object obj) where T : class
-        {
-            return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(obj), JsonOptions.Create());
+            return (hmsObj is List<HouseholdMembers>) ? hmsObj as List<HouseholdMembers> : ObjectFactory.ConvertFromObject<List<HouseholdMembers>>(hmsObj);
         }
     }
 }

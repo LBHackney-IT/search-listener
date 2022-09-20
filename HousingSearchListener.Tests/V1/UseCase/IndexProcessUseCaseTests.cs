@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using Hackney.Core.Http;
 using Hackney.Core.Sns;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Process;
@@ -12,9 +11,7 @@ using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
 using Moq;
-using Newtonsoft.Json;
 using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
@@ -84,16 +81,13 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<ArgumentNullException>();
         }
 
-        // TODO: Update to if message does not contain new process 
-        // [Fact]
-        // public void ThrowsErrorfIfProcessDoesNotExist()
-        // {
-        //     _mockProcessesApi.Setup(x => x.GetProcessByIdAsync(_message.EntityId, _message.CorrelationId))
-        //                                .ReturnsAsync((Process)null);
-
-        //     Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-        //     func.Should().ThrowAsync<EntityNotFoundException<Process>>();
-        // }
+        [Fact]
+        public void ThrowsErrorfIfNewDataDoesNotContainAProcess()
+        {
+            _message.EventData = new EventData();
+            Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
+            func.Should().ThrowAsync<EntityNotFoundException<Process>>();
+        }
 
         private Action<Func<Task>> SetUpTargetEntityApiToReturnNull(TargetType targetType)
         {

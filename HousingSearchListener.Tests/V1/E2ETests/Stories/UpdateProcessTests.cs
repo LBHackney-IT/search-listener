@@ -1,9 +1,7 @@
-﻿using HousingSearchListener.Tests.V1.E2ETests.Fixtures;
+﻿using Hackney.Shared.HousingSearch.Domain.Process;
 using HousingSearchListener.Tests.V1.E2ETests.Steps;
 using HousingSearchListener.V1.Boundary;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using TestStack.BDDfy;
 using Xunit;
 
@@ -12,21 +10,17 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
     [Story(
         AsA = "SQS Tenure Listener",
         IWant = "a function to process the Process updated messages",
-        SoThat = "The process details are set in the index")]
+        SoThat = "The process details are updated in the index correctly")]
     [Collection("ElasticSearch collection")]
     public class UpdateProcessTests : IDisposable
     {
         private readonly ElasticSearchFixture _esFixture;
-        private readonly ProcessesApiFixture _ProcessesApiFixture;
-
-        private readonly AddProcessToIndexSteps _steps;
+        private readonly UpdateProcessSteps _steps;
 
         public UpdateProcessTests(ElasticSearchFixture esFixture)
         {
             _esFixture = esFixture;
-            _ProcessesApiFixture = new ProcessesApiFixture();
-
-            _steps = new AddProcessToIndexSteps();
+            _steps = new UpdateProcessSteps();
         }
 
         public void Dispose()
@@ -40,32 +34,46 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
-                _ProcessesApiFixture.Dispose();
-
                 _disposed = true;
             }
         }
 
         [Theory]
         [InlineData(EventTypes.ProcessUpdatedEvent)]
-        public void ProcessNotFound(string eventType)
+        public void InvalidEventData(string eventType)
         {
-            var ProcessId = Guid.NewGuid();
-            this.Given(g => _ProcessesApiFixture.GivenTheProcessDoesNotExist(ProcessId))
-                .When(w => _steps.WhenTheFunctionIsTriggered(ProcessId, eventType))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_ProcessesApiFixture.ReceivedCorrelationIds))
-                .Then(t => _steps.ThenAProcessNotFoundExceptionIsThrown(ProcessId))
+            var processId = Guid.NewGuid();
+
+            this.Given(g => _esFixture.GivenTheProcessIsIndexed(processId))
+                .Given(g => _steps.GivenTheEventDataDoesNotContainStateChangeData())
+                .When(w => _steps.WhenTheFunctionIsTriggered(processId, eventType))
+                .Then(t => _steps.ThenAnInvalidEventDataTypeExceptionIsThrown<ProcessStateChangeData>())
                 .BDDfy();
         }
 
-        [Fact]
-        public void ProcessUpdateAndAddedToIndex()
+        [Theory]
+        [InlineData(EventTypes.ProcessUpdatedEvent)]
+        public void ProcessNotIndexed(string eventType)
         {
-            var ProcessId = Guid.NewGuid();
-            this.Given(g => _ProcessesApiFixture.GivenTheProcessExists(ProcessId))
-                .When(w => _steps.WhenTheFunctionIsTriggered(ProcessId, EventTypes.ProcessUpdatedEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_ProcessesApiFixture.ReceivedCorrelationIds))
-                .Then(t => _steps.ThenTheIndexIsUpdatedWithTheProcess(_ProcessesApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
+            var processId = Guid.NewGuid();
+
+            this.Given(g => _esFixture.GivenTheProcessIsNotIndexed(processId))
+                .Given(g => _steps.GivenTheEventDataContainsStateChangeData())
+                .When(w => _steps.WhenTheFunctionIsTriggered(processId, eventType))
+                .Then(t => _steps.ThenAProcessNotIndexedExceptionIsThrown(processId.ToString()))
+                .BDDfy();
+        }
+
+        [Theory]
+        [InlineData(EventTypes.ProcessUpdatedEvent)]
+        public void ProcessUpdatedAndSavedToIndex(string eventType)
+        {
+            var processId = Guid.NewGuid();
+
+            this.Given(g => _esFixture.GivenTheProcessIsIndexed(processId))
+                .Given(g => _steps.GivenTheEventDataContainsStateChangeData())
+                .When(w => _steps.WhenTheFunctionIsTriggered(processId, eventType))
+                .Then(t => _steps.ThenTheIndexIsUpdatedWithTheProcess(processId, _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
     }

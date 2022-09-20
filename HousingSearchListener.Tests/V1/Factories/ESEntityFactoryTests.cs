@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
-using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
 using System;
@@ -13,7 +12,6 @@ using Person = HousingSearchListener.V1.Domain.Person.Person;
 using Tenure = HousingSearchListener.V1.Domain.Person.Tenure;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Process;
-using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
@@ -198,7 +196,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.State.Should().Be(process.CurrentState.State);
 
             var createdAt = process.PreviousStates.Count > 0 ? process.PreviousStates.Min(x => x.CreatedAt) : process.CurrentState.CreatedAt;
-            result.CreatedAt.Should().Be(createdAt.ToLongDateString());
+            result.CreatedAt.Should().Be(createdAt.ToString());
 
             foreach (var relatedEntity in result.RelatedEntities)
             {

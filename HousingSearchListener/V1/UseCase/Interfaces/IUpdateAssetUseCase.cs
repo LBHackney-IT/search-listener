@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HousingSearchListener.V1.UseCase.Interfaces
+﻿namespace HousingSearchListener.V1.UseCase.Interfaces
 {
     public interface IUpdateAssetUseCase : IMessageProcessing
     {

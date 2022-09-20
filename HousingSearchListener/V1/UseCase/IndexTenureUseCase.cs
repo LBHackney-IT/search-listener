@@ -42,7 +42,7 @@ namespace HousingSearchListener.V1.UseCase
             // TODO - The asset info should really be retrieved directly from the Asset Api and then a QueryableAsset rebuilt
             // rather than just getting the current entry in the index.
             QueryableAsset queryableAsset = await _esGateway.GetAssetById(tenure.TenuredAsset.Id);
-            if (queryableAsset is null) throw new AssetNotIndexedException(tenure.TenuredAsset.Id);
+            if (queryableAsset is null) throw new EntityNotIndexedException<QueryableAsset>(tenure.TenuredAsset.Id);
 
             // 3. Get all the person records for the tenure and update the tenure details
             var persons = await GetPersonsForTenure(tenure);

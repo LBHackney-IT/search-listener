@@ -11,8 +11,8 @@ using System.Collections.Generic;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Person;
-using System.Text.Json;
-using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
+using HousingSearchApi.V1.Factories;
+using HousingSearchListener.V1.UseCase.Exceptions;
 
 namespace HousingSearchListener.V1.UseCase
 {
@@ -86,8 +86,8 @@ namespace HousingSearchListener.V1.UseCase
             if (message is null) throw new ArgumentNullException(nameof(message));
 
             // 1. Get process from message
-            var process = (Process)message.EventData.NewData;
-            if (process is null) throw new EntityNotFoundException<QueryableProcess>(message.EntityId);
+            var process = GetProcessFromEventData(message.EventData.NewData);
+            if (process is null) throw new InvalidEventDataTypeException<Process>(message.Id);
 
             // 2. Get target entity from relevant API
             var targetRelatedEntity = await GetTargetRelatedEntity(process, message.CorrelationId).ConfigureAwait(false);
@@ -99,6 +99,11 @@ namespace HousingSearchListener.V1.UseCase
             // 3. Update the ES index
             var esProcess = _esProcessesFactory.CreateProcess(process);
             await _esGateway.IndexProcess(esProcess);
+        }
+
+        private static Process GetProcessFromEventData(object data)
+        {
+            return (data is Process) ? data as Process : ObjectFactory.ConvertFromObject<Process>(data);
         }
     }
 }
