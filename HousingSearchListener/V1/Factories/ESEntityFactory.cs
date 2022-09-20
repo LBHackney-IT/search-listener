@@ -228,8 +228,8 @@ namespace HousingSearchListener.V1.Factories
             return relatedEntities.Select(x => new QueryableRelatedEntity
             {
                 Id = x.Id.ToString(),
-                TargetType = x.TargetType,
-                SubType = x.SubType,
+                TargetType = x.TargetType.ToString(),
+                SubType = x.SubType.ToString(),
                 Description = x.Description
             }).ToList();
         }
