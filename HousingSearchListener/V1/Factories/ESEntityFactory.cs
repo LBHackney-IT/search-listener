@@ -237,7 +237,7 @@ namespace HousingSearchListener.V1.Factories
         private string GetCreatedAt(Process process)
         {
             if (process.PreviousStates is null || process.PreviousStates.Count == 0)
-                return process.CurrentState.CreatedAt.ToString();
+                return process.CurrentState?.CreatedAt.ToString();
 
             return process.PreviousStates.Min(x => x.CreatedAt).ToString();
         }
@@ -250,7 +250,7 @@ namespace HousingSearchListener.V1.Factories
                 TargetId = process.TargetId.ToString(),
                 TargetType = process.TargetType.ToString(),
                 ProcessName = process.ProcessName.ToString(),
-                State = process.CurrentState.State,
+                State = process.CurrentState?.State,
                 PatchAssignment = CreateQueryablePatchAssignment(process.PatchAssignment),
                 CreatedAt = GetCreatedAt(process),
                 RelatedEntities = process.RelatedEntities is null ? new List<QueryableRelatedEntity>() : CreateQueryableRelatedEntities(process.RelatedEntities)
