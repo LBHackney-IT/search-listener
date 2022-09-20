@@ -212,6 +212,8 @@ namespace HousingSearchListener.V1.Factories
 
         private QueryablePatchAssignment CreateQueryablePatchAssignment(PatchAssignment patchAssignment)
         {
+            if (patchAssignment is null) return null;
+
             return new QueryablePatchAssignment
             {
                 PatchId = patchAssignment.PatchId,
