@@ -236,7 +236,7 @@ namespace HousingSearchListener.V1.Factories
 
         private string GetCreatedAt(Process process)
         {
-            if (process.PreviousStates.Count == 0)
+            if (process.PreviousStates is null || process.PreviousStates.Count == 0)
                 return process.CurrentState.CreatedAt.ToString();
 
             return process.PreviousStates.Min(x => x.CreatedAt).ToString();
