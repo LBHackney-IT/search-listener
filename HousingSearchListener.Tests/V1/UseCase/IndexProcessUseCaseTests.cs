@@ -149,24 +149,26 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
         }
 
-        private Action SetUpTargetEntityApi(TargetType targetType)
+        private Action SetUpTargetEntityApi(TargetType targetType, bool relatedEntitiesContainsTargetEntity)
         {
+            var expectedApiCallCount = relatedEntitiesContainsTargetEntity ? Times.Never() : Times.Once();
+
             switch (targetType)
             {
                 case TargetType.asset:
                     var asset = _fixture.Build<Asset>().With(x => x.Id, _process.TargetId).Create();
                     _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync(asset);
-                    return () => _mockAssetApi.Verify(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId), Times.Once());
+                    return () => _mockAssetApi.Verify(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId), expectedApiCallCount);
 
                 case TargetType.person:
                     var person = _fixture.Build<Person>().With(x => x.Id, _process.TargetId.ToString()).Create();
                     _mockPersonApi.Setup(x => x.GetPersonByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync(person);
-                    return () => _mockPersonApi.Verify(x => x.GetPersonByIdAsync(_process.TargetId, _message.CorrelationId), Times.Once());
+                    return () => _mockPersonApi.Verify(x => x.GetPersonByIdAsync(_process.TargetId, _message.CorrelationId), expectedApiCallCount);
 
                 case TargetType.tenure:
                     var tenure = _fixture.Build<TenureInformation>().With(x => x.Id, _process.TargetId.ToString()).Create();
                     _mockTenureApi.Setup(x => x.GetTenureByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync(tenure);
-                    return () => _mockTenureApi.Verify(x => x.GetTenureByIdAsync(_process.TargetId, _message.CorrelationId), Times.Once());
+                    return () => _mockTenureApi.Verify(x => x.GetTenureByIdAsync(_process.TargetId, _message.CorrelationId), expectedApiCallCount);
 
                 default:
                     throw new Exception($"Unknown target type: {targetType}");
@@ -192,14 +194,20 @@ namespace HousingSearchListener.Tests.V1.UseCase
         }
 
         [Theory]
-        [InlineData(TargetType.asset)]
-        [InlineData(TargetType.person)]
-        [InlineData(TargetType.tenure)]
-        public async Task InsertsIntoIndexCorrectly(TargetType targetType)
+        [InlineData(TargetType.asset, true)]
+        [InlineData(TargetType.asset, false)]
+        [InlineData(TargetType.person, true)]
+        [InlineData(TargetType.person, false)]
+        [InlineData(TargetType.tenure, true)]
+        [InlineData(TargetType.tenure, false)]
+        public async Task InsertsIntoIndexCorrectly(TargetType targetType, bool relatedEntitiesContainsTargetEntity)
         {
             _process.TargetType = targetType;
+            if (relatedEntitiesContainsTargetEntity)
+                _process.RelatedEntities.Add(_fixture.Build<RelatedEntity>().With(x => x.Id, _process.TargetId).Create());
+
             _message = CreateMessage();
-            var verifyTargetApiIsCalled = SetUpTargetEntityApi(targetType);
+            var verifyTargetApiIsCalled = SetUpTargetEntityApi(targetType, relatedEntitiesContainsTargetEntity);
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 

@@ -81,7 +81,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         [InlineData(TargetType.asset)]
         [InlineData(TargetType.tenure)]
         [InlineData(TargetType.person)]
-        public void ProcessIsAddedToIndex(TargetType targetType)
+        public void ProcessWithoutTargetEntityIsAddedToIndex(TargetType targetType)
         {
             var processId = Guid.NewGuid();
             var targetId = Guid.NewGuid();
@@ -91,6 +91,23 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
                 .When(w => _steps.WhenTheFunctionIsTriggered(processId, EventTypes.ProcessStartedEvent))
                 .Then(t => _steps.ThenNoExceptionsAreThrown())
                 .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_assetApiFixture, _personApiFixture, _tenureApiFixture))
+                .Then(t => _steps.ThenTheIndexIsUpdatedWithTheProcess(_esFixture.ElasticSearchClient))
+                .BDDfy();
+        }
+
+        [Theory]
+        [InlineData(TargetType.asset)]
+        [InlineData(TargetType.tenure)]
+        [InlineData(TargetType.person)]
+        public void ProcessWithTargetEntityIsAddedToIndex(TargetType targetType)
+        {
+            var processId = Guid.NewGuid();
+            var targetId = Guid.NewGuid();
+
+            this.Given(g => _steps.GivenTheMessageContainsAProcess(processId, targetId, targetType))
+                .Given(g => _steps.GivenTheProcessContainsATargetEntity())
+                .When(w => _steps.WhenTheFunctionIsTriggered(processId, EventTypes.ProcessStartedEvent))
+                .Then(t => _steps.ThenNoExceptionsAreThrown())
                 .Then(t => _steps.ThenTheIndexIsUpdatedWithTheProcess(_esFixture.ElasticSearchClient))
                 .BDDfy();
         }

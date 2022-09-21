@@ -167,5 +167,10 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
             receivedCorrelationIds.Select(x => x == _correlationId.ToString()).Should().HaveCount(1);
         }
+
+        public void GivenTheProcessContainsATargetEntity()
+        {
+            _process.RelatedEntities.Add(_fixture.Build<RelatedEntity>().With(x => x.Id, _process.TargetId).Create());
+        }
     }
 }
