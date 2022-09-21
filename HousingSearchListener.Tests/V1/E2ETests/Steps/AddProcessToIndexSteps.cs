@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using AutoFixture;
+using FluentAssertions;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Person;
 using Hackney.Shared.HousingSearch.Domain.Process;
@@ -7,9 +8,9 @@ using Hackney.Shared.Tenure.Domain;
 using HousingSearchListener.Tests.V1.E2ETests.Fixtures;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
+using HousingSearchListener.V1.UseCase.Exceptions;
 using Nest;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
@@ -19,57 +20,11 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
     public class AddProcessToIndexSteps : BaseSteps
     {
         private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
+        private Process _process;
 
         public AddProcessToIndexSteps()
         {
             _eventType = EventTypes.ProcessStartedEvent;
-            _eventType = EventTypes.ProcessUpdatedEvent;
-        }
-
-        public async Task WhenTheFunctionIsTriggered(Guid ProcessId, string eventType)
-        {
-            var eventMsg = CreateEvent(ProcessId, eventType);
-            await TriggerFunction(CreateMessage(eventMsg));
-        }
-
-        public void ThenTheCorrelationIdWasUsedInTheApiCalls(ProcessesApiFixture processesApiFixture,
-                                                             AssetApiFixture assetApiFixture,
-                                                             PersonApiFixture personApiFixture,
-                                                             TenureApiFixture tenureApiFixture)
-        {
-            var receivedCorrelationIds = processesApiFixture.ReceivedCorrelationIds.Concat(assetApiFixture.ReceivedCorrelationIds)
-                                                                                   .Concat(personApiFixture.ReceivedCorrelationIds)
-                                                                                   .Concat(tenureApiFixture.ReceivedCorrelationIds)
-                                                                                   .ToList();
-            receivedCorrelationIds.Where(x => x == _correlationId.ToString()).Should().HaveCount(2);
-        }
-
-        public void ThenAnEntityNotFoundExceptionIsThrown<T>(Guid id) where T : class
-        {
-            _lastException.Should().NotBeNull();
-            _lastException.Should().BeOfType(typeof(EntityNotFoundException<T>));
-            (_lastException as EntityNotFoundException<T>).Id.Should().Be(id);
-        }
-
-        public void ThenAProcessNotFoundExceptionIsThrown(Guid id)
-        {
-            ThenAnEntityNotFoundExceptionIsThrown<Process>(id);
-        }
-
-        public void ThenATargetEntityNotFoundExceptionIsThrown(Guid id, TargetType targetType)
-        {
-            switch (targetType)
-            {
-                case TargetType.tenure:
-                    ThenAnEntityNotFoundExceptionIsThrown<TenureInformation>(id);
-                    break;
-                case TargetType.person:
-                    ThenAnEntityNotFoundExceptionIsThrown<Person>(id);
-                    break;
-                case TargetType.asset:
-                    ThenAnEntityNotFoundExceptionIsThrown<Asset>(id);
-                    break;
-            }
         }
 
         private void SetUpTargetApiFixture(AssetApiFixture assetApiFixture,
@@ -116,20 +71,76 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             SetUpTargetApiFixture(assetApiFixture, personApiFixture, tenureApiFixture, targetId, targetType, true);
         }
 
-        public async Task ThenTheIndexIsUpdatedWithTheProcess(Process process, IElasticClient esClient)
+        public void GivenTheMessageDoesNotContainAProcess(Guid processId)
         {
-            var result = await esClient.GetAsync<QueryableProcess>(process.Id, g => g.Index("processes"))
+            // do nothing
+        }
+
+        public void GivenTheMessageContainsAProcess(Guid processId, Guid targetId, TargetType targetType)
+        {
+            _process = _fixture.Build<Process>()
+                               .With(x => x.Id, processId)
+                               .With(x => x.TargetId, targetId)
+                               .With(x => x.TargetType, targetType)
+                               .Create();
+        }
+
+        public async Task WhenTheFunctionIsTriggered(Guid ProcessId, string eventType)
+        {
+            var eventMsg = CreateEvent(ProcessId, eventType);
+            eventMsg.EventData.NewData = _process;
+
+            await TriggerFunction(CreateMessage(eventMsg));
+        }
+
+        public void ThenAnEntityNotFoundExceptionIsThrown<T>(Guid id) where T : class
+        {
+            _lastException.Should().NotBeNull();
+            _lastException.Should().BeOfType(typeof(EntityNotFoundException<T>));
+            (_lastException as EntityNotFoundException<T>).Id.Should().Be(id);
+        }
+
+        public void ThenAnInvalidEventDataTypeExceptionIsThrown<T>() where T : class
+        {
+            _lastException.Should().NotBeNull();
+            _lastException.Should().BeOfType(typeof(InvalidEventDataTypeException<T>));
+        }
+
+        public void ThenATargetEntityNotFoundExceptionIsThrown(Guid id, TargetType targetType)
+        {
+            switch (targetType)
+            {
+                case TargetType.tenure:
+                    ThenAnEntityNotFoundExceptionIsThrown<TenureInformation>(id);
+                    break;
+                case TargetType.person:
+                    ThenAnEntityNotFoundExceptionIsThrown<Person>(id);
+                    break;
+                case TargetType.asset:
+                    ThenAnEntityNotFoundExceptionIsThrown<Asset>(id);
+                    break;
+            }
+        }
+
+        public void ThenAProcessStateChangeDataNotFoundExceptionIsThrown(Guid id)
+        {
+            ThenAnEntityNotFoundExceptionIsThrown<ProcessStateChangeData>(id);
+        }
+
+        public async Task ThenTheIndexIsUpdatedWithTheProcess(IElasticClient esClient)
+        {
+            var result = await esClient.GetAsync<QueryableProcess>(_process.Id, g => g.Index("processes"))
                                        .ConfigureAwait(false);
             var processInIndex = result.Source;
             processInIndex.Should().NotBeNull();
 
-            var expectedProcess = _entityFactory.CreateProcess(process);
+            var expectedProcess = _entityFactory.CreateProcess(_process);
             processInIndex.Should().BeEquivalentTo(processInIndex, c => c.Excluding(x => x.RelatedEntities));
 
             if (_eventType == EventTypes.ProcessStartedEvent)
             {
-                processInIndex.RelatedEntities.Should().ContainSingle(x => x.Id == process.TargetId.ToString());
-                processInIndex.RelatedEntities.RemoveAll(x => x.Id == process.TargetId.ToString());
+                processInIndex.RelatedEntities.Should().ContainSingle(x => x.Id == _process.TargetId.ToString());
+                processInIndex.RelatedEntities.RemoveAll(x => x.Id == _process.TargetId.ToString());
 
                 foreach (var relatedEntity in processInIndex.RelatedEntities)
                 {
@@ -141,6 +152,25 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                     relatedEntity.Description.Should().BeEquivalentTo(processRelatedEntity.Description);
                 }
             }
+        }
+
+        public void ThenNoExceptionsAreThrown()
+        {
+            _lastException.Should().BeNull();
+        }
+
+        public void ThenTheCorrelationIdWasUsedInTheApiCall(AssetApiFixture assetApiFixture, PersonApiFixture personApiFixture, TenureApiFixture tenureApiFixture)
+        {
+            var receivedCorrelationIds = assetApiFixture.ReceivedCorrelationIds.Concat(personApiFixture.ReceivedCorrelationIds)
+                                                                               .Concat(tenureApiFixture.ReceivedCorrelationIds)
+                                                                               .ToList();
+
+            receivedCorrelationIds.Select(x => x == _correlationId.ToString()).Should().HaveCount(1);
+        }
+
+        public void GivenTheProcessContainsATargetEntity()
+        {
+            _process.RelatedEntities.Add(_fixture.Build<RelatedEntity>().With(x => x.Id, _process.TargetId).Create());
         }
     }
 }

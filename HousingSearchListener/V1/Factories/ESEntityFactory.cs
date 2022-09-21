@@ -213,6 +213,8 @@ namespace HousingSearchListener.V1.Factories
 
         private QueryablePatchAssignment CreateQueryablePatchAssignment(PatchAssignment patchAssignment)
         {
+            if (patchAssignment is null) return null;
+
             return new QueryablePatchAssignment
             {
                 PatchId = patchAssignment.PatchId,
@@ -227,18 +229,18 @@ namespace HousingSearchListener.V1.Factories
             return relatedEntities.Select(x => new QueryableRelatedEntity
             {
                 Id = x.Id.ToString(),
-                TargetType = x.TargetType,
-                SubType = x.SubType,
+                TargetType = x.TargetType.ToString(),
+                SubType = x.SubType.ToString(),
                 Description = x.Description
             }).ToList();
         }
 
         private string GetCreatedAt(Process process)
         {
-            if (process.PreviousStates.Count == 0)
-                return process.CurrentState.CreatedAt.ToLongDateString();
+            if (process.PreviousStates is null || process.PreviousStates.Count == 0)
+                return process.CurrentState?.CreatedAt.ToString();
 
-            return process.PreviousStates.Min(x => x.CreatedAt).ToLongDateString();
+            return process.PreviousStates.Min(x => x.CreatedAt).ToString();
         }
 
         public QueryableProcess CreateProcess(Process process)
@@ -249,7 +251,7 @@ namespace HousingSearchListener.V1.Factories
                 TargetId = process.TargetId.ToString(),
                 TargetType = process.TargetType.ToString(),
                 ProcessName = process.ProcessName.ToString(),
-                State = process.CurrentState.State,
+                State = process.CurrentState?.State,
                 PatchAssignment = CreateQueryablePatchAssignment(process.PatchAssignment),
                 CreatedAt = GetCreatedAt(process),
                 RelatedEntities = process.RelatedEntities is null ? new List<QueryableRelatedEntity>() : CreateQueryableRelatedEntities(process.RelatedEntities)

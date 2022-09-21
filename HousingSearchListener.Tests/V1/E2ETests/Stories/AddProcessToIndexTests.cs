@@ -16,7 +16,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
     public class AddProcessToIndexTests : IDisposable
     {
         private readonly ElasticSearchFixture _esFixture;
-        private readonly ProcessesApiFixture _processesApiFixture;
         private readonly TenureApiFixture _tenureApiFixture;
         private readonly PersonApiFixture _personApiFixture;
         private readonly AssetApiFixture _assetApiFixture;
@@ -25,7 +24,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         public AddProcessToIndexTests(ElasticSearchFixture esFixture)
         {
             _esFixture = esFixture;
-            _processesApiFixture = new ProcessesApiFixture();
             _tenureApiFixture = new TenureApiFixture();
             _personApiFixture = new PersonApiFixture();
             _assetApiFixture = new AssetApiFixture();
@@ -44,7 +42,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
-                _processesApiFixture.Dispose();
                 _assetApiFixture.Dispose();
                 _tenureApiFixture.Dispose();
                 _personApiFixture.Dispose();
@@ -54,13 +51,12 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         }
 
         [Fact]
-        public void ProcessNotFound()
+        public void InvalidEventData()
         {
-            var ProcessId = Guid.NewGuid();
-            this.Given(g => _processesApiFixture.GivenTheProcessDoesNotExist(ProcessId))
-                .When(w => _steps.WhenTheFunctionIsTriggered(ProcessId, EventTypes.ProcessStartedEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_processesApiFixture.ReceivedCorrelationIds))
-                .Then(t => _steps.ThenAProcessNotFoundExceptionIsThrown(ProcessId))
+            var processId = Guid.NewGuid();
+            this.Given(g => _steps.GivenTheMessageDoesNotContainAProcess(processId))
+                .When(w => _steps.WhenTheFunctionIsTriggered(processId, EventTypes.ProcessStartedEvent))
+                .Then(t => _steps.ThenAnInvalidEventDataTypeExceptionIsThrown<Process>())
                 .BDDfy();
         }
 
@@ -73,10 +69,10 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             var processId = Guid.NewGuid();
             var targetId = Guid.NewGuid();
 
-            this.Given(g => _processesApiFixture.GivenTheProcessExists(processId, targetId, targetType))
+            this.Given(g => _steps.GivenTheMessageContainsAProcess(processId, targetId, targetType))
                 .Given(g => _steps.GivenTheTargetEntityDoesNotExist(_assetApiFixture, _personApiFixture, _tenureApiFixture, targetId, targetType))
                 .When(w => _steps.WhenTheFunctionIsTriggered(processId, EventTypes.ProcessStartedEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCalls(_processesApiFixture, _assetApiFixture, _personApiFixture, _tenureApiFixture))
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_assetApiFixture, _personApiFixture, _tenureApiFixture))
                 .Then(t => _steps.ThenATargetEntityNotFoundExceptionIsThrown(targetId, targetType))
                 .BDDfy();
         }
@@ -85,16 +81,34 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         [InlineData(TargetType.asset)]
         [InlineData(TargetType.tenure)]
         [InlineData(TargetType.person)]
-        public void ProcessIsAddedToIndex(TargetType targetType)
+        public void ProcessWithoutTargetEntityIsAddedToIndex(TargetType targetType)
         {
             var processId = Guid.NewGuid();
             var targetId = Guid.NewGuid();
 
-            this.Given(g => _processesApiFixture.GivenTheProcessExists(processId, targetId, targetType))
+            this.Given(g => _steps.GivenTheMessageContainsAProcess(processId, targetId, targetType))
                 .Given(g => _steps.GivenTheTargetEntityExists(_assetApiFixture, _personApiFixture, _tenureApiFixture, targetId, targetType))
                 .When(w => _steps.WhenTheFunctionIsTriggered(processId, EventTypes.ProcessStartedEvent))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCalls(_processesApiFixture, _assetApiFixture, _personApiFixture, _tenureApiFixture))
-                .Then(t => _steps.ThenTheIndexIsUpdatedWithTheProcess(_processesApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
+                .Then(t => _steps.ThenNoExceptionsAreThrown())
+                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_assetApiFixture, _personApiFixture, _tenureApiFixture))
+                .Then(t => _steps.ThenTheIndexIsUpdatedWithTheProcess(_esFixture.ElasticSearchClient))
+                .BDDfy();
+        }
+
+        [Theory]
+        [InlineData(TargetType.asset)]
+        [InlineData(TargetType.tenure)]
+        [InlineData(TargetType.person)]
+        public void ProcessWithTargetEntityIsAddedToIndex(TargetType targetType)
+        {
+            var processId = Guid.NewGuid();
+            var targetId = Guid.NewGuid();
+
+            this.Given(g => _steps.GivenTheMessageContainsAProcess(processId, targetId, targetType))
+                .Given(g => _steps.GivenTheProcessContainsATargetEntity())
+                .When(w => _steps.WhenTheFunctionIsTriggered(processId, EventTypes.ProcessStartedEvent))
+                .Then(t => _steps.ThenNoExceptionsAreThrown())
+                .Then(t => _steps.ThenTheIndexIsUpdatedWithTheProcess(_esFixture.ElasticSearchClient))
                 .BDDfy();
         }
     }

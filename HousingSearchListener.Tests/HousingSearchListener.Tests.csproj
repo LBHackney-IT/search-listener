@@ -26,7 +26,7 @@
     </PackageReference>
     <PackageReference Include="Hackney.Core.Http" Version="1.63.0" />
     <PackageReference Include="Hackney.Core.Testing.Shared" Version="1.49.0" />
-    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.42.0" />
+    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.43.0" />
     <PackageReference Include="Hackney.Shared.Asset" Version="0.15.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
@@ -56,6 +56,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="data\indexes\tenureIndex.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+      <None Update="data\indexes\processIndex.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

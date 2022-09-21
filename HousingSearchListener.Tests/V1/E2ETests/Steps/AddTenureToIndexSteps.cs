@@ -7,7 +7,6 @@ using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Nest;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
@@ -32,8 +31,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public void ThenAnAssetNotIndexedExceptionIsThrown(string id)
         {
             _lastException.Should().NotBeNull();
-            _lastException.Should().BeOfType(typeof(AssetNotIndexedException));
-            (_lastException as AssetNotIndexedException).Id.Should().Be(id);
+            _lastException.Should().BeOfType(typeof(EntityNotIndexedException<QueryableAsset>));
+            (_lastException as EntityNotIndexedException<QueryableAsset>).Id.Should().Be(id);
         }
 
         public void ThenATenureNotFoundExceptionIsThrown(Guid id)

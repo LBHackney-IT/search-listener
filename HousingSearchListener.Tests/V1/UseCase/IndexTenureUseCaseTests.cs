@@ -181,7 +181,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                                        .ReturnsAsync(_tenure);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<AssetNotIndexedException>();
+            func.Should().ThrowAsync<EntityNotIndexedException<QueryableAsset>>();
 
             _mockEsGateway.Verify(x => x.IndexTenure(It.Is<QueryableTenure>(y => VerifyTenureIndexed(y))), Times.Never);
             _mockEsGateway.Verify(x => x.IndexAsset(It.IsAny<QueryableAsset>()), Times.Never);
