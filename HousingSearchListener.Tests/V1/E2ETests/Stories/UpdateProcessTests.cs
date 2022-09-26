@@ -40,6 +40,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
 
         [Theory]
         [InlineData(EventTypes.ProcessUpdatedEvent)]
+        [InlineData(EventTypes.ProcessClosedEvent)]
+        [InlineData(EventTypes.ProcessCompletedEvent)]
         public void InvalidEventData(string eventType)
         {
             var processId = Guid.NewGuid();
@@ -53,6 +55,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
 
         [Theory]
         [InlineData(EventTypes.ProcessUpdatedEvent)]
+        [InlineData(EventTypes.ProcessClosedEvent)]
+        [InlineData(EventTypes.ProcessCompletedEvent)]
         public void ProcessNotIndexed(string eventType)
         {
             var processId = Guid.NewGuid();
@@ -66,6 +70,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
 
         [Theory]
         [InlineData(EventTypes.ProcessUpdatedEvent)]
+        [InlineData(EventTypes.ProcessClosedEvent)]
+        [InlineData(EventTypes.ProcessCompletedEvent)]
         public void ProcessUpdatedAndSavedToIndex(string eventType)
         {
             var processId = Guid.NewGuid();

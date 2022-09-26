@@ -136,10 +136,13 @@ namespace HousingSearchListener.Tests.V1.Factories
         }
 
 
-        [Fact]
-        public void CreateUseCaseForMessageTestProcessUpdatedEvent()
+        [Theory]
+        [InlineData(EventTypes.ProcessUpdatedEvent)]
+        [InlineData(EventTypes.ProcessCompletedEvent)]
+        [InlineData(EventTypes.ProcessClosedEvent)]
+        public void CreateUseCaseForMessageTestProcessUpdatedEvent(string eventType)
         {
-            _event = ConstructEvent(EventTypes.ProcessUpdatedEvent);
+            _event = ConstructEvent(eventType);
             TestMessageProcessingCreation<IUpdateProcessUseCase>(_event);
         }
 
