@@ -4,6 +4,7 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using Nest;
 using System.Threading.Tasks;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
+using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 
 namespace HousingSearchListener.V1.Gateway.Interfaces
 {
@@ -17,10 +18,14 @@ namespace HousingSearchListener.V1.Gateway.Interfaces
 
         Task<IndexResponse> IndexTransaction(QueryableTransaction esTransaction);
 
+        Task<IndexResponse> IndexProcess(QueryableProcess esProcess);
+
         Task<QueryableAsset> GetAssetById(string id);
 
         Task<QueryableTenure> GetTenureById(string id);
 
         Task<QueryablePerson> GetPersonById(string id);
+
+        Task<QueryableProcess> GetProcessById(string id);
     }
 }

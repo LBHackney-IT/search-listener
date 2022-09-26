@@ -127,5 +127,25 @@ namespace HousingSearchListener.Tests.V1.Factories
             _event = ConstructEvent(EventTypes.AssetUpdatedEvent);
             TestMessageProcessingCreation<IUpdateAssetUseCase>(_event);
         }
+
+        [Fact]
+        public void CreateUseCaseForProcessStartedEvent()
+        {
+            _event = ConstructEvent(EventTypes.ProcessStartedEvent);
+            TestMessageProcessingCreation<IIndexProcessUseCase>(_event);
+        }
+
+
+        [Theory]
+        [InlineData(EventTypes.ProcessUpdatedEvent)]
+        [InlineData(EventTypes.ProcessCompletedEvent)]
+        [InlineData(EventTypes.ProcessClosedEvent)]
+        public void CreateUseCaseForMessageTestProcessUpdatedEvent(string eventType)
+        {
+            _event = ConstructEvent(eventType);
+            TestMessageProcessingCreation<IUpdateProcessUseCase>(_event);
+        }
+
+
     }
 }

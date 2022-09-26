@@ -9,7 +9,6 @@ using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
 using Moq;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;

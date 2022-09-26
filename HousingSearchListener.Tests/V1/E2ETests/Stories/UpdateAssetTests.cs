@@ -2,7 +2,6 @@
 using HousingSearchListener.Tests.V1.E2ETests.Steps;
 using HousingSearchListener.V1.Boundary;
 using System;
-using System.Linq;
 using TestStack.BDDfy;
 using Xunit;
 

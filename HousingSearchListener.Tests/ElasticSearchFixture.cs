@@ -17,6 +17,7 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using HousingSearchListener.V1.Domain.Transaction;
 using Xunit;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
+using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 
 namespace HousingSearchListener.Tests
 {
@@ -34,12 +35,14 @@ namespace HousingSearchListener.Tests
         private static readonly string IndexNameTenures = "tenures";
         private static readonly string IndexNameAssets = "assets";
         private static readonly string IndexNameTransactions = "transactions";
+        private static readonly string IndexNameProcesses = "processes";
         private static readonly Dictionary<string, string> _indexes = new Dictionary<string, string>
         {
             { IndexNamePersons, "data/indexes/personIndex.json" },
             { IndexNameTenures, "data/indexes/tenureIndex.json" },
             { IndexNameAssets, "data/indexes/assetIndex.json" },
-            { IndexNameTransactions, "data/indexes/transactionIndex.json" }
+            { IndexNameTransactions, "data/indexes/transactionIndex.json" },
+            { IndexNameProcesses, "data/indexes/processIndex.json" }
         };
 
         public QueryableAsset AssetInIndex { get; private set; }
@@ -269,6 +272,21 @@ namespace HousingSearchListener.Tests
                            .With(x => x.TenureType, tt)
                            .With(x => x.HouseholdMembers, hms)
                            .Create();
+        }
+
+        public void GivenTheProcessIsNotIndexed(Guid processId)
+        {
+            // Do Nothing
+        }
+
+        public async Task GivenTheProcessIsIndexed(Guid id)
+        {
+            var process = _fixture.Build<QueryableProcess>()
+                                  .With(x => x.Id, id.ToString())
+                                  .With(x => x.CreatedAt, _fixture.Create<DateTime>().ToString())
+                                  .Create();
+            var request = new IndexRequest<QueryableProcess>(process, IndexNameProcesses);
+            await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
         }
     }
 

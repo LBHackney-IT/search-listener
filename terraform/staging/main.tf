@@ -40,6 +40,10 @@ data "aws_ssm_parameter" "asset_sns_topic_arn" {
   name = "/sns-topic/staging/asset/arn"
 }
 
+data "aws_ssm_parameter" "processes_sns_topic_arn" {
+  name = "/sns-topic/staging/processes/arn"
+}
+
 terraform {
   backend "s3" {
     bucket  = "terraform-state-housing-staging"
@@ -127,6 +131,18 @@ resource "aws_sqs_queue_policy" "housing_search_listener_queue_policy" {
                     "aws:SourceArn": "${data.aws_ssm_parameter.asset_sns_topic_arn.value}"
                 }
             }
+        },
+        {
+            "Sid": "Fifth",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "sqs:SendMessage",
+            "Resource": "${aws_sqs_queue.housing_search_listener_queue.arn}",
+            "Condition": {
+                "ArnEquals": {
+                    "aws:SourceArn": "${data.aws_ssm_parameter.processes_sns_topic_arn.value}"
+                }
+            }
         }
       ]
   }
@@ -156,6 +172,13 @@ resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_t
 
 resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_asset_sns" {
   topic_arn            = data.aws_ssm_parameter.asset_sns_topic_arn.value
+  protocol             = "sqs"
+  endpoint             = aws_sqs_queue.housing_search_listener_queue.arn
+  raw_message_delivery = true
+}
+
+resource "aws_sns_topic_subscription" "housing_search_listener_queue_subscribe_to_processes_sns" {
+  topic_arn            = data.aws_ssm_parameter.processes_sns_topic_arn.value
   protocol             = "sqs"
   endpoint             = aws_sqs_queue.housing_search_listener_queue.arn
   raw_message_delivery = true

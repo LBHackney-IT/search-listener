@@ -45,10 +45,10 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         }
 
 
-        protected EntityEventSns CreateEvent(Guid personId, string eventType)
+        protected EntityEventSns CreateEvent(Guid entityId, string eventType)
         {
             return _fixture.Build<EntityEventSns>()
-                           .With(x => x.EntityId, personId)
+                           .With(x => x.EntityId, entityId)
                            .With(x => x.EventType, eventType)
                            .With(x => x.CorrelationId, _correlationId)
                            .Create();
