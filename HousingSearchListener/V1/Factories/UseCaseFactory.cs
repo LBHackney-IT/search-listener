@@ -69,6 +69,8 @@ namespace HousingSearchListener.V1.Factories
                         break;
                     }
                 case EventTypes.ProcessUpdatedEvent:
+                case EventTypes.ProcessClosedEvent:
+                case EventTypes.ProcessCompletedEvent:
                     {
                         processor = serviceProvider.GetService<IUpdateProcessUseCase>();
                         break;
