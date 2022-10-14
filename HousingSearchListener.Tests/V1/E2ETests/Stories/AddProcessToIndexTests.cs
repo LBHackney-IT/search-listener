@@ -1,10 +1,12 @@
-﻿using Hackney.Shared.HousingSearch.Domain.Process;
+﻿using SharedProcess = Hackney.Shared.HousingSearch.Domain.Process;
+using Hackney.Shared.Processes.Domain;
 using HousingSearchListener.Tests.V1.E2ETests.Fixtures;
 using HousingSearchListener.Tests.V1.E2ETests.Steps;
 using HousingSearchListener.V1.Boundary;
 using System;
 using TestStack.BDDfy;
 using Xunit;
+using Process = Hackney.Shared.Processes.Domain.Process;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Stories
 {
@@ -56,7 +58,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             var processId = Guid.NewGuid();
             this.Given(g => _steps.GivenTheMessageDoesNotContainAProcess(processId))
                 .When(w => _steps.WhenTheFunctionIsTriggered(processId, EventTypes.ProcessStartedEvent))
-                .Then(t => _steps.ThenAnInvalidEventDataTypeExceptionIsThrown<Process>())
+                .Then(t => _steps.ThenAnInvalidEventDataTypeExceptionIsThrown<SharedProcess.Process>())
                 .BDDfy();
         }
 

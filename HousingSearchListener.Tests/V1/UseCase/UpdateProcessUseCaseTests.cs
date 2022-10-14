@@ -3,6 +3,7 @@ using FluentAssertions;
 using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Process;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
+using Hackney.Shared.Processes.Sns;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;

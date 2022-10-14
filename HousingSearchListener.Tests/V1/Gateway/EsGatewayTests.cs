@@ -97,7 +97,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         {
             return _fixture.Build<QueryableProcess>()
                            .With(x => x.Id, Guid.NewGuid().ToString())
-                           .With(x => x.CreatedAt, _fixture.Create<DateTime>().ToString())
+                           .With(x => x.ProcessStartedAt, _fixture.Create<DateTime>().ToString())
                            .Create();
         }
 

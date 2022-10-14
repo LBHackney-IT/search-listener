@@ -40,7 +40,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public void ConstructorTestInitialisesApiGateway()
         {
             new AssetApiGateway(_mockApiGateway.Object);
-            _mockApiGateway.Verify(x => x.Initialise(ApiName, AssetApiUrlKey, AssetApiTokenKey, null),
+            _mockApiGateway.Verify(x => x.Initialise(ApiName, AssetApiUrlKey, AssetApiTokenKey, null, false),
                                    Times.Once);
         }
 

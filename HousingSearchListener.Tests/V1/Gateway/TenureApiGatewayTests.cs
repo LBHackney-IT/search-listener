@@ -39,7 +39,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public void ConstructorTestInitialisesApiGateway()
         {
             new TenureApiGateway(_mockApiGateway.Object);
-            _mockApiGateway.Verify(x => x.Initialise(ApiName, TenureApiUrlKey, TenureApiTokenKey, null),
+            _mockApiGateway.Verify(x => x.Initialise(ApiName, TenureApiUrlKey, TenureApiTokenKey, null, false),
                                    Times.Once);
         }
 
