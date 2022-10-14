@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Gateway.Interfaces;
-using Hackney.Shared.HousingSearch.Domain.Process;
 using System.Collections.Generic;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Person;
 using HousingSearchApi.V1.Factories;
 using HousingSearchListener.V1.UseCase.Exceptions;
+using Hackney.Shared.Processes.Domain;
+using Process = Hackney.Shared.HousingSearch.Domain.Process.Process;
+using Hackney.Shared.HousingSearch.Factories;
+using HousingSearchListener.V1.Helper;
 
 namespace HousingSearchListener.V1.UseCase
 {
@@ -41,12 +44,14 @@ namespace HousingSearchListener.V1.UseCase
         [LogCall]
         private async Task<RelatedEntity> GetTargetRelatedEntity(Process process, Guid correlationId)
         {
-            switch (process.TargetType)
+            var targetId = Guid.Parse(process.TargetId);
+            switch (Enum.Parse(typeof(TargetType), process.TargetType))
             {
+                
                 case TargetType.tenure:
-                    var tenure = await _tenureApiGateway.GetTenureByIdAsync(process.TargetId, correlationId)
+                    var tenure = await _tenureApiGateway.GetTenureByIdAsync(targetId, correlationId)
                                                         .ConfigureAwait(false);
-                    if (tenure is null) throw new EntityNotFoundException<TenureInformation>(process.TargetId);
+                    if (tenure is null) throw new EntityNotFoundException<TenureInformation>(targetId);
 
                     return new RelatedEntity
                     {
@@ -54,8 +59,8 @@ namespace HousingSearchListener.V1.UseCase
                         TargetType = TargetType.tenure
                     };
                 case TargetType.person:
-                    var person = await _personApiGateway.GetPersonByIdAsync(process.TargetId, correlationId).ConfigureAwait(false);
-                    if (person is null) throw new EntityNotFoundException<Person>(process.TargetId);
+                    var person = await _personApiGateway.GetPersonByIdAsync(targetId, correlationId).ConfigureAwait(false);
+                    if (person is null) throw new EntityNotFoundException<Person>(targetId);
 
                     return new RelatedEntity
                     {
@@ -64,8 +69,8 @@ namespace HousingSearchListener.V1.UseCase
                         Description = person.FullName
                     };
                 case TargetType.asset:
-                    var asset = await _assetApiGateway.GetAssetByIdAsync(process.TargetId, correlationId).ConfigureAwait(false);
-                    if (asset is null) throw new EntityNotFoundException<Asset>(process.TargetId);
+                    var asset = await _assetApiGateway.GetAssetByIdAsync(targetId, correlationId).ConfigureAwait(false);
+                    if (asset is null) throw new EntityNotFoundException<Asset>(targetId);
 
                     var assetAddress = asset.AssetAddress;
                     var fullAddress = $"{assetAddress.AddressLine1} {assetAddress.AddressLine2} {assetAddress.AddressLine3} {assetAddress.AddressLine4} {assetAddress.PostCode}";
@@ -90,17 +95,22 @@ namespace HousingSearchListener.V1.UseCase
             if (process is null) throw new InvalidEventDataTypeException<Process>(message.Id);
 
             // 2. Get target entity from relevant API if necessary
-            if (!process.RelatedEntities.Exists(x => x.Id == process.TargetId))
+            RelatedEntity targetRelatedEntity = null;
+            if (process.RelatedEntities != null && !process.RelatedEntities.Exists(x => x.Id == Guid.Parse(process.TargetId)))
             {
-                var targetRelatedEntity = await GetTargetRelatedEntity(process, message.CorrelationId).ConfigureAwait(false);
-
-                if (process.RelatedEntities is null)
-                    process.RelatedEntities = new List<RelatedEntity> { targetRelatedEntity };
-                else process.RelatedEntities.Add(targetRelatedEntity);
+                targetRelatedEntity = await GetTargetRelatedEntity(process, message.CorrelationId).ConfigureAwait(false);
+                process.RelatedEntities.Add(targetRelatedEntity);
+            }
+            else
+            {
+                process.RelatedEntities = new List<RelatedEntity> { targetRelatedEntity };
             }
 
             // 3. Update the ES index
-            var esProcess = _esProcessesFactory.CreateProcess(process);
+            var esProcess = process.ToDatabase();
+            esProcess.ProcessStartedAt = DateTimeHelpers.SetStartDate(process.ProcessStartedAt).ToString();
+            esProcess.StateStartedAt = DateTimeHelpers.SetStartDate(process.StateStartedAt).ToString();
+
             await _esGateway.IndexProcess(esProcess);
         }
 
