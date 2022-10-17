@@ -95,15 +95,11 @@ namespace HousingSearchListener.V1.UseCase
             if (process is null) throw new InvalidEventDataTypeException<Process>(message.Id);
 
             // 2. Get target entity from relevant API if necessary
-            RelatedEntity targetRelatedEntity = null;
-            if (process.RelatedEntities != null && !process.RelatedEntities.Exists(x => x.Id == Guid.Parse(process.TargetId)))
+            process.RelatedEntities = process.RelatedEntities ?? new List<RelatedEntity>();
+            if (!process.RelatedEntities.Exists(x => x.Id == Guid.Parse(process.TargetId)))
             {
-                targetRelatedEntity = await GetTargetRelatedEntity(process, message.CorrelationId).ConfigureAwait(false);
+                var targetRelatedEntity = await GetTargetRelatedEntity(process, message.CorrelationId).ConfigureAwait(false);
                 process.RelatedEntities.Add(targetRelatedEntity);
-            }
-            else
-            {
-                process.RelatedEntities = new List<RelatedEntity> { targetRelatedEntity };
             }
 
             // 3. Update the ES index
