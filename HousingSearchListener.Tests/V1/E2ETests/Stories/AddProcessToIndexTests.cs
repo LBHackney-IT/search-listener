@@ -58,7 +58,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             var processId = Guid.NewGuid();
             this.Given(g => _steps.GivenTheMessageDoesNotContainAProcess(processId))
                 .When(w => _steps.WhenTheFunctionIsTriggered(processId, EventTypes.ProcessStartedEvent))
-                .Then(t => _steps.ThenAnInvalidEventDataTypeExceptionIsThrown<SharedProcess.Process>())
+                .Then(t => _steps.ThenAnInvalidEventDataTypeExceptionIsThrown<Process>())
                 .BDDfy();
         }
 
