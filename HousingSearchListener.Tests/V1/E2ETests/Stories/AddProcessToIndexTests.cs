@@ -44,9 +44,9 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
-                _assetApiFixture.Dispose();
-                _tenureApiFixture.Dispose();
-                _personApiFixture.Dispose();
+                _assetApiFixture?.Dispose();
+                _tenureApiFixture?.Dispose();
+                _personApiFixture?.Dispose();
 
                 _disposed = true;
             }

@@ -3,6 +3,7 @@ using FluentAssertions;
 using Hackney.Core.Sns;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Process;
+using Hackney.Shared.HousingSearch.Factories;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 using Hackney.Shared.Processes.Domain;
 using Hackney.Shared.Processes.Factories;
@@ -180,7 +181,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private bool VerifyProcessIndexed(QueryableProcess esProcess)
         {
-            var expectedProcess = _process.ToDatabase();
+            var expectedProcess = _process.ToElasticSearch();
             esProcess.Should().BeEquivalentTo(expectedProcess, c => c.Excluding(x => x.RelatedEntities));
 
             esProcess.RelatedEntities.Should().ContainSingle(x => x.Id == _process.TargetId);
@@ -190,9 +191,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
             {
                 var processRelatedEntity = _process.RelatedEntities.Find(x => x.Id == relatedEntity.Id);
                 relatedEntity.TargetType.Should().Be(processRelatedEntity.TargetType.ToString());
-                relatedEntity.SubType.Should().Be(processRelatedEntity.SubType.ToString());
+                relatedEntity.SubType.Should().Be(processRelatedEntity.SubType);
                 relatedEntity.Description.Should().BeEquivalentTo(processRelatedEntity.Description);
             }
+
             return true;
         }
 
@@ -214,7 +216,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
-            _mockEsGateway.Verify(x => x.IndexProcess(It.Is<QueryableProcess>(y => VerifyProcessIndexed(y))), Times.Once);
+            _mockEsGateway.Verify(x =>
+                x.IndexProcess(It.Is<QueryableProcess>(y =>
+                VerifyProcessIndexed(y))), Times.Once);
             verifyTargetApiIsCalled.Invoke();
         }
     }

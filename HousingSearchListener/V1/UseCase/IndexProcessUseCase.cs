@@ -13,9 +13,10 @@ using Hackney.Shared.HousingSearch.Domain.Person;
 using HousingSearchApi.V1.Factories;
 using HousingSearchListener.V1.UseCase.Exceptions;
 using Hackney.Shared.Processes.Domain;
-using Process = Hackney.Shared.HousingSearch.Domain.Process.Process;
+using HousingSearchProcess = Hackney.Shared.HousingSearch.Domain.Process.Process;
 using Hackney.Shared.HousingSearch.Factories;
-using HousingSearchListener.V1.Helper;
+using Process = Hackney.Shared.Processes.Domain.Process;
+using Hackney.Shared.Processes.Factories;
 
 namespace HousingSearchListener.V1.UseCase
 {
@@ -44,8 +45,8 @@ namespace HousingSearchListener.V1.UseCase
         [LogCall]
         private async Task<RelatedEntity> GetTargetRelatedEntity(Process process, Guid correlationId)
         {
-            var targetId = Guid.Parse(process.TargetId);
-            switch (Enum.Parse(typeof(TargetType), process.TargetType))
+            var targetId = process.TargetId;
+            switch (process.TargetType)
             {
                 
                 case TargetType.tenure:
@@ -96,17 +97,14 @@ namespace HousingSearchListener.V1.UseCase
 
             // 2. Get target entity from relevant API if necessary
             process.RelatedEntities = process.RelatedEntities ?? new List<RelatedEntity>();
-            if (!process.RelatedEntities.Exists(x => x.Id == Guid.Parse(process.TargetId)))
+            if (!process.RelatedEntities.Exists(x => x.Id == process.TargetId))
             {
                 var targetRelatedEntity = await GetTargetRelatedEntity(process, message.CorrelationId).ConfigureAwait(false);
                 process.RelatedEntities.Add(targetRelatedEntity);
             }
 
             // 3. Update the ES index
-            var esProcess = process.ToDatabase();
-            esProcess.ProcessStartedAt = DateTimeHelpers.SetStartDate(process.ProcessStartedAt).ToString();
-            esProcess.StateStartedAt = DateTimeHelpers.SetStartDate(process.StateStartedAt).ToString();
-
+            var esProcess = process.ToElasticSearch();
             await _esGateway.IndexProcess(esProcess);
         }
 

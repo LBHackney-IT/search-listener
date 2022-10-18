@@ -6,7 +6,6 @@ using Hackney.Shared.Processes.Sns;
 using HousingSearchApi.V1.Factories;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
-using HousingSearchListener.V1.Helper;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
@@ -41,7 +40,7 @@ namespace HousingSearchListener.V1.UseCase
             if (esProcess is null) throw new EntityNotIndexedException<QueryableProcess>(message.EntityId.ToString());
 
             esProcess.State = newState.State;
-            esProcess.StateStartedAt = DateTimeHelpers.SetStartDate(newState.StateStartedAt).ToString();
+            esProcess.StateStartedAt = newState.StateStartedAt.ToString();
 
             await _esGateway.IndexProcess(esProcess);
         }
