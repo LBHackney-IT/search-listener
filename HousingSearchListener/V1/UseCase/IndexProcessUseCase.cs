@@ -48,7 +48,6 @@ namespace HousingSearchListener.V1.UseCase
             var targetId = process.TargetId;
             switch (process.TargetType)
             {
-                
                 case TargetType.tenure:
                     var tenure = await _tenureApiGateway.GetTenureByIdAsync(targetId, correlationId)
                                                         .ConfigureAwait(false);
