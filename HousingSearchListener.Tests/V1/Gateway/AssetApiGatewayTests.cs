@@ -52,7 +52,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
                            .ThrowsAsync(new Exception(exMessage));
 
             var sut = new AssetApiGateway(_mockApiGateway.Object);
-            Func<Task<Asset>> func =
+            Func<Task<Hackney.Shared.HousingSearch.Domain.Asset.Asset>> func =
                 async () => await sut.GetAssetByIdAsync(_id, _correlationId).ConfigureAwait(false);
 
             func.Should().ThrowAsync<Exception>().WithMessage(exMessage);

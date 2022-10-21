@@ -1,11 +1,10 @@
 using Hackney.Shared.Asset.Domain;
-using Hackney.Shared.HousingSearch.Domain.Process;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
-using Hackney.Shared.Processes.Domain;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Domain.Transaction;
@@ -145,8 +144,8 @@ namespace HousingSearchListener.V1.Factories
             };
         }
 
-
-        public QueryableAsset CreateAsset(Asset asset)
+        //Changed this to use Asset from HousingSearch as Contract wasn't need in Asset.Shared
+        public QueryableAsset CreateAsset(Hackney.Shared.HousingSearch.Domain.Asset.Asset asset)
         {
             QueryableAsset queryableAsset = new QueryableAsset();
             QueryableAssetAddress assetAddress = new QueryableAssetAddress();
@@ -154,6 +153,8 @@ namespace HousingSearchListener.V1.Factories
             QueryableAssetCharacteristics assetCharacteristics = new QueryableAssetCharacteristics();
             QueryableAssetManagement assetManagement = new QueryableAssetManagement();
             QueryableAssetLocation assetLocation = new QueryableAssetLocation();
+            QueryableAssetContract assetContract = new QueryableAssetContract();
+            List<QueryableCharges> queryableCharges = new List<QueryableCharges>();
 
             queryableAsset.Id = asset.Id.ToString();
             queryableAsset.AssetId = asset.AssetId;
@@ -203,6 +204,20 @@ namespace HousingSearchListener.V1.Factories
             assetManagement.IsTemporaryAccomodation = asset.AssetManagement.IsTemporaryAccomodation;
 
             queryableAsset.AssetManagement = assetManagement;
+
+            assetContract.Id = asset.Contract.Id;
+            foreach (var charge in asset.Contract.Charges)
+            {
+                QueryableCharges queryableCharge = new QueryableCharges();
+                queryableCharge.Id = charge.Id;
+                queryableCharge.Type = charge.Type;
+                queryableCharge.SubType = charge.SubType;
+                queryableCharge.Frequency = charge.Frequency;
+                queryableCharge.Amount = charge.Amount;
+                queryableCharges.Add(queryableCharge);
+            }
+            assetContract.Charges = queryableCharges;
+            queryableAsset.AssetContract = assetContract;
 
             assetLocation.FloorNo = asset.AssetLocation.FloorNo;
             queryableAsset.AssetLocation = assetLocation;

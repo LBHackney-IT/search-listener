@@ -76,7 +76,7 @@ namespace HousingSearchListener.V1.UseCase
                     var fullAddress = $"{assetAddress.AddressLine1} {assetAddress.AddressLine2} {assetAddress.AddressLine3} {assetAddress.AddressLine4} {assetAddress.PostCode}";
                     return new RelatedEntity
                     {
-                        Id = asset.Id,
+                        Id = Guid.Parse(asset.Id),
                         TargetType = TargetType.asset,
                         Description = fullAddress
                     };

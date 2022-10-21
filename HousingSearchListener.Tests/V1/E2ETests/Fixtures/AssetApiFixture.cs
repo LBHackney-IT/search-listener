@@ -5,7 +5,7 @@ using System;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
-    public class AssetApiFixture : BaseApiFixture<Asset>
+    public class AssetApiFixture : BaseApiFixture<Hackney.Shared.HousingSearch.Domain.Asset.Asset>
     {
         private readonly Fixture _fixture = new Fixture();
 
@@ -29,10 +29,10 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
             // Nothing to do here
         }
 
-        public Asset GivenTheAssetExists(Guid id)
+        public Hackney.Shared.HousingSearch.Domain.Asset.Asset GivenTheAssetExists(Guid id)
         {
-            ResponseObject = _fixture.Build<Asset>()
-                                     .With(x => x.Id, id)
+            ResponseObject = _fixture.Build<Hackney.Shared.HousingSearch.Domain.Asset.Asset>()
+                                     .With(x => x.Id, id.ToString())
                                      .Create();
 
             return ResponseObject;

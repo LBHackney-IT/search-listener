@@ -33,7 +33,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         }
 
         public async Task ThenTheIndexIsUpdatedWithTheAsset(
-            Asset Asset, IElasticClient esClient)
+            Hackney.Shared.HousingSearch.Domain.Asset.Asset Asset, IElasticClient esClient)
         {
             var result = await esClient.GetAsync<QueryableAsset>(Asset.Id, g => g.Index("assets"))
                                        .ConfigureAwait(false);

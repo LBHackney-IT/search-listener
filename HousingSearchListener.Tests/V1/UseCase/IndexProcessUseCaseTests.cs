@@ -98,7 +98,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             switch (targetType)
             {
                 case TargetType.asset:
-                    _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync((Asset)null);
+                    _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync((Hackney.Shared.HousingSearch.Domain.Asset.Asset)null);
                     return (func) =>
                     {
                         func.Should().ThrowAsync<EntityNotFoundException<Asset>>();
@@ -160,7 +160,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             switch (targetType)
             {
                 case TargetType.asset:
-                    var asset = _fixture.Build<Asset>().With(x => x.Id, _process.TargetId).Create();
+                    var asset = _fixture.Build<Hackney.Shared.HousingSearch.Domain.Asset.Asset>().With(x => x.Id, _process.TargetId.ToString()).Create();
                     _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync(asset);
                     return () => _mockAssetApi.Verify(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId), expectedApiCallCount);
 

@@ -156,11 +156,11 @@ namespace HousingSearchListener.Tests.V1.Factories
         public void CreateAssetTest()
         {
 
-            var domainAsset = _fixture.Build<Asset>()
-            .With(x => x.AssetAddress, _fixture.Create<AssetAddress>())
-            .With(x => x.AssetCharacteristics, _fixture.Create<AssetCharacteristics>())
-            .With(x => x.AssetManagement, _fixture.Create<AssetManagement>())
-            .With(x => x.AssetLocation, _fixture.Create<AssetLocation>())
+            var domainAsset = _fixture.Build<Hackney.Shared.HousingSearch.Domain.Asset.Asset>()
+            .With(x => x.AssetAddress, _fixture.Create<Hackney.Shared.HousingSearch.Domain.Asset.AssetAddress>())
+            .With(x => x.AssetCharacteristics, _fixture.Create<Hackney.Shared.HousingSearch.Domain.Asset.AssetCharacteristics>())
+            .With(x => x.AssetManagement, _fixture.Create<Hackney.Shared.HousingSearch.Domain.Asset.AssetManagement>())
+            .With(x => x.AssetLocation, _fixture.Create<Hackney.Shared.HousingSearch.Domain.Asset.AssetLocation>())
             .Create();
 
             var result = _sut.CreateAsset(domainAsset);
