@@ -66,6 +66,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private bool VerifyProcessIndexed(QueryableProcess esProcess)
         {
+            var newData = _message.EventData.NewData as ProcessStateChangeData;
+            esProcess.State.Should().BeEquivalentTo(newData.State);
+            esProcess.StateStartedAt.Should().BeEquivalentTo(newData.StateStartedAt.ToString());
             esProcess.Should().BeEquivalentTo(_process);
             return true;
         }

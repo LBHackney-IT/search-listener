@@ -284,6 +284,7 @@ namespace HousingSearchListener.Tests
             var process = _fixture.Build<QueryableProcess>()
                                   .With(x => x.Id, id.ToString())
                                   .With(x => x.ProcessStartedAt, _fixture.Create<DateTime>().ToString())
+                                  .With(x => x.StateStartedAt, _fixture.Create<DateTime>().ToString())
                                   .Create();
             var request = new IndexRequest<QueryableProcess>(process, IndexNameProcesses);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
