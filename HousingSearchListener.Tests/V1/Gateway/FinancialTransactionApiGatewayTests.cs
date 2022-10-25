@@ -37,7 +37,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public void ConstructorTestInitialisesApiGateway()
         {
             new FinancialTransactionApiGateway(_mockApiGateway.Object);
-            _mockApiGateway.Verify(x => x.Initialise(ApiName, FinancialTransactionUrlKey, FinancialTransactionTokenKey, null),
+            _mockApiGateway.Verify(x => x.Initialise(ApiName, FinancialTransactionUrlKey, FinancialTransactionTokenKey, null, false),
                 Times.Once);
         }
 

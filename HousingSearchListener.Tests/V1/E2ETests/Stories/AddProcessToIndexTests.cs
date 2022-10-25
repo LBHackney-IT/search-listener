@@ -1,10 +1,12 @@
-﻿using Hackney.Shared.HousingSearch.Domain.Process;
+﻿using SharedProcess = Hackney.Shared.HousingSearch.Domain.Process;
+using Hackney.Shared.Processes.Domain;
 using HousingSearchListener.Tests.V1.E2ETests.Fixtures;
 using HousingSearchListener.Tests.V1.E2ETests.Steps;
 using HousingSearchListener.V1.Boundary;
 using System;
 using TestStack.BDDfy;
 using Xunit;
+using Process = Hackney.Shared.Processes.Domain.Process;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Stories
 {
@@ -42,9 +44,9 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
-                _assetApiFixture.Dispose();
-                _tenureApiFixture.Dispose();
-                _personApiFixture.Dispose();
+                _assetApiFixture?.Dispose();
+                _tenureApiFixture?.Dispose();
+                _personApiFixture?.Dispose();
 
                 _disposed = true;
             }

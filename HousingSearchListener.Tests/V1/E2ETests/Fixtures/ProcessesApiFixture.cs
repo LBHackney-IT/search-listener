@@ -1,7 +1,10 @@
 ﻿using AutoFixture;
 using Hackney.Core.Testing.Shared.E2E;
 using Hackney.Shared.HousingSearch.Domain.Process;
+using Hackney.Shared.Processes.Domain;
 using System;
+using Process = Hackney.Shared.Processes.Domain.Process;
+
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {

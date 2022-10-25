@@ -5,6 +5,7 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
+using Hackney.Shared.Processes.Domain;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Domain.Transaction;
@@ -207,55 +208,6 @@ namespace HousingSearchListener.V1.Factories
             queryableAsset.AssetLocation = assetLocation;
 
             return queryableAsset;
-        }
-
-        // Processes
-
-        private QueryablePatchAssignment CreateQueryablePatchAssignment(PatchAssignment patchAssignment)
-        {
-            if (patchAssignment is null) return null;
-
-            return new QueryablePatchAssignment
-            {
-                PatchId = patchAssignment.PatchId,
-                PatchName = patchAssignment.PatchName,
-                ResponsibleEntityId = patchAssignment.ResponsibleEntityId,
-                ResponsibleName = patchAssignment.ResponsibleName
-            };
-        }
-
-        private List<QueryableRelatedEntity> CreateQueryableRelatedEntities(List<RelatedEntity> relatedEntities)
-        {
-            return relatedEntities.Select(x => new QueryableRelatedEntity
-            {
-                Id = x.Id.ToString(),
-                TargetType = x.TargetType.ToString(),
-                SubType = x.SubType.ToString(),
-                Description = x.Description
-            }).ToList();
-        }
-
-        private string GetCreatedAt(Process process)
-        {
-            if (process.PreviousStates is null || process.PreviousStates.Count == 0)
-                return process.CurrentState?.CreatedAt.ToString();
-
-            return process.PreviousStates.Min(x => x.CreatedAt).ToString();
-        }
-
-        public QueryableProcess CreateProcess(Process process)
-        {
-            return new QueryableProcess
-            {
-                Id = process.Id.ToString(),
-                TargetId = process.TargetId.ToString(),
-                TargetType = process.TargetType.ToString(),
-                ProcessName = process.ProcessName.ToString(),
-                State = process.CurrentState?.State,
-                PatchAssignment = CreateQueryablePatchAssignment(process.PatchAssignment),
-                CreatedAt = GetCreatedAt(process),
-                RelatedEntities = process.RelatedEntities is null ? new List<QueryableRelatedEntity>() : CreateQueryableRelatedEntities(process.RelatedEntities)
-            };
         }
     }
 }

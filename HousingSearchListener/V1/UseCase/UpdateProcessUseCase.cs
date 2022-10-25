@@ -2,6 +2,7 @@
 using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Process;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
+using Hackney.Shared.Processes.Sns;
 using HousingSearchApi.V1.Factories;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
@@ -39,6 +40,7 @@ namespace HousingSearchListener.V1.UseCase
             if (esProcess is null) throw new EntityNotIndexedException<QueryableProcess>(message.EntityId.ToString());
 
             esProcess.State = newState.State;
+            esProcess.StateStartedAt = newState.StateStartedAt.ToString();
 
             await _esGateway.IndexProcess(esProcess);
         }
