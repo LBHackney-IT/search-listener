@@ -24,9 +24,9 @@
     <PackageReference Include="Hackney.Core.Http" Version="1.70.0" />
     <PackageReference Include="Hackney.Core.Logging" Version="1.30.0" />
     <PackageReference Include="Hackney.Core.Sns" Version="1.52.0" />
-    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.54.0-feat-mttl-3427-0001" />
+    <PackageReference Include="Hackney.Shared.HousingSearch" Version="0.59.0" />
     <PackageReference Include="Hackney.Shared.Asset" Version="0.15.0" />
-    <PackageReference Include="Hackney.Shared.Processes" Version="0.7.0-feat-mttl-3434-0004" />
+    <PackageReference Include="Hackney.Shared.Processes" Version="0.7.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />

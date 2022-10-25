@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 using Process = Hackney.Shared.Processes.Domain.Process;
+using RelatedEntity = Hackney.Shared.Processes.Domain.RelatedEntity;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
@@ -143,16 +144,16 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
             if (_eventType == EventTypes.ProcessStartedEvent)
             {
-                processInIndex.RelatedEntities.Should().ContainSingle(x => x.Id == _process.TargetId);
-                processInIndex.RelatedEntities.RemoveAll(x => x.Id == _process.TargetId);
+                processInIndex.RelatedEntities.Should().ContainSingle(x => x.Id == _process.TargetId.ToString());
+                processInIndex.RelatedEntities.RemoveAll(x => x.Id == _process.TargetId.ToString());
 
                 foreach (var relatedEntity in processInIndex.RelatedEntities)
                 {
-                    var processRelatedEntity = expectedProcess.RelatedEntities.Find(x => x.Id == relatedEntity.Id);
+                    var processRelatedEntity = expectedProcess.RelatedEntities.Find(x => x.Id == Guid.Parse(relatedEntity.Id));
                     processRelatedEntity.Should().NotBeNull();
 
                     relatedEntity.TargetType.Should().BeEquivalentTo(processRelatedEntity.TargetType.ToString());
-                    relatedEntity.SubType.Should().BeEquivalentTo(processRelatedEntity.SubType);
+                    relatedEntity.SubType.Should().BeEquivalentTo(processRelatedEntity.SubType?.ToString());
                     relatedEntity.Description.Should().BeEquivalentTo(processRelatedEntity.Description);
                 }
             }
