@@ -32,7 +32,7 @@ namespace HousingSearchListener.V1.UseCase
             // 1. Get Asset from Asset service API
             var asset = await _assetApiGateway.GetAssetByIdAsync(message.EntityId, message.CorrelationId)
                                          .ConfigureAwait(false);
-            if (asset is null) throw new EntityNotFoundException<Asset>(message.EntityId);
+            if (asset is null) throw new EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>(message.EntityId);
 
             // 2. Update the ES index
             var esAsset = await _esGateway.GetAssetById(asset.Id.ToString()).ConfigureAwait(false);

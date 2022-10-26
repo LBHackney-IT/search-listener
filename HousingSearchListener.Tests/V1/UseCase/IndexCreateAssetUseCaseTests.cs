@@ -89,7 +89,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                                        .ReturnsAsync((Hackney.Shared.HousingSearch.Domain.Asset.Asset)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<EntityNotFoundException<Asset>>();
+            func.Should().ThrowAsync<EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>>();
         }
 
         [Fact]

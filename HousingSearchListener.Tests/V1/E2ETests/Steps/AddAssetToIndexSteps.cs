@@ -28,8 +28,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public void ThenAnAssetNotFoundExceptionIsThrown(Guid id)
         {
             _lastException.Should().NotBeNull();
-            _lastException.Should().BeOfType(typeof(EntityNotFoundException<Asset>));
-            (_lastException as EntityNotFoundException<Asset>).Id.Should().Be(id);
+            _lastException.Should().BeOfType(typeof(EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>));
+            (_lastException as EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>).Id.Should().Be(id);
         }
 
         public async Task ThenTheIndexIsUpdatedWithTheAsset(

@@ -122,7 +122,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                     ThenAnEntityNotFoundExceptionIsThrown<Person>(id);
                     break;
                 case TargetType.asset:
-                    ThenAnEntityNotFoundExceptionIsThrown<Asset>(id);
+                    ThenAnEntityNotFoundExceptionIsThrown<Hackney.Shared.HousingSearch.Domain.Asset.Asset>(id);
                     break;
             }
         }

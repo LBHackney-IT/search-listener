@@ -102,7 +102,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                     _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync((Hackney.Shared.HousingSearch.Domain.Asset.Asset)null);
                     return (func) =>
                     {
-                        func.Should().ThrowAsync<EntityNotFoundException<Asset>>();
+                        func.Should().ThrowAsync<EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>>();
                         _mockAssetApi.Verify(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId), Times.Once());
                     };
 

@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Hackney.Core.Http;
+using Hackney.Shared.Asset.Boundary.Response;
 using Hackney.Shared.Asset.Domain;
 using HousingSearchListener.V1.Gateway;
 using Moq;
@@ -48,7 +49,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public void GetAssetByIdAsyncGetExceptionThrown()
         {
             var exMessage = "This is an exception";
-            _mockApiGateway.Setup(x => x.GetByIdAsync<Asset>(Route, _id, _correlationId))
+            _mockApiGateway.Setup(x => x.GetByIdAsync<Hackney.Shared.HousingSearch.Domain.Asset.Asset>(Route, _id, _correlationId))
                            .ThrowsAsync(new Exception(exMessage));
 
             var sut = new AssetApiGateway(_mockApiGateway.Object);
@@ -70,9 +71,9 @@ namespace HousingSearchListener.Tests.V1.Gateway
         [Fact]
         public async Task GetAssetByIdAsyncCallReturnsAsset()
         {
-            var Asset = new Fixture().Create<Asset>();
+            var Asset = new Fixture().Create<Hackney.Shared.HousingSearch.Domain.Asset.Asset>();
 
-            _mockApiGateway.Setup(x => x.GetByIdAsync<Asset>(Route, _id, _correlationId))
+            _mockApiGateway.Setup(x => x.GetByIdAsync<Hackney.Shared.HousingSearch.Domain.Asset.Asset>(Route, _id, _correlationId))
                            .ReturnsAsync(Asset);
 
             var sut = new AssetApiGateway(_mockApiGateway.Object);
