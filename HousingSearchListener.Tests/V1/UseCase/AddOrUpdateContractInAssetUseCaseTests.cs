@@ -29,7 +29,6 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly AddOrUpdateContractInAssetUseCase _sut;
 
         private readonly EntityEventSns _messageCreated;
-        private readonly EntityEventSns _messageUpdated;
         private readonly EntityEventSns _messageAsset;
         private readonly Hackney.Shared.HousingSearch.Domain.Asset.Asset _Asset;
         private readonly Contract _Contract;
@@ -42,6 +41,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _fixture = new Fixture();
 
             _mockAssetApi = new Mock<IAssetApiGateway>();
+            _mockContractApi = new Mock<IContractApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
             _esEntityFactory = new ESEntityFactory();
             _sut = new AddOrUpdateContractInAssetUseCase(_mockEsGateway.Object,
@@ -49,7 +49,6 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             _messageAsset = CreateAssetMessage();
             _messageCreated = CreateContractCreatedEventMessage();
-            _messageUpdated = CreateContractUpdatedEventMessage();
             _Asset = CreateAsset(_messageAsset.EntityId);
             _Contract = CreateContract(_messageCreated.EntityId);
         }
@@ -63,14 +62,6 @@ namespace HousingSearchListener.Tests.V1.UseCase
         }
 
         private EntityEventSns CreateContractCreatedEventMessage(string eventType = EventTypes.ContractCreatedEvent)
-        {
-            return _fixture.Build<EntityEventSns>()
-                           .With(x => x.EventType, eventType)
-                           .With(x => x.CorrelationId, _correlationId)
-                           .Create();
-        }
-
-        private EntityEventSns CreateContractUpdatedEventMessage(string eventType = EventTypes.ContractUpdatedEvent)
         {
             return _fixture.Build<EntityEventSns>()
                            .With(x => x.EventType, eventType)
@@ -94,12 +85,12 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private Guid? SetMessageEventData(Hackney.Shared.HousingSearch.Domain.Asset.Asset asset, EntityEventSns message, bool hasChanges, Contract added = null)
         {
-            var oldData = asset.Contract;
+            var oldData = asset;
             var newData = oldData.DeepClone();
             message.EventData = new EventData()
             {
-                OldData = new Dictionary<string, object> { { "contract", oldData } },
-                NewData = new Dictionary<string, object> { { "contract", newData } }
+                OldData = new Dictionary<string, object> { { "asset", oldData } },
+                NewData = new Dictionary<string, object> { { "asset", newData } }
             };
 
             Guid? contractId = null;
@@ -108,7 +99,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                 if (added is null)
                 {
                     var changed = newData;
-                    changed.Charges.First().Amount = 90;
+                    changed.Contract.Charges.First().Amount = 90;
                     contractId = Guid.Parse(changed.Id);
                 }
                 else
@@ -121,7 +112,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                         queryableCharge.SubType = charge.SubType;
                         queryableCharge.Frequency = charge.Frequency;
                         queryableCharge.Amount = charge.Amount;
-                        newData.Charges.ToList().Add(queryableCharge);
+                        newData.Contract.Charges.ToList().Add(queryableCharge);
                     }
 
                     contractId = Guid.Parse(added.Id);
@@ -193,7 +184,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_messageCreated).ConfigureAwait(false);
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
 
-            _mockEsGateway.Verify(x => x.IndexAsset(It.Is<QueryableAsset>(y => VerifyAssetIndexed(y))), Times.Once);
+            _mockEsGateway.Verify(x => x.IndexAsset(It.Is<QueryableAsset>(y => VerifyAssetIndexed(y))), Times.Never);
         }
     }
 }
