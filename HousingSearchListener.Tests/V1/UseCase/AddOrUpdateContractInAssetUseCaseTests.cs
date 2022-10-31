@@ -1,13 +1,17 @@
 ﻿using AutoFixture;
 using FluentAssertions;
+using Force.DeepCloner;
 using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Contract;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
+using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -88,9 +92,61 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
-        private bool VerifyContractIndexed(Contract esContract)
+        private Guid? SetMessageEventData(Hackney.Shared.HousingSearch.Domain.Asset.Asset asset, EntityEventSns message, bool hasChanges, Contract added = null)
         {
-            //esContract.Should().BeEquivalentTo(_esEntityFactory.CreateContract(_Contract));
+            var oldData = asset.Contract;
+            var newData = oldData.DeepClone();
+            message.EventData = new EventData()
+            {
+                OldData = new Dictionary<string, object> { { "contract", oldData } },
+                NewData = new Dictionary<string, object> { { "contract", newData } }
+            };
+
+            Guid? contractId = null;
+            if (hasChanges)
+            {
+                if (added is null)
+                {
+                    var changed = newData;
+                    changed.Charges.First().Amount = 90;
+                    contractId = Guid.Parse(changed.Id);
+                }
+                else
+                {
+                    foreach (var charge in added.Charges)
+                    {
+                        Charges queryableCharge = new Charges();
+                        queryableCharge.Id = charge.Id;
+                        queryableCharge.Type = charge.Type;
+                        queryableCharge.SubType = charge.SubType;
+                        queryableCharge.Frequency = charge.Frequency;
+                        queryableCharge.Amount = charge.Amount;
+                        newData.Charges.ToList().Add(queryableCharge);
+                    }
+
+                    contractId = Guid.Parse(added.Id);
+                }
+            }
+            return contractId;
+        }
+
+        private bool VerifyAssetIndexed(QueryableAsset esAsset)
+        {
+            esAsset.Should().BeEquivalentTo(_esEntityFactory.CreateAsset(_Asset));
+            return true;
+        }
+
+
+        private bool VerifyContractIndexed(QueryableAsset esAsset, Contract contract, Hackney.Shared.HousingSearch.Domain.Asset.Asset asset)
+        {
+            esAsset.Should().BeEquivalentTo(_esEntityFactory.CreateAsset(asset));
+
+            var newContract = esAsset.AssetContract;
+            newContract.Should().NotBeNull();
+            newContract.TargetId.Should().Be(contract.TargetId);
+            newContract.TargetType.Should().Be(contract.TargetType);
+            newContract.Charges.Should().AllBeEquivalentTo(contract.Charges);
+
             return true;
         }
 
@@ -101,5 +157,43 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<ArgumentNullException>();
         }
 
+        [Fact]
+        public void ProcessMessageAsyncTestGetContractExceptionThrown()
+        {
+            var exMsg = "This is an error";
+            _mockContractApi.Setup(x => x.GetContractByIdAsync(_messageCreated.EntityId, _messageCreated.CorrelationId))
+                                       .ThrowsAsync(new Exception(exMsg));
+
+            Func<Task> func = async () => await _sut.ProcessMessageAsync(_messageCreated).ConfigureAwait(false);
+            func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
+        }
+
+        [Fact]
+        public void ProcessMessageAsyncTestGetContractReturnsNullThrows()
+        {
+            _mockContractApi.Setup(x => x.GetContractByIdAsync(_messageCreated.EntityId, _messageCreated.CorrelationId))
+                                       .ReturnsAsync((Contract)null);
+
+            Func<Task> func = async () => await _sut.ProcessMessageAsync(_messageCreated).ConfigureAwait(false);
+            func.Should().ThrowAsync<EntityNotFoundException<Contract>>();
+        }
+
+        [Fact]
+        public void ProcessMessageAsyncTestIndexContractExceptionThrows()
+        {
+            var assetId = SetMessageEventData(_Asset, _messageAsset, true);
+            var asset = CreateAsset(assetId.Value);
+
+            _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_messageAsset.EntityId, _messageAsset.CorrelationId))
+                                       .ReturnsAsync(asset);
+            var exMsg = "This is the last error";
+            _mockEsGateway.Setup(x => x.IndexAsset(It.IsAny<QueryableAsset>()))
+                          .ThrowsAsync(new Exception(exMsg));
+
+            Func<Task> func = async () => await _sut.ProcessMessageAsync(_messageCreated).ConfigureAwait(false);
+            func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
+
+            _mockEsGateway.Verify(x => x.IndexAsset(It.Is<QueryableAsset>(y => VerifyAssetIndexed(y))), Times.Once);
+        }
     }
 }
