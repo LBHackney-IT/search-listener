@@ -166,7 +166,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                                        .ReturnsAsync((Contract)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_messageCreated).ConfigureAwait(false);
-            func.Should().ThrowAsync<EntityNotFoundException<Contract>>();
+            func.Should().ThrowAsync<ArgumentException>();
         }
 
         [Fact]
