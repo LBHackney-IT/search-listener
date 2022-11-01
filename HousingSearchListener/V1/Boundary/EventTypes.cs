@@ -21,5 +21,8 @@
         public const string ProcessUpdatedEvent = "ProcessUpdatedEvent";
         public const string ProcessClosedEvent = "ProcessClosedEvent";
         public const string ProcessCompletedEvent = "ProcessCompletedEvent";
+
+        public const string ContractCreatedEvent = "ContractCreatedEvent";
+        public const string ContractUpdatedEvent = "ContractUpdatedEvent";
     }
 }

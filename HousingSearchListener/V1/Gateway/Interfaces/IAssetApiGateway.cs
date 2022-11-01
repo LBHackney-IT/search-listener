@@ -6,6 +6,6 @@ namespace HousingSearchListener.V1.Gateway.Interfaces
 {
     public interface IAssetApiGateway
     {
-        Task<Asset> GetAssetByIdAsync(Guid entityId, Guid correlationId);
+        Task<Hackney.Shared.HousingSearch.Domain.Asset.Asset> GetAssetByIdAsync(Guid entityId, Guid correlationId);
     }
 }

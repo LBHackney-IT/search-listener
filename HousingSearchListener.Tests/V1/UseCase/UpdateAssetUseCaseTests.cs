@@ -24,7 +24,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly UpdateAssetUseCase _sut;
 
         private readonly EntityEventSns _message;
-        private readonly Asset _Asset;
+        private readonly Hackney.Shared.HousingSearch.Domain.Asset.Asset _Asset;
 
         private readonly Fixture _fixture;
         private static readonly Guid _correlationId = Guid.NewGuid();
@@ -51,10 +51,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
-        private Asset CreateAsset(Guid entityId)
+        private Hackney.Shared.HousingSearch.Domain.Asset.Asset CreateAsset(Guid entityId)
         {
-            return _fixture.Build<Asset>()
-                           .With(x => x.Id, entityId)
+            return _fixture.Build<Hackney.Shared.HousingSearch.Domain.Asset.Asset>()
+                           .With(x => x.Id, entityId.ToString())
                            .Create();
         }
 
@@ -86,10 +86,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ProcessMessageAsyncTestGetAssetReturnsNullThrows()
         {
             _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ReturnsAsync((Asset)null);
+                                       .ReturnsAsync((Hackney.Shared.HousingSearch.Domain.Asset.Asset)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<EntityNotFoundException<Asset>>();
+            func.Should().ThrowAsync<EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>>();
         }
 
         [Fact]

@@ -70,13 +70,13 @@ namespace HousingSearchListener.V1.UseCase
                     };
                 case TargetType.asset:
                     var asset = await _assetApiGateway.GetAssetByIdAsync(targetId, correlationId).ConfigureAwait(false);
-                    if (asset is null) throw new EntityNotFoundException<Asset>(targetId);
+                    if (asset is null) throw new EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>(targetId);
 
                     var assetAddress = asset.AssetAddress;
                     var fullAddress = $"{assetAddress.AddressLine1} {assetAddress.AddressLine2} {assetAddress.AddressLine3} {assetAddress.AddressLine4} {assetAddress.PostCode}";
                     return new RelatedEntity
                     {
-                        Id = asset.Id,
+                        Id = Guid.Parse(asset.Id),
                         TargetType = TargetType.asset,
                         Description = fullAddress
                     };

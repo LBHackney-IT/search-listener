@@ -1,19 +1,20 @@
 ﻿using AutoFixture;
 using Hackney.Core.Testing.Shared.E2E;
 using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.HousingSearch.Domain.Contract;
 using System;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
-    public class AssetApiFixture : BaseApiFixture<Hackney.Shared.HousingSearch.Domain.Asset.Asset>
+    public class ContractApiFixture : BaseApiFixture<Contract>
     {
         private readonly Fixture _fixture = new Fixture();
 
-        public AssetApiFixture()
-            : base(FixtureConstants.AssetApiRoute, FixtureConstants.AssetApiToken)
+        public ContractApiFixture()
+            : base(FixtureConstants.ContractsApiRoute, FixtureConstants.ContractsApiToken)
         {
-            Environment.SetEnvironmentVariable("AssetApiUrl", FixtureConstants.AssetApiRoute);
-            Environment.SetEnvironmentVariable("AssetApiToken", FixtureConstants.AssetApiToken);
+            Environment.SetEnvironmentVariable("ContractApiUrl", FixtureConstants.ContractsApiRoute);
+            Environment.SetEnvironmentVariable("ContracttApiToken", FixtureConstants.ContractsApiToken);
         }
 
         protected override void Dispose(bool disposing)
@@ -24,14 +25,14 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
             }
         }
 
-        public void GivenTheAssetDoesNotExist(Guid id)
+        public void GivenTheContractDoesNotExist(Guid id)
         {
             // Nothing to do here
         }
 
-        public Hackney.Shared.HousingSearch.Domain.Asset.Asset GivenTheAssetExists(Guid id)
+        public Contract GivenTheContractExists(Guid id)
         {
-            ResponseObject = _fixture.Build<Hackney.Shared.HousingSearch.Domain.Asset.Asset>()
+            ResponseObject = _fixture.Build<Contract>()
                                      .With(x => x.Id, id.ToString())
                                      .Create();
 

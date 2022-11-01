@@ -289,6 +289,21 @@ namespace HousingSearchListener.Tests
             var request = new IndexRequest<QueryableProcess>(process, IndexNameProcesses);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
         }
+
+        public async Task GivenAContractIsIndexed(string assetId, string contractId)
+        {
+            var esAssetContract = _fixture.Build<QueryableAssetContract>()
+                                        .With(x => x.Id, contractId)
+                                        .Create();
+            var esAsset = _fixture.Build<QueryableAsset>()
+                                  .With(x => x.Id, assetId)
+                                  .With(x => x.AssetId, assetId)
+                                  .With(x => x.AssetContract, esAssetContract)
+                                  .Create();
+            var request = new IndexRequest<QueryableAsset>(esAsset, IndexNameAssets);
+            await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
+            AssetInIndex = esAsset;
+        }
     }
 
     [CollectionDefinition("ElasticSearch collection", DisableParallelization = true)]

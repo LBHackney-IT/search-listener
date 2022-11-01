@@ -19,6 +19,6 @@ namespace HousingSearchListener.V1.Factories
         List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers);
         QueryableAssetTenure CreateAssetQueryableTenure(TenureInformation tenure);
         QueryableTransaction CreateQueryableTransaction(TransactionResponseObject transaction);
-        QueryableAsset CreateAsset(Asset asset);
+        QueryableAsset CreateAsset(Hackney.Shared.HousingSearch.Domain.Asset.Asset asset);
     }
 }
