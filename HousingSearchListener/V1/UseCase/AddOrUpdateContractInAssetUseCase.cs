@@ -47,7 +47,8 @@ namespace HousingSearchListener.V1.UseCase
             var assetId = Guid.Parse(contract.TargetId);
             var asset = await _assetApiGateway.GetAssetByIdAsync(assetId, message.CorrelationId)
                                                 .ConfigureAwait(false);
-            if (asset is null) throw new EntityNotFoundException<Asset>(assetId);
+            if (asset is null)
+                throw new ArgumentException($"No asset found through api with id: {asset.Id}");
 
             //Remove all charges and re-add
             asset.Contract.Charges = null;
