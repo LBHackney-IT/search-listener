@@ -36,7 +36,7 @@ namespace HousingSearchListener.V1.UseCase
 
             // 2. Update the ES index
             var esAsset = await _esGateway.GetAssetById(asset.Id.ToString()).ConfigureAwait(false);
-            if(esAsset is null)
+            if (esAsset is null)
                 throw new ArgumentException($"No asset found in index with id: {asset.Id}");
             esAsset = _esAssetFactory.CreateAsset(asset);
 
