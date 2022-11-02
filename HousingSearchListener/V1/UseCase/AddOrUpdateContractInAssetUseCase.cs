@@ -52,7 +52,7 @@ namespace HousingSearchListener.V1.UseCase
                                                 .ConfigureAwait(false);
             if (asset is null)
                 throw new EntityNotFoundException<Contract>(assetId);
-            
+
 
             //Remove all charges and re-add
             asset.Contract.Charges = null;
