@@ -6,6 +6,7 @@ using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,18 +15,20 @@ namespace HousingSearchListener.V1.UseCase
 {
     public class AddOrUpdateContractInAssetUseCase : IAddOrUpdateContractInAssetUseCase
     {
+        private readonly ILogger<AddOrUpdateContractInAssetUseCase> _logger;
         private readonly IEsGateway _esGateway;
         private readonly IContractApiGateway _contractApiGateway;
         private readonly IAssetApiGateway _assetApiGateway;
         private readonly IESEntityFactory _esEntityFactory;
 
         public AddOrUpdateContractInAssetUseCase(IEsGateway esGateway, IContractApiGateway contractApiGateway,
-            IAssetApiGateway assetApiGateway, IESEntityFactory esEntityFactory)
+            IAssetApiGateway assetApiGateway, IESEntityFactory esEntityFactory, ILogger<AddOrUpdateContractInAssetUseCase> logger)
         {
             _esGateway = esGateway;
             _contractApiGateway = contractApiGateway;
             _assetApiGateway = assetApiGateway;
             _esEntityFactory = esEntityFactory;
+            _logger = logger;
         }
 
         [LogCall]
@@ -41,14 +44,15 @@ namespace HousingSearchListener.V1.UseCase
             // 2. Determine the Contract is for an Asset.
             if (!contract.TargetType.ToLower().Equals("asset"))
                 throw new ArgumentException($"No charges of Types asset found for contract id: {contract.Id}");
-
+            _logger.LogInformation($"Charges for contract {contract.Id} found. Now fetching Asset {contract.TargetId}");
 
             // 3. Get Added person from Person service API
             var assetId = Guid.Parse(contract.TargetId);
             var asset = await _assetApiGateway.GetAssetByIdAsync(assetId, message.CorrelationId)
                                                 .ConfigureAwait(false);
             if (asset is null)
-                throw new ArgumentException($"No asset found through api with id: {asset.Id}");
+                throw new EntityNotFoundException<Contract>(assetId);
+            
 
             //Remove all charges and re-add
             asset.Contract.Charges = null;

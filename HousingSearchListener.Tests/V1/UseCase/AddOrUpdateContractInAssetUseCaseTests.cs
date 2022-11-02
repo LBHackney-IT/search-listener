@@ -8,6 +8,7 @@ using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private readonly Fixture _fixture;
         private static readonly Guid _correlationId = Guid.NewGuid();
+        private Mock<ILogger<AddOrUpdateContractInAssetUseCase>> _loggerMock;
 
         public AddOrUpdateContractInAssetUseCaseTests()
         {
@@ -44,8 +46,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockContractApi = new Mock<IContractApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
             _esEntityFactory = new ESEntityFactory();
+            _loggerMock = new Mock<ILogger<AddOrUpdateContractInAssetUseCase>>();
             _sut = new AddOrUpdateContractInAssetUseCase(_mockEsGateway.Object,
-                _mockContractApi.Object, _mockAssetApi.Object, _esEntityFactory);
+                _mockContractApi.Object, _mockAssetApi.Object, _esEntityFactory, _loggerMock.Object);
 
             _messageAsset = CreateAssetMessage();
             _messageCreated = CreateContractCreatedEventMessage();
@@ -156,7 +159,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                                        .ThrowsAsync(new Exception(exMsg));
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_messageCreated).ConfigureAwait(false);
-            func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
+            func.Should().ThrowAsync<EntityNotFoundException<Contract>>();
         }
 
         [Fact]
