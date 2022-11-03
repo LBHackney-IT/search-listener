@@ -13,6 +13,7 @@ using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Threading.Tasks;
@@ -29,6 +30,8 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly Mock<IPersonApiGateway> _mockPersonApi;
         private readonly Mock<ITenureApiGateway> _mockTenureApi;
         private readonly Mock<IAssetApiGateway> _mockAssetApi;
+        private readonly Mock<ILogger<IndexProcessUseCase>> _mockLogger;
+
 
         private readonly Mock<IEsGateway> _mockEsGateway;
         private readonly IESEntityFactory _esEntityFactory;
@@ -47,6 +50,8 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockPersonApi = new Mock<IPersonApiGateway>();
             _mockTenureApi = new Mock<ITenureApiGateway>();
             _mockAssetApi = new Mock<IAssetApiGateway>();
+            _mockLogger = new Mock<ILogger<IndexProcessUseCase>>();
+
 
             _mockEsGateway = new Mock<IEsGateway>();
             _esEntityFactory = new ESEntityFactory();
@@ -54,7 +59,8 @@ namespace HousingSearchListener.Tests.V1.UseCase
                                            _mockTenureApi.Object,
                                            _mockPersonApi.Object,
                                            _mockAssetApi.Object,
-                                           _esEntityFactory);
+                                           _esEntityFactory,
+                                           _mockLogger.Object);
 
             _message = CreateMessage();
             _process = CreateProcess(_message.EntityId);
