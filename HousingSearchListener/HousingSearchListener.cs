@@ -87,7 +87,6 @@ namespace HousingSearchListener
             context.Logger.LogLine($"Processing message {message.MessageId}");
 
             var entityEvent = JsonSerializer.Deserialize<EntityEventSns>(message.Body, _jsonOptions);
-            context.Logger.LogLine($"Entity Event Sns {entityEvent}");
 
             using (Logger.BeginScope("CorrelationId: {CorrelationId}", entityEvent.CorrelationId))
             {
