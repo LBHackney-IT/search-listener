@@ -21,7 +21,6 @@ using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 using Nest;
 using Stateless.Graph;
 using System.Linq;
-using Microsoft.Extensions.Logging;
 
 namespace HousingSearchListener.V1.UseCase
 {
@@ -32,22 +31,19 @@ namespace HousingSearchListener.V1.UseCase
         private readonly IPersonApiGateway _personApiGateway;
         private readonly IAssetApiGateway _assetApiGateway;
         private readonly IESEntityFactory _esProcessesFactory;
-        private readonly ILogger<IndexProcessUseCase> _logger;
 
 
         public IndexProcessUseCase(IEsGateway esGateway,
                                    ITenureApiGateway tenureApiGateway,
                                    IPersonApiGateway personApiGateway,
                                    IAssetApiGateway assetApiGateway,
-                                   IESEntityFactory esProcessesFactory,
-                                   ILogger<IndexProcessUseCase> logger)
+                                   IESEntityFactory esProcessesFactory)
         {
             _esGateway = esGateway;
             _tenureApiGateway = tenureApiGateway;
             _personApiGateway = personApiGateway;
             _assetApiGateway = assetApiGateway;
             _esProcessesFactory = esProcessesFactory;
-            _logger = logger;
         }
 
 
@@ -112,7 +108,6 @@ namespace HousingSearchListener.V1.UseCase
             }
 
             // 3. Update the ES index
-            _logger.LogDebug($"Process is {process}");
             var esProcess = ToElasticSearchLocal(process);
             await _esGateway.IndexProcess(esProcess);
         }
