@@ -112,8 +112,9 @@ namespace HousingSearchListener.V1.UseCase
             }
 
             // 3. Update the ES index
-            _logger.LogDebug($"Process is {process}");
+            _logger.LogInformation($"Process is {process}");
             var esProcess = ToElasticSearchLocal(process);
+            _logger.LogInformation($"esProcess is {esProcess}");
             await _esGateway.IndexProcess(esProcess);
         }
 
