@@ -61,6 +61,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         {
             var AssetId = Guid.NewGuid();
             this.Given(g => _AssetApiFixture.GivenTheAssetExists(AssetId))
+                .When(w => _steps.WhenTheFunctionIsTriggered(AssetId, EventTypes.AssetCreatedEvent))
                 .When(w => _steps.WhenTheFunctionIsTriggered(AssetId, EventTypes.AssetUpdatedEvent))
                 .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_AssetApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenTheIndexIsUpdatedWithTheAsset(_AssetApiFixture.ResponseObject, _esFixture.ElasticSearchClient))

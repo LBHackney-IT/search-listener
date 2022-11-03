@@ -2,6 +2,7 @@
 using Hackney.Core.Sns;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Contract;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
@@ -55,25 +56,13 @@ namespace HousingSearchListener.V1.UseCase
 
 
             //Remove all charges and re-add
-            asset.Contract.Charges = null;
-
-            foreach (var charge in contract.Charges)
-            {
-                var newCharge = new Charges();
-                newCharge.Id = charge.Id;
-                newCharge.Type = charge.Type;
-                newCharge.SubType = charge.SubType;
-                newCharge.Frequency = charge.Frequency;
-                newCharge.Amount = charge.Amount;
-
-                asset.Contract.Charges.ToList().Add(newCharge);
-            }
+            asset.AssetContract.Charges = contract.Charges;
 
             // 4. Update the indexes
             await UpdateAssetIndexAsync(asset);
         }
 
-        private async Task UpdateAssetIndexAsync(Hackney.Shared.HousingSearch.Domain.Asset.Asset asset)
+        private async Task UpdateAssetIndexAsync(QueryableAsset asset)
         {
             var esAsset = _esEntityFactory.CreateAsset(asset);
             await _esGateway.IndexAsset(esAsset);

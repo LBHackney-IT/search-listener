@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31313.79
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HousingSearchListener", "HousingSearchListener\HousingSearchListener.csproj", "{4753BB6E-C0E5-4E26-81B3-005C203B7F7C}"
 EndProject
@@ -37,6 +37,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CircleCi", "CircleCi", "{17
 		.circleci\config.yml = .circleci\config.yml
 	EndProjectSection
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{43067BC5-228F-4CAC-A225-485E943D5450}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{3DC2B780-B341-406B-9E34-603C567F3F8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DC2B780-B341-406B-9E34-603C567F3F8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DC2B780-B341-406B-9E34-603C567F3F8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43067BC5-228F-4CAC-A225-485E943D5450}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43067BC5-228F-4CAC-A225-485E943D5450}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43067BC5-228F-4CAC-A225-485E943D5450}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43067BC5-228F-4CAC-A225-485E943D5450}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 using Process = Hackney.Shared.Processes.Domain.Process;
 using RelatedEntity = Hackney.Shared.Processes.Domain.RelatedEntity;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
@@ -122,7 +123,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                     ThenAnEntityNotFoundExceptionIsThrown<Person>(id);
                     break;
                 case TargetType.asset:
-                    ThenAnEntityNotFoundExceptionIsThrown<Hackney.Shared.HousingSearch.Domain.Asset.Asset>(id);
+                    ThenAnEntityNotFoundExceptionIsThrown<QueryableAsset>(id);
                     break;
             }
         }

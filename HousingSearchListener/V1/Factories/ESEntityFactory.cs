@@ -145,7 +145,7 @@ namespace HousingSearchListener.V1.Factories
         }
 
         //Changed this to use Asset from HousingSearch as Contract wasn't need in Asset.Shared
-        public QueryableAsset CreateAsset(Hackney.Shared.HousingSearch.Domain.Asset.Asset asset)
+        public QueryableAsset CreateAsset(QueryableAsset asset)
         {
             QueryableAsset queryableAsset = new QueryableAsset();
             QueryableAssetAddress assetAddress = new QueryableAssetAddress();
@@ -205,8 +205,8 @@ namespace HousingSearchListener.V1.Factories
 
             queryableAsset.AssetManagement = assetManagement;
 
-            assetContract.Id = asset.Contract.Id;
-            foreach (var charge in asset.Contract.Charges)
+            assetContract.Id = asset.AssetContract.Id;
+            foreach (var charge in asset.AssetContract.Charges)
             {
                 QueryableCharges queryableCharge = new QueryableCharges();
                 queryableCharge.Id = charge.Id;

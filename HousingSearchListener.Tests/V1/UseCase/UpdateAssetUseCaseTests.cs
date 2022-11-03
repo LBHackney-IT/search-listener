@@ -21,10 +21,11 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly Mock<IAssetApiGateway> _mockAssetApi;
         private readonly Mock<IEsGateway> _mockEsGateway;
         private readonly IESEntityFactory _esEntityFactory;
+        private readonly IndexCreateAssetUseCase _create;
         private readonly UpdateAssetUseCase _sut;
 
         private readonly EntityEventSns _message;
-        private readonly Hackney.Shared.HousingSearch.Domain.Asset.Asset _Asset;
+        private readonly QueryableAsset _asset;
 
         private readonly Fixture _fixture;
         private static readonly Guid _correlationId = Guid.NewGuid();
@@ -36,11 +37,14 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockAssetApi = new Mock<IAssetApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
             _esEntityFactory = new ESEntityFactory();
+            _create = new IndexCreateAssetUseCase(_mockEsGateway.Object,
+                _mockAssetApi.Object, _esEntityFactory);
+
             _sut = new UpdateAssetUseCase(_mockEsGateway.Object,
                 _mockAssetApi.Object, _esEntityFactory);
 
             _message = CreateMessage();
-            _Asset = CreateAsset(_message.EntityId);
+            _asset = CreateAsset(_message.EntityId);
         }
 
         private EntityEventSns CreateMessage(string eventType = EventTypes.AssetUpdatedEvent)
@@ -51,16 +55,16 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
-        private Hackney.Shared.HousingSearch.Domain.Asset.Asset CreateAsset(Guid entityId)
+        private QueryableAsset CreateAsset(Guid entityId)
         {
-            return _fixture.Build<Hackney.Shared.HousingSearch.Domain.Asset.Asset>()
+            return _fixture.Build<QueryableAsset>()
                            .With(x => x.Id, entityId.ToString())
                            .Create();
         }
 
         private bool VerifyAssetIndexed(QueryableAsset esAsset)
         {
-            esAsset.Should().BeEquivalentTo(_esEntityFactory.CreateAsset(_Asset));
+            esAsset.Should().BeEquivalentTo(_esEntityFactory.CreateAsset(_asset));
             return true;
         }
 
@@ -86,10 +90,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ProcessMessageAsyncTestGetAssetReturnsNullThrows()
         {
             _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ReturnsAsync((Hackney.Shared.HousingSearch.Domain.Asset.Asset)null);
+                                       .ReturnsAsync((QueryableAsset)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>>();
+            func.Should().ThrowAsync<EntityNotFoundException<QueryableAsset>>();
         }
 
         [Fact]
@@ -97,7 +101,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             var exMsg = "This is the last error";
             _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ReturnsAsync(_Asset);
+                                       .ReturnsAsync(_asset);
             _mockEsGateway.Setup(x => x.IndexAsset(It.IsAny<QueryableAsset>()))
                           .ThrowsAsync(new Exception(exMsg));
 
@@ -105,18 +109,24 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
         }
 
-        [Theory]
-        [InlineData(EventTypes.AssetUpdatedEvent)]
-        public async Task ProcessMessageAsyncTestIndexAssetSuccess(string eventType)
+        [Fact]
+        public async Task ProcessMessageAsyncTestIndexSuccess()
         {
-            _message.EventType = eventType;
+            var message = CreateMessage(EventTypes.AssetCreatedEvent);
+            var asset = CreateAsset(message.EntityId);
+            _mockAssetApi.Setup(x => x.GetAssetByIdAsync(message.EntityId, message.CorrelationId))
+                .ReturnsAsync(asset);
 
-            _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ReturnsAsync(_Asset);
+            await _create.ProcessMessageAsync(message).ConfigureAwait(false);
 
-            await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
+            message.EventType = EventTypes.AssetUpdatedEvent;
+
+            await _sut.ProcessMessageAsync(message).ConfigureAwait(false);
+
+            _mockEsGateway.Verify(x => x.GetAssetById(asset.Id), Times.Once());
 
             _mockEsGateway.Verify(x => x.IndexAsset(It.Is<QueryableAsset>(y => VerifyAssetIndexed(y))), Times.Once);
+
         }
     }
 }

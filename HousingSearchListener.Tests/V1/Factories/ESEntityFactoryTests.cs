@@ -14,6 +14,7 @@ using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Process;
 using Hackney.Shared.Processes.Domain;
 using Process = Hackney.Shared.Processes.Domain.Process;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
@@ -156,11 +157,11 @@ namespace HousingSearchListener.Tests.V1.Factories
         public void CreateAssetTest()
         {
 
-            var domainAsset = _fixture.Build<Hackney.Shared.HousingSearch.Domain.Asset.Asset>()
-            .With(x => x.AssetAddress, _fixture.Create<Hackney.Shared.HousingSearch.Domain.Asset.AssetAddress>())
-            .With(x => x.AssetCharacteristics, _fixture.Create<Hackney.Shared.HousingSearch.Domain.Asset.AssetCharacteristics>())
-            .With(x => x.AssetManagement, _fixture.Create<Hackney.Shared.HousingSearch.Domain.Asset.AssetManagement>())
-            .With(x => x.AssetLocation, _fixture.Create<Hackney.Shared.HousingSearch.Domain.Asset.AssetLocation>())
+            var domainAsset = _fixture.Build<QueryableAsset>()
+            .With(x => x.AssetAddress, _fixture.Create<QueryableAssetAddress>())
+            .With(x => x.AssetCharacteristics, _fixture.Create<QueryableAssetCharacteristics>())
+            .With(x => x.AssetManagement, _fixture.Create<QueryableAssetManagement>())
+            .With(x => x.AssetLocation, _fixture.Create<QueryableAssetLocation>())
             .Create();
 
             var result = _sut.CreateAsset(domainAsset);

@@ -28,12 +28,12 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public void ThenAnAssetNotFoundExceptionIsThrown(Guid id)
         {
             _lastException.Should().NotBeNull();
-            _lastException.Should().BeOfType(typeof(EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>));
-            (_lastException as EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>).Id.Should().Be(id);
+            _lastException.Should().BeOfType(typeof(EntityNotFoundException<QueryableAsset>));
+            (_lastException as EntityNotFoundException<QueryableAsset>).Id.Should().Be(id);
         }
 
         public async Task ThenTheIndexIsUpdatedWithTheAsset(
-            Hackney.Shared.HousingSearch.Domain.Asset.Asset Asset, IElasticClient esClient)
+            QueryableAsset Asset, IElasticClient esClient)
         {
             var result = await esClient.GetAsync<QueryableAsset>(Asset.Id, g => g.Index("assets"))
                                        .ConfigureAwait(false);
