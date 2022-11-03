@@ -101,6 +101,7 @@ namespace HousingSearchListener.V1.UseCase
 
             // 1. Get process from message
             var process = GetProcessFromEventData(message.EventData.NewData);
+            _logger.LogInformation($"1. Process CurrentState is {process.CurrentState?.State}");
             if (process is null) throw new InvalidEventDataTypeException<Process>(message.Id);
 
             // 2. Get target entity from relevant API if necessary
@@ -112,7 +113,7 @@ namespace HousingSearchListener.V1.UseCase
             }
 
             // 3. Update the ES index
-            _logger.LogInformation($"Process is {process}");
+            _logger.LogInformation($"2. Process CurrentState is {process.CurrentState?.State}");
             var esProcess = ToElasticSearchLocal(process);
             _logger.LogInformation($"esProcess is {esProcess}");
             await _esGateway.IndexProcess(esProcess);
