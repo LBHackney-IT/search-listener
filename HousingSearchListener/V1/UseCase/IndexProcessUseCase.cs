@@ -17,6 +17,10 @@ using HousingSearchProcess = Hackney.Shared.HousingSearch.Domain.Process.Process
 using Hackney.Shared.HousingSearch.Factories;
 using Process = Hackney.Shared.Processes.Domain.Process;
 using Hackney.Shared.Processes.Factories;
+using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
+using Nest;
+using Stateless.Graph;
+using System.Linq;
 
 namespace HousingSearchListener.V1.UseCase
 {
@@ -103,13 +107,40 @@ namespace HousingSearchListener.V1.UseCase
             }
 
             // 3. Update the ES index
-            var esProcess = process.ToElasticSearch();
+            var esProcess = ToElasticSearchLocal(process);
             await _esGateway.IndexProcess(esProcess);
         }
 
         private static Process GetProcessFromEventData(object data)
         {
             return (data is Process) ? data as Process : ObjectFactory.ConvertFromObject<Process>(data);
+        }
+
+
+
+        public static QueryableProcess ToElasticSearchLocal(Process entity)
+        {
+            var qp = new QueryableProcess();
+            qp.Id = entity.Id.ToString();
+            qp.TargetId = entity.TargetId.ToString();
+            qp.TargetType = entity.TargetType.ToString();
+            qp.RelatedEntities = entity.RelatedEntities.ToElasticSearch();
+            qp.ProcessName = entity.ProcessName.ToString();
+            qp.PatchAssignment = entity.PatchAssignment.ToElasticSearch();
+            qp.State = entity.CurrentState.State;
+            qp.ProcessStartedAt = GetCreatedAt(entity);
+            qp.StateStartedAt = entity.CurrentState.CreatedAt.ToString();
+
+            return qp;
+        }
+
+
+        private static string GetCreatedAt(Process process)
+        {
+            if (process.PreviousStates is null || process.PreviousStates.Count == 0)
+                return process.CurrentState?.CreatedAt.ToString();
+
+            return process.PreviousStates.Min(x => x.CreatedAt).ToString();
         }
     }
 }
