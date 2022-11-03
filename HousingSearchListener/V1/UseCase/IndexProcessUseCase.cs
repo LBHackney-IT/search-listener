@@ -126,7 +126,7 @@ namespace HousingSearchListener.V1.UseCase
             qp.TargetType = entity.TargetType.ToString();
             qp.RelatedEntities = entity.RelatedEntities.ToElasticSearch();
             qp.ProcessName = entity.ProcessName.ToString();
-            qp.PatchAssignment = entity.PatchAssignment.ToElasticSearch();
+            qp.PatchAssignment = entity.PatchAssignment?.ToElasticSearch();
             qp.State = entity.CurrentState.State;
             qp.ProcessStartedAt = GetCreatedAt(entity);
             qp.StateStartedAt = entity.CurrentState.CreatedAt.ToString();
