@@ -17,6 +17,7 @@ using HousingSearchProcess = Hackney.Shared.HousingSearch.Domain.Process.Process
 using Hackney.Shared.HousingSearch.Factories;
 using Process = Hackney.Shared.Processes.Domain.Process;
 using Hackney.Shared.Processes.Factories;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 
 namespace HousingSearchListener.V1.UseCase
 {
@@ -70,7 +71,7 @@ namespace HousingSearchListener.V1.UseCase
                     };
                 case TargetType.asset:
                     var asset = await _assetApiGateway.GetAssetByIdAsync(targetId, correlationId).ConfigureAwait(false);
-                    if (asset is null) throw new EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>(targetId);
+                    if (asset is null) throw new EntityNotFoundException<QueryableAsset>(targetId);
 
                     var assetAddress = asset.AssetAddress;
                     var fullAddress = $"{assetAddress.AddressLine1} {assetAddress.AddressLine2} {assetAddress.AddressLine3} {assetAddress.AddressLine4} {assetAddress.PostCode}";

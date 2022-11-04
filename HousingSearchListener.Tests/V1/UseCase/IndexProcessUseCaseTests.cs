@@ -4,6 +4,7 @@ using Hackney.Core.Sns;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Process;
 using Hackney.Shared.HousingSearch.Factories;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 using Hackney.Shared.Processes.Domain;
 using Hackney.Shared.Processes.Factories;
@@ -99,10 +100,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
             switch (targetType)
             {
                 case TargetType.asset:
-                    _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync((Hackney.Shared.HousingSearch.Domain.Asset.Asset)null);
+                    _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync((QueryableAsset)null);
                     return (func) =>
                     {
-                        func.Should().ThrowAsync<EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>>();
+                        func.Should().ThrowAsync<EntityNotFoundException<QueryableAsset>>();
                         _mockAssetApi.Verify(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId), Times.Once());
                     };
 
@@ -161,7 +162,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             switch (targetType)
             {
                 case TargetType.asset:
-                    var asset = _fixture.Build<Hackney.Shared.HousingSearch.Domain.Asset.Asset>().With(x => x.Id, _process.TargetId.ToString()).Create();
+                    var asset = _fixture.Build<QueryableAsset>().With(x => x.Id, _process.TargetId.ToString()).Create();
                     _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync(asset);
                     return () => _mockAssetApi.Verify(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId), expectedApiCallCount);
 

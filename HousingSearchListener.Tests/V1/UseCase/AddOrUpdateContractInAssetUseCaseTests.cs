@@ -8,6 +8,7 @@ using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -30,11 +31,12 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private readonly EntityEventSns _messageCreated;
         private readonly EntityEventSns _messageAsset;
-        private readonly Hackney.Shared.HousingSearch.Domain.Asset.Asset _Asset;
+        private readonly QueryableAsset _Asset;
         private readonly Contract _Contract;
 
         private readonly Fixture _fixture;
         private static readonly Guid _correlationId = Guid.NewGuid();
+        private Mock<ILogger<AddOrUpdateContractInAssetUseCase>> _loggerMock;
 
         public AddOrUpdateContractInAssetUseCaseTests()
         {
@@ -44,8 +46,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
             _mockContractApi = new Mock<IContractApiGateway>();
             _mockEsGateway = new Mock<IEsGateway>();
             _esEntityFactory = new ESEntityFactory();
+            _loggerMock = new Mock<ILogger<AddOrUpdateContractInAssetUseCase>>();
             _sut = new AddOrUpdateContractInAssetUseCase(_mockEsGateway.Object,
-                _mockContractApi.Object, _mockAssetApi.Object, _esEntityFactory);
+                _mockContractApi.Object, _mockAssetApi.Object, _esEntityFactory, _loggerMock.Object);
 
             _messageAsset = CreateAssetMessage();
             _messageCreated = CreateContractCreatedEventMessage();
@@ -69,9 +72,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
-        private Hackney.Shared.HousingSearch.Domain.Asset.Asset CreateAsset(Guid entityId)
+        private QueryableAsset CreateAsset(Guid entityId)
         {
-            return _fixture.Build<Hackney.Shared.HousingSearch.Domain.Asset.Asset>()
+            return _fixture.Build<QueryableAsset>()
                            .With(x => x.Id, entityId.ToString())
                            .Create();
         }
@@ -83,7 +86,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
-        private Guid? SetMessageEventData(Hackney.Shared.HousingSearch.Domain.Asset.Asset asset, EntityEventSns message, bool hasChanges, Contract added = null)
+        private Guid? SetMessageEventData(QueryableAsset asset, EntityEventSns message, bool hasChanges, Contract added = null)
         {
             var oldData = asset;
             var newData = oldData.DeepClone();
@@ -99,22 +102,12 @@ namespace HousingSearchListener.Tests.V1.UseCase
                 if (added is null)
                 {
                     var changed = newData;
-                    changed.Contract.Charges.First().Amount = 90;
+                    changed.AssetContract.Charges.First().Amount = 90;
                     contractId = Guid.Parse(changed.Id);
                 }
                 else
                 {
-                    foreach (var charge in added.Charges)
-                    {
-                        Charges queryableCharge = new Charges();
-                        queryableCharge.Id = charge.Id;
-                        queryableCharge.Type = charge.Type;
-                        queryableCharge.SubType = charge.SubType;
-                        queryableCharge.Frequency = charge.Frequency;
-                        queryableCharge.Amount = charge.Amount;
-                        newData.Contract.Charges.ToList().Add(queryableCharge);
-                    }
-
+                    newData.AssetContract.Charges = added.Charges;
                     contractId = Guid.Parse(added.Id);
                 }
             }
@@ -128,7 +121,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         }
 
 
-        private bool VerifyContractIndexed(QueryableAsset esAsset, Contract contract, Hackney.Shared.HousingSearch.Domain.Asset.Asset asset)
+        private bool VerifyContractIndexed(QueryableAsset esAsset, Contract contract, QueryableAsset asset)
         {
             esAsset.Should().BeEquivalentTo(_esEntityFactory.CreateAsset(asset));
 
@@ -156,7 +149,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                                        .ThrowsAsync(new Exception(exMsg));
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_messageCreated).ConfigureAwait(false);
-            func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
+            func.Should().ThrowAsync<EntityNotFoundException<Contract>>();
         }
 
         [Fact]
@@ -166,7 +159,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                                        .ReturnsAsync((Contract)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_messageCreated).ConfigureAwait(false);
-            func.Should().ThrowAsync<EntityNotFoundException<Contract>>();
+            func.Should().ThrowAsync<ArgumentException>();
         }
 
         [Fact]

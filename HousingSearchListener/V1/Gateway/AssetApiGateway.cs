@@ -1,6 +1,7 @@
 ﻿using Hackney.Core.Http;
 using Hackney.Core.Logging;
 using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -22,10 +23,10 @@ namespace HousingSearchListener.V1.Gateway
         }
 
         [LogCall]
-        public async Task<Hackney.Shared.HousingSearch.Domain.Asset.Asset> GetAssetByIdAsync(Guid id, Guid correlationId)
+        public async Task<QueryableAsset> GetAssetByIdAsync(Guid id, Guid correlationId)
         {
             var route = $"{_apiGateway.ApiRoute}/assets/{id}";
-            return await _apiGateway.GetByIdAsync<Hackney.Shared.HousingSearch.Domain.Asset.Asset>(route, id, correlationId);
+            return await _apiGateway.GetByIdAsync<QueryableAsset>(route, id, correlationId);
         }
     }
 }

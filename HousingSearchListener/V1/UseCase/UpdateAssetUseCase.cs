@@ -7,6 +7,7 @@ using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 
 namespace HousingSearchListener.V1.UseCase
 {
@@ -32,10 +33,12 @@ namespace HousingSearchListener.V1.UseCase
             // 1. Get Asset from Asset service API
             var asset = await _assetApiGateway.GetAssetByIdAsync(message.EntityId, message.CorrelationId)
                                          .ConfigureAwait(false);
-            if (asset is null) throw new EntityNotFoundException<Hackney.Shared.HousingSearch.Domain.Asset.Asset>(message.EntityId);
+            if (asset is null) throw new EntityNotFoundException<QueryableAsset>(message.EntityId);
 
             // 2. Update the ES index
             var esAsset = await _esGateway.GetAssetById(asset.Id.ToString()).ConfigureAwait(false);
+            if (esAsset is null)
+                throw new ArgumentException($"No asset found in index with id: {asset.Id}");
             esAsset = _esAssetFactory.CreateAsset(asset);
 
             await _esGateway.IndexAsset(esAsset);
