@@ -234,7 +234,7 @@ namespace HousingSearchListener.V1.Factories
                 queryableAsset.AssetContract = assetContract;
             }
 
-            if(asset.AssetLocation != null)
+            if (asset.AssetLocation != null)
             {
                 assetLocation.FloorNo = asset.AssetLocation.FloorNo;
                 queryableAsset.AssetLocation = assetLocation;
