@@ -109,24 +109,20 @@ namespace HousingSearchListener.Tests.V1.UseCase
             func.Should().ThrowAsync<Exception>().WithMessage(exMsg);
         }
 
-        [Fact]
-        public async Task ProcessMessageAsyncTestIndexSuccess()
+        [Theory]
+        [InlineData(EventTypes.AssetUpdatedEvent)]
+        public async Task ProcessMessageAsyncTestIndexAssetSuccess(string eventType)
         {
-            var message = CreateMessage(EventTypes.AssetCreatedEvent);
-            var asset = CreateAsset(message.EntityId);
-            _mockAssetApi.Setup(x => x.GetAssetByIdAsync(message.EntityId, message.CorrelationId))
-                .ReturnsAsync(asset);
+            _message.EventType = eventType;
 
-            await _create.ProcessMessageAsync(message).ConfigureAwait(false);
+            _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_message.EntityId, _message.CorrelationId))
+                .ReturnsAsync(_asset);
+            _mockEsGateway.Setup(x => x.GetAssetById(_message.EntityId.ToString()))
+                .ReturnsAsync(_asset);
 
-            message.EventType = EventTypes.AssetUpdatedEvent;
-
-            await _sut.ProcessMessageAsync(message).ConfigureAwait(false);
-
-            _mockEsGateway.Verify(x => x.GetAssetById(asset.Id), Times.Once());
+            await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
             _mockEsGateway.Verify(x => x.IndexAsset(It.Is<QueryableAsset>(y => VerifyAssetIndexed(y))), Times.Once);
-
         }
     }
 }
