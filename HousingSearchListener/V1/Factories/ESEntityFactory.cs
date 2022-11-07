@@ -163,18 +163,6 @@ namespace HousingSearchListener.V1.Factories
             queryableAsset.RootAsset = asset.RootAsset;
             queryableAsset.IsActive = asset.IsActive;
 
-            if (asset.AssetAddress != null)
-            {
-                assetAddress.AddressLine1 = asset.AssetAddress?.AddressLine1;
-                assetAddress.AddressLine2 = asset.AssetAddress?.AddressLine2;
-                assetAddress.AddressLine3 = asset.AssetAddress?.AddressLine3;
-                assetAddress.AddressLine4 = asset.AssetAddress?.AddressLine4;
-                assetAddress.PostCode = asset.AssetAddress?.PostCode;
-                assetAddress.Uprn = asset.AssetAddress?.Uprn;
-                assetAddress.PostPreamble = asset.AssetAddress?.PostPreamble;
-                queryableAsset.AssetAddress = assetAddress;
-            }
-
             if (asset.Tenure != null)
             {
                 assetTenure.Id = asset.Tenure?.Id;
