@@ -3,12 +3,14 @@ using Hackney.Core.Sns;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Contract;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -45,7 +47,7 @@ namespace HousingSearchListener.V1.UseCase
             // 2. Determine the Contract is for an Asset.
             if (!contract.TargetType.ToLower().Equals("asset"))
                 throw new ArgumentException($"No charges of Types asset found for contract id: {contract.Id}");
-            _logger.LogInformation($"Charges for contract {contract.Id} found. Now fetching Asset {contract.TargetId}");
+            _logger.LogInformation($"Contract with id {contract.Id} found. Now fetching Asset {contract.TargetId}");
 
             // 3. Get Added person from Person service API
             var assetId = Guid.Parse(contract.TargetId);
@@ -54,10 +56,27 @@ namespace HousingSearchListener.V1.UseCase
             if (asset is null)
                 throw new EntityNotFoundException<Contract>(assetId);
 
+            if (contract != null)
+            {
+                List<QueryableCharges> queryableCharges = new List<QueryableCharges>();
+                asset.AssetContract.Id = contract.Id;
+                foreach (var charge in contract.Charges)
+                {
+                    _logger.LogInformation($"Charge with id {charge.Id} being added to asset");
+                    QueryableCharges queryableCharge = new QueryableCharges();
+                    queryableCharge.Id = charge.Id;
+                    queryableCharge.Type = charge.Type;
+                    queryableCharge.SubType = charge.SubType;
+                    queryableCharge.Frequency = charge.Frequency;
+                    queryableCharge.Amount = charge.Amount;
+                    queryableCharges.Add(queryableCharge);
+                }
+                //Remove all charges and re-add
+                if (contract.Charges != null)
+                    asset.AssetContract.Charges = queryableCharges;
+            }
 
-            //Remove all charges and re-add
-            if (contract.Charges != null)
-                asset.AssetContract.Charges = contract.Charges;
+
 
             // 4. Update the indexes
             await UpdateAssetIndexAsync(asset);
