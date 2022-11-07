@@ -56,7 +56,8 @@ namespace HousingSearchListener.V1.UseCase
 
 
             //Remove all charges and re-add
-            asset.AssetContract.Charges = contract.Charges;
+            if (contract.Charges != null)
+                asset.AssetContract.Charges = contract.Charges;
 
             // 4. Update the indexes
             await UpdateAssetIndexAsync(asset);
