@@ -40,7 +40,7 @@ namespace HousingSearchListener.V1.UseCase
             if (esProcess is null) throw new EntityNotIndexedException<QueryableProcess>(message.EntityId.ToString());
 
             esProcess.State = newState.State;
-            esProcess.StateStartedAt = newState.StateStartedAt.ToString("0");
+            esProcess.StateStartedAt = newState.StateStartedAt.ToString("O");
 
             await _esGateway.IndexProcess(esProcess);
         }
