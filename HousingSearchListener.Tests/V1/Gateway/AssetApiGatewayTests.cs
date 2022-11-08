@@ -1,7 +1,9 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Hackney.Core.Http;
+using Hackney.Shared.Asset.Boundary.Response;
 using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using HousingSearchListener.V1.Gateway;
 using Moq;
 using System;
@@ -40,7 +42,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public void ConstructorTestInitialisesApiGateway()
         {
             new AssetApiGateway(_mockApiGateway.Object);
-            _mockApiGateway.Verify(x => x.Initialise(ApiName, AssetApiUrlKey, AssetApiTokenKey, null),
+            _mockApiGateway.Verify(x => x.Initialise(ApiName, AssetApiUrlKey, AssetApiTokenKey, null, false),
                                    Times.Once);
         }
 
@@ -48,11 +50,11 @@ namespace HousingSearchListener.Tests.V1.Gateway
         public void GetAssetByIdAsyncGetExceptionThrown()
         {
             var exMessage = "This is an exception";
-            _mockApiGateway.Setup(x => x.GetByIdAsync<Asset>(Route, _id, _correlationId))
+            _mockApiGateway.Setup(x => x.GetByIdAsync<QueryableAsset>(Route, _id, _correlationId))
                            .ThrowsAsync(new Exception(exMessage));
 
             var sut = new AssetApiGateway(_mockApiGateway.Object);
-            Func<Task<Asset>> func =
+            Func<Task<QueryableAsset>> func =
                 async () => await sut.GetAssetByIdAsync(_id, _correlationId).ConfigureAwait(false);
 
             func.Should().ThrowAsync<Exception>().WithMessage(exMessage);
@@ -70,9 +72,9 @@ namespace HousingSearchListener.Tests.V1.Gateway
         [Fact]
         public async Task GetAssetByIdAsyncCallReturnsAsset()
         {
-            var Asset = new Fixture().Create<Asset>();
+            var Asset = new Fixture().Create<QueryableAsset>();
 
-            _mockApiGateway.Setup(x => x.GetByIdAsync<Asset>(Route, _id, _correlationId))
+            _mockApiGateway.Setup(x => x.GetByIdAsync<QueryableAsset>(Route, _id, _correlationId))
                            .ReturnsAsync(Asset);
 
             var sut = new AssetApiGateway(_mockApiGateway.Object);

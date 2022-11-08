@@ -33,7 +33,7 @@ namespace HousingSearchListener.V1.Gateway
             _configuration = configuration;
         }
 
-        public void Initialise(string apiName, string configKeyApiUrl, string configKeyApiToken, Dictionary<string, string> headers = null)
+        public void Initialise(string apiName, string configKeyApiUrl, string configKeyApiToken, Dictionary<string, string> headers = null, bool useApiKey = false)
         {
             if (string.IsNullOrEmpty(apiName)) throw new ArgumentNullException(nameof(apiName));
             ApiName = apiName;
@@ -77,6 +77,11 @@ namespace HousingSearchListener.V1.Gateway
 
             throw new GetFromApiException(ApiName, route, client.DefaultRequestHeaders.ToList(),
                                           id, response.StatusCode, responseBody);
+        }
+
+        public async Task<T> GetByIdAsync<T>(string route, string id, Guid correlationId) where T : class
+        {
+            return await GetByIdAsync<T>(route, Guid.Parse(id), correlationId);
         }
     }
 }

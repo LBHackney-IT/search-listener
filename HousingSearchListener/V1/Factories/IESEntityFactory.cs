@@ -19,7 +19,6 @@ namespace HousingSearchListener.V1.Factories
         List<QueryableHouseholdMember> CreateQueryableHouseholdMembers(List<HouseholdMembers> householdMembers);
         QueryableAssetTenure CreateAssetQueryableTenure(TenureInformation tenure);
         QueryableTransaction CreateQueryableTransaction(TransactionResponseObject transaction);
-        QueryableAsset CreateAsset(Asset asset);
-        QueryableProcess CreateProcess(Process process);
+        QueryableAsset CreateAsset(QueryableAsset asset);
     }
 }

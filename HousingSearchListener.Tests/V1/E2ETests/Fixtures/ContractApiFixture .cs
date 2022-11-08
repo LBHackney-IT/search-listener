@@ -1,0 +1,42 @@
+﻿using AutoFixture;
+using Hackney.Core.Testing.Shared.E2E;
+using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.HousingSearch.Domain.Contract;
+using System;
+
+namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
+{
+    public class ContractApiFixture : BaseApiFixture<Contract>
+    {
+        private readonly Fixture _fixture = new Fixture();
+
+        public ContractApiFixture()
+            : base(FixtureConstants.ContractsApiRoute, FixtureConstants.ContractsApiToken)
+        {
+            Environment.SetEnvironmentVariable("ContractApiUrl", FixtureConstants.ContractsApiRoute);
+            Environment.SetEnvironmentVariable("ContracttApiToken", FixtureConstants.ContractsApiToken);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && !_disposed)
+            {
+                base.Dispose(disposing);
+            }
+        }
+
+        public void GivenTheContractDoesNotExist(Guid id)
+        {
+            // Nothing to do here
+        }
+
+        public Contract GivenTheContractExists(Guid id)
+        {
+            ResponseObject = _fixture.Build<Contract>()
+                                     .With(x => x.Id, id.ToString())
+                                     .Create();
+
+            return ResponseObject;
+        }
+    }
+}

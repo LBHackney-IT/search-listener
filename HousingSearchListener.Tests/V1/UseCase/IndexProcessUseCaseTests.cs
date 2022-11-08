@@ -3,7 +3,11 @@ using FluentAssertions;
 using Hackney.Core.Sns;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Process;
+using Hackney.Shared.HousingSearch.Factories;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
+using Hackney.Shared.Processes.Domain;
+using Hackney.Shared.Processes.Factories;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Domain.Tenure;
 using HousingSearchListener.V1.Factories;
@@ -15,6 +19,8 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
+using Process = Hackney.Shared.Processes.Domain.Process;
+using RelatedEntity = Hackney.Shared.Processes.Domain.RelatedEntity;
 
 namespace HousingSearchListener.Tests.V1.UseCase
 {
@@ -94,10 +100,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
             switch (targetType)
             {
                 case TargetType.asset:
-                    _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync((Asset)null);
+                    _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync((QueryableAsset)null);
                     return (func) =>
                     {
-                        func.Should().ThrowAsync<EntityNotFoundException<Asset>>();
+                        func.Should().ThrowAsync<EntityNotFoundException<QueryableAsset>>();
                         _mockAssetApi.Verify(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId), Times.Once());
                     };
 
@@ -156,7 +162,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
             switch (targetType)
             {
                 case TargetType.asset:
-                    var asset = _fixture.Build<Asset>().With(x => x.Id, _process.TargetId).Create();
+                    var asset = _fixture.Build<QueryableAsset>().With(x => x.Id, _process.TargetId.ToString()).Create();
                     _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId)).ReturnsAsync(asset);
                     return () => _mockAssetApi.Verify(x => x.GetAssetByIdAsync(_process.TargetId, _message.CorrelationId), expectedApiCallCount);
 
@@ -177,7 +183,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private bool VerifyProcessIndexed(QueryableProcess esProcess)
         {
-            var expectedProcess = _esEntityFactory.CreateProcess(_process);
+            var expectedProcess = _process.ToElasticSearch();
             esProcess.Should().BeEquivalentTo(expectedProcess, c => c.Excluding(x => x.RelatedEntities));
 
             esProcess.RelatedEntities.Should().ContainSingle(x => x.Id == _process.TargetId.ToString());
@@ -185,11 +191,12 @@ namespace HousingSearchListener.Tests.V1.UseCase
             esProcess.RelatedEntities.RemoveAll(x => x.Id == _process.TargetId.ToString());
             foreach (var relatedEntity in esProcess.RelatedEntities)
             {
-                var processRelatedEntity = _process.RelatedEntities.Find(x => x.Id.ToString() == relatedEntity.Id);
+                var processRelatedEntity = _process.RelatedEntities.Find(x => x.Id == Guid.Parse(relatedEntity.Id));
                 relatedEntity.TargetType.Should().Be(processRelatedEntity.TargetType.ToString());
-                relatedEntity.SubType.Should().Be(processRelatedEntity.SubType.ToString());
+                relatedEntity.SubType.Should().Be(processRelatedEntity.SubType?.ToString());
                 relatedEntity.Description.Should().BeEquivalentTo(processRelatedEntity.Description);
             }
+
             return true;
         }
 
@@ -211,7 +218,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
             await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
 
-            _mockEsGateway.Verify(x => x.IndexProcess(It.Is<QueryableProcess>(y => VerifyProcessIndexed(y))), Times.Once);
+            _mockEsGateway.Verify(x =>
+                x.IndexProcess(It.Is<QueryableProcess>(y =>
+                VerifyProcessIndexed(y))), Times.Once);
             verifyTargetApiIsCalled.Invoke();
         }
     }

@@ -24,7 +24,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         private readonly IndexCreateAssetUseCase _sut;
 
         private readonly EntityEventSns _message;
-        private readonly Asset _Asset;
+        private readonly QueryableAsset _Asset;
 
         private readonly Fixture _fixture;
         private static readonly Guid _correlationId = Guid.NewGuid();
@@ -51,10 +51,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
                            .Create();
         }
 
-        private Asset CreateAsset(Guid entityId)
+        private QueryableAsset CreateAsset(Guid entityId)
         {
-            return _fixture.Build<Asset>()
-                           .With(x => x.Id, entityId)
+            return _fixture.Build<QueryableAsset>()
+                           .With(x => x.Id, entityId.ToString())
                            .Create();
         }
 
@@ -86,10 +86,10 @@ namespace HousingSearchListener.Tests.V1.UseCase
         public void ProcessMessageAsyncTestGetAssetReturnsNullThrows()
         {
             _mockAssetApi.Setup(x => x.GetAssetByIdAsync(_message.EntityId, _message.CorrelationId))
-                                       .ReturnsAsync((Asset)null);
+                                       .ReturnsAsync((QueryableAsset)null);
 
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_message).ConfigureAwait(false);
-            func.Should().ThrowAsync<EntityNotFoundException<Asset>>();
+            func.Should().ThrowAsync<EntityNotFoundException<QueryableAsset>>();
         }
 
         [Fact]

@@ -32,6 +32,8 @@ functions:
       AssetApiToken: ${ssm:/housing-tl/${self:provider.stage}/asset-api-token}
       ProcessesApiUrl: ${ssm:/housing-tl/${self:provider.stage}/process-api-url-v1}
       ProcessesApiToken: ${ssm:/housing-tl/${self:provider.stage}/processes-api-token}
+      ContractApiUrl: ${ssm:/housing-tl/${self:provider.stage}/contract-api-url}
+      ContractApiToken: ${ssm:/housing-tl/${self:provider.stage}/contract-api-token} 
     events:
       - sqs: ${ssm:/sqs-queue/${self:provider.stage}/housing_search_listener_queue/arn}
 resources:

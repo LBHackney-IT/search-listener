@@ -1,6 +1,6 @@
 using Hackney.Shared.Asset.Domain;
-using Hackney.Shared.HousingSearch.Domain.Process;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
@@ -144,8 +144,8 @@ namespace HousingSearchListener.V1.Factories
             };
         }
 
-
-        public QueryableAsset CreateAsset(Asset asset)
+        //Changed this to use Asset from HousingSearch as Contract wasn't need in Asset.Shared
+        public QueryableAsset CreateAsset(QueryableAsset asset)
         {
             QueryableAsset queryableAsset = new QueryableAsset();
             QueryableAssetAddress assetAddress = new QueryableAssetAddress();
@@ -153,6 +153,8 @@ namespace HousingSearchListener.V1.Factories
             QueryableAssetCharacteristics assetCharacteristics = new QueryableAssetCharacteristics();
             QueryableAssetManagement assetManagement = new QueryableAssetManagement();
             QueryableAssetLocation assetLocation = new QueryableAssetLocation();
+            QueryableAssetContract assetContract = new QueryableAssetContract();
+            List<QueryableCharges> queryableCharges = new List<QueryableCharges>();
 
             queryableAsset.Id = asset.Id.ToString();
             queryableAsset.AssetId = asset.AssetId;
@@ -161,101 +163,84 @@ namespace HousingSearchListener.V1.Factories
             queryableAsset.RootAsset = asset.RootAsset;
             queryableAsset.IsActive = asset.IsActive;
 
-            assetAddress.AddressLine1 = asset.AssetAddress?.AddressLine1;
-            assetAddress.AddressLine2 = asset.AssetAddress?.AddressLine2;
-            assetAddress.AddressLine3 = asset.AssetAddress?.AddressLine3;
-            assetAddress.AddressLine4 = asset.AssetAddress?.AddressLine4;
-            assetAddress.PostCode = asset.AssetAddress?.PostCode;
-            assetAddress.Uprn = asset.AssetAddress?.Uprn;
-            assetAddress.PostPreamble = asset.AssetAddress?.PostPreamble;
-            queryableAsset.AssetAddress = assetAddress;
+            if (asset.AssetAddress != null)
+            {
+                assetAddress.AddressLine1 = asset.AssetAddress?.AddressLine1;
+                assetAddress.AddressLine2 = asset.AssetAddress?.AddressLine2;
+                assetAddress.AddressLine3 = asset.AssetAddress?.AddressLine3;
+                assetAddress.AddressLine4 = asset.AssetAddress?.AddressLine4;
+                assetAddress.PostCode = asset.AssetAddress?.PostCode;
+                assetAddress.Uprn = asset.AssetAddress?.Uprn;
+                assetAddress.PostPreamble = asset.AssetAddress?.PostPreamble;
+                queryableAsset.AssetAddress = assetAddress;
+            }
 
-            assetTenure.Id = asset.Tenure?.Id;
-            assetTenure.StartOfTenureDate = asset.Tenure?.StartOfTenureDate.ToString();
-            assetTenure.EndOfTenureDate = asset.Tenure?.EndOfTenureDate.ToString();
-            assetTenure.PaymentReference = asset.Tenure?.PaymentReference;
-            assetTenure.Type = asset.Tenure?.Type;
-            queryableAsset.Tenure = assetTenure;
+            if (asset.Tenure != null)
+            {
+                assetTenure.Id = asset.Tenure?.Id;
+                assetTenure.StartOfTenureDate = asset.Tenure?.StartOfTenureDate.ToString();
+                assetTenure.EndOfTenureDate = asset.Tenure?.EndOfTenureDate.ToString();
+                assetTenure.PaymentReference = asset.Tenure?.PaymentReference;
+                assetTenure.Type = asset.Tenure?.Type;
+                queryableAsset.Tenure = assetTenure;
+            }
 
-            assetCharacteristics.HasStairs = asset.AssetCharacteristics.HasStairs;
-            assetCharacteristics.NumberOfBedrooms = asset.AssetCharacteristics.NumberOfBedrooms;
-            assetCharacteristics.NumberOfBedSpaces = asset.AssetCharacteristics.NumberOfBedSpaces;
-            assetCharacteristics.NumberOfCots = asset.AssetCharacteristics.NumberOfCots;
-            assetCharacteristics.NumberOfLifts = asset.AssetCharacteristics.NumberOfLifts;
-            assetCharacteristics.NumberOfLivingRooms = asset.AssetCharacteristics.NumberOfLivingRooms;
-            assetCharacteristics.HasPrivateBathroom = asset.AssetCharacteristics.HasPrivateBathroom;
-            assetCharacteristics.HasPrivateKitchen = asset.AssetCharacteristics.HasPrivateKitchen;
-            assetCharacteristics.IsStepFree = asset.AssetCharacteristics.IsStepFree;
-            assetCharacteristics.WindowType = asset.AssetCharacteristics.WindowType;
-            assetCharacteristics.YearConstructed = asset.AssetCharacteristics.YearConstructed;
-            queryableAsset.AssetCharacteristics = assetCharacteristics;
+            if (asset.AssetCharacteristics != null)
+            {
+                assetCharacteristics.HasStairs = asset.AssetCharacteristics.HasStairs;
+                assetCharacteristics.NumberOfBedrooms = asset.AssetCharacteristics.NumberOfBedrooms;
+                assetCharacteristics.NumberOfBedSpaces = asset.AssetCharacteristics.NumberOfBedSpaces;
+                assetCharacteristics.NumberOfCots = asset.AssetCharacteristics.NumberOfCots;
+                assetCharacteristics.NumberOfLifts = asset.AssetCharacteristics.NumberOfLifts;
+                assetCharacteristics.NumberOfLivingRooms = asset.AssetCharacteristics.NumberOfLivingRooms;
+                assetCharacteristics.HasPrivateBathroom = asset.AssetCharacteristics.HasPrivateBathroom;
+                assetCharacteristics.HasPrivateKitchen = asset.AssetCharacteristics.HasPrivateKitchen;
+                assetCharacteristics.IsStepFree = asset.AssetCharacteristics.IsStepFree;
+                assetCharacteristics.WindowType = asset.AssetCharacteristics.WindowType;
+                assetCharacteristics.YearConstructed = asset.AssetCharacteristics.YearConstructed;
+                queryableAsset.AssetCharacteristics = assetCharacteristics;
+            }
 
-            assetManagement.Agent = asset.AssetManagement?.Agent;
-            assetManagement.AreaOfficeName = asset.AssetManagement?.AreaOfficeName;
-            assetManagement.IsCouncilProperty = asset.AssetManagement.IsCouncilProperty;
-            assetManagement.IsNoRepairsMaintenance = asset.AssetManagement.IsNoRepairsMaintenance;
-            assetManagement.IsTMOManaged = asset.AssetManagement.IsTMOManaged;
-            assetManagement.ManagingOrganisation = asset.AssetManagement?.ManagingOrganisation;
-            assetManagement.ManagingOrganisationId = asset.AssetManagement.ManagingOrganisationId;
-            assetManagement.Owner = asset.AssetManagement.Owner;
-            assetManagement.PropertyOccupiedStatus = asset.AssetManagement.PropertyOccupiedStatus;
-            assetManagement.IsTemporaryAccomodation = asset.AssetManagement.IsTemporaryAccomodation;
+            if (asset.AssetManagement != null)
+            {
+                assetManagement.Agent = asset.AssetManagement?.Agent;
+                assetManagement.AreaOfficeName = asset.AssetManagement?.AreaOfficeName;
+                assetManagement.IsCouncilProperty = asset.AssetManagement.IsCouncilProperty;
+                assetManagement.IsNoRepairsMaintenance = asset.AssetManagement.IsNoRepairsMaintenance;
+                assetManagement.IsTMOManaged = asset.AssetManagement.IsTMOManaged;
+                assetManagement.ManagingOrganisation = asset.AssetManagement?.ManagingOrganisation;
+                assetManagement.ManagingOrganisationId = asset.AssetManagement.ManagingOrganisationId;
+                assetManagement.Owner = asset.AssetManagement.Owner;
+                assetManagement.PropertyOccupiedStatus = asset.AssetManagement.PropertyOccupiedStatus;
+                assetManagement.IsTemporaryAccomodation = asset.AssetManagement.IsTemporaryAccomodation;
 
-            queryableAsset.AssetManagement = assetManagement;
+                queryableAsset.AssetManagement = assetManagement;
+            }
 
-            assetLocation.FloorNo = asset.AssetLocation.FloorNo;
-            queryableAsset.AssetLocation = assetLocation;
+            if (asset.AssetContract != null)
+            {
+                assetContract.Id = asset.AssetContract.Id;
+                foreach (var charge in asset.AssetContract.Charges)
+                {
+                    QueryableCharges queryableCharge = new QueryableCharges();
+                    queryableCharge.Id = charge.Id;
+                    queryableCharge.Type = charge.Type;
+                    queryableCharge.SubType = charge.SubType;
+                    queryableCharge.Frequency = charge.Frequency;
+                    queryableCharge.Amount = charge.Amount;
+                    queryableCharges.Add(queryableCharge);
+                }
+                assetContract.Charges = queryableCharges;
+                queryableAsset.AssetContract = assetContract;
+            }
+
+            if (asset.AssetLocation != null)
+            {
+                assetLocation.FloorNo = asset.AssetLocation.FloorNo;
+                queryableAsset.AssetLocation = assetLocation;
+            }
 
             return queryableAsset;
-        }
-
-        // Processes
-
-        private QueryablePatchAssignment CreateQueryablePatchAssignment(PatchAssignment patchAssignment)
-        {
-            if (patchAssignment is null) return null;
-
-            return new QueryablePatchAssignment
-            {
-                PatchId = patchAssignment.PatchId,
-                PatchName = patchAssignment.PatchName,
-                ResponsibleEntityId = patchAssignment.ResponsibleEntityId,
-                ResponsibleName = patchAssignment.ResponsibleName
-            };
-        }
-
-        private List<QueryableRelatedEntity> CreateQueryableRelatedEntities(List<RelatedEntity> relatedEntities)
-        {
-            return relatedEntities.Select(x => new QueryableRelatedEntity
-            {
-                Id = x.Id.ToString(),
-                TargetType = x.TargetType.ToString(),
-                SubType = x.SubType.ToString(),
-                Description = x.Description
-            }).ToList();
-        }
-
-        private string GetCreatedAt(Process process)
-        {
-            if (process.PreviousStates is null || process.PreviousStates.Count == 0)
-                return process.CurrentState?.CreatedAt.ToString();
-
-            return process.PreviousStates.Min(x => x.CreatedAt).ToString();
-        }
-
-        public QueryableProcess CreateProcess(Process process)
-        {
-            return new QueryableProcess
-            {
-                Id = process.Id.ToString(),
-                TargetId = process.TargetId.ToString(),
-                TargetType = process.TargetType.ToString(),
-                ProcessName = process.ProcessName.ToString(),
-                State = process.CurrentState?.State,
-                PatchAssignment = CreateQueryablePatchAssignment(process.PatchAssignment),
-                CreatedAt = GetCreatedAt(process),
-                RelatedEntities = process.RelatedEntities is null ? new List<QueryableRelatedEntity>() : CreateQueryableRelatedEntities(process.RelatedEntities)
-            };
         }
     }
 }

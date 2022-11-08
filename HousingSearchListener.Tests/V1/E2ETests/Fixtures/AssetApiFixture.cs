@@ -1,11 +1,12 @@
 ﻿using AutoFixture;
 using Hackney.Core.Testing.Shared.E2E;
-using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.HousingSearch.Domain.Asset;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using System;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
-    public class AssetApiFixture : BaseApiFixture<Asset>
+    public class AssetApiFixture : BaseApiFixture<QueryableAsset>
     {
         private readonly Fixture _fixture = new Fixture();
 
@@ -29,10 +30,14 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
             // Nothing to do here
         }
 
-        public Asset GivenTheAssetExists(Guid id)
+        public QueryableAsset GivenTheAssetExists(Guid id)
         {
-            ResponseObject = _fixture.Build<Asset>()
-                                     .With(x => x.Id, id)
+            ResponseObject = _fixture.Build<QueryableAsset>()
+                                     .With(x => x.Id, id.ToString())
+                                     .With(x => x.AssetContract, _fixture.Build<QueryableAssetContract>()
+                                         .With(c => c.TargetId, id.ToString())
+                                         .With(c => c.TargetType, "asset")
+                                         .Create())
                                      .Create();
 
             return ResponseObject;

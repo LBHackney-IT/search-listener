@@ -12,6 +12,9 @@ using Person = HousingSearchListener.V1.Domain.Person.Person;
 using Tenure = HousingSearchListener.V1.Domain.Person.Tenure;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Process;
+using Hackney.Shared.Processes.Domain;
+using Process = Hackney.Shared.Processes.Domain.Process;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
@@ -154,11 +157,11 @@ namespace HousingSearchListener.Tests.V1.Factories
         public void CreateAssetTest()
         {
 
-            var domainAsset = _fixture.Build<Asset>()
-            .With(x => x.AssetAddress, _fixture.Create<AssetAddress>())
-            .With(x => x.AssetCharacteristics, _fixture.Create<AssetCharacteristics>())
-            .With(x => x.AssetManagement, _fixture.Create<AssetManagement>())
-            .With(x => x.AssetLocation, _fixture.Create<AssetLocation>())
+            var domainAsset = _fixture.Build<QueryableAsset>()
+            .With(x => x.AssetAddress, _fixture.Create<QueryableAssetAddress>())
+            .With(x => x.AssetCharacteristics, _fixture.Create<QueryableAssetCharacteristics>())
+            .With(x => x.AssetManagement, _fixture.Create<QueryableAssetManagement>())
+            .With(x => x.AssetLocation, _fixture.Create<QueryableAssetLocation>())
             .Create();
 
             var result = _sut.CreateAsset(domainAsset);
@@ -174,37 +177,6 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.AssetLocation.FloorNo.Should().Be(domainAsset.AssetLocation.FloorNo);
             result.ParentAssetIds.Should().Be(domainAsset.ParentAssetIds);
             result.RootAsset.Should().Be(domainAsset.RootAsset);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void CreatesQueryableProcessFromProcessRecord(bool hasPreviousStates)
-        {
-            // Given
-            var process = _fixture.Create<Process>();
-            if (!hasPreviousStates) process.PreviousStates = new List<ProcessState>();
-
-            // When
-            var result = _sut.CreateProcess(process);
-
-            // Then
-            result.Id.Should().Be(process.Id.ToString());
-            result.TargetId.Should().Be(process.TargetId.ToString());
-            result.TargetType.Should().Be(process.TargetType.ToString());
-            result.ProcessName.Should().Be(process.ProcessName.ToString());
-            result.State.Should().Be(process.CurrentState.State);
-
-            var createdAt = process.PreviousStates.Count > 0 ? process.PreviousStates.Min(x => x.CreatedAt) : process.CurrentState.CreatedAt;
-            result.CreatedAt.Should().Be(createdAt.ToString());
-
-            foreach (var relatedEntity in result.RelatedEntities)
-            {
-                var processRelatedEntity = process.RelatedEntities.Find(x => x.Id.ToString() == relatedEntity.Id);
-                relatedEntity.TargetType.Should().Be(processRelatedEntity.TargetType.ToString());
-                relatedEntity.SubType.Should().Be(processRelatedEntity.SubType.ToString());
-                relatedEntity.Description.Should().BeEquivalentTo(processRelatedEntity.Description);
-            }
         }
     }
 }

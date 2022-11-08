@@ -4,16 +4,22 @@ using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Person;
 using Hackney.Shared.HousingSearch.Domain.Process;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
+using Hackney.Shared.Processes.Domain;
+using Hackney.Shared.Processes.Factories;
+using Hackney.Shared.Processes.Sns;
 using Hackney.Shared.Tenure.Domain;
 using HousingSearchListener.Tests.V1.E2ETests.Fixtures;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
-using HousingSearchListener.V1.UseCase.Exceptions;
+using ListenerExceptions = HousingSearchListener.V1.UseCase.Exceptions;
 using Nest;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
+using Process = Hackney.Shared.Processes.Domain.Process;
+using RelatedEntity = Hackney.Shared.Processes.Domain.RelatedEntity;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
@@ -103,7 +109,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         public void ThenAnInvalidEventDataTypeExceptionIsThrown<T>() where T : class
         {
             _lastException.Should().NotBeNull();
-            _lastException.Should().BeOfType(typeof(InvalidEventDataTypeException<T>));
+            _lastException.Should().BeOfType(typeof(ListenerExceptions.InvalidEventDataTypeException<T>));
         }
 
         public void ThenATargetEntityNotFoundExceptionIsThrown(Guid id, TargetType targetType)
@@ -117,7 +123,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                     ThenAnEntityNotFoundExceptionIsThrown<Person>(id);
                     break;
                 case TargetType.asset:
-                    ThenAnEntityNotFoundExceptionIsThrown<Asset>(id);
+                    ThenAnEntityNotFoundExceptionIsThrown<QueryableAsset>(id);
                     break;
             }
         }
@@ -134,7 +140,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             var processInIndex = result.Source;
             processInIndex.Should().NotBeNull();
 
-            var expectedProcess = _entityFactory.CreateProcess(_process);
+            var expectedProcess = _process.ToDatabase();
             processInIndex.Should().BeEquivalentTo(processInIndex, c => c.Excluding(x => x.RelatedEntities));
 
             if (_eventType == EventTypes.ProcessStartedEvent)
@@ -144,11 +150,11 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
                 foreach (var relatedEntity in processInIndex.RelatedEntities)
                 {
-                    var processRelatedEntity = expectedProcess.RelatedEntities.Find(x => x.Id.ToString() == relatedEntity.Id);
+                    var processRelatedEntity = expectedProcess.RelatedEntities.Find(x => x.Id == Guid.Parse(relatedEntity.Id));
                     processRelatedEntity.Should().NotBeNull();
 
-                    relatedEntity.TargetType.Should().BeEquivalentTo(processRelatedEntity.TargetType);
-                    relatedEntity.SubType.Should().BeEquivalentTo(processRelatedEntity.SubType);
+                    relatedEntity.TargetType.Should().BeEquivalentTo(processRelatedEntity.TargetType.ToString());
+                    relatedEntity.SubType.Should().BeEquivalentTo(processRelatedEntity.SubType?.ToString());
                     relatedEntity.Description.Should().BeEquivalentTo(processRelatedEntity.Description);
                 }
             }

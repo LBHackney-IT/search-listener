@@ -19,5 +19,8 @@
 
         public static string ProcessesApiRoute => "http://localhost:5578/api/v1/processes/";
         public static string ProcessesApiToken => "sdjkhfgsdkjfgsdjfgh";
+
+        public static string ContractsApiRoute => "http://localhost:5978/api/v1/contracts/";
+        public static string ContractsApiToken => "sdjkhfgsdkjfgsdjfgh";
     }
 }

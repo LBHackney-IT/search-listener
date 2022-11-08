@@ -3,6 +3,7 @@ using FluentAssertions;
 using Hackney.Core.Sns;
 using Hackney.Shared.HousingSearch.Domain.Process;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
+using Hackney.Shared.Processes.Sns;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
@@ -65,6 +66,9 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private bool VerifyProcessIndexed(QueryableProcess esProcess)
         {
+            var newData = _message.EventData.NewData as ProcessStateChangeData;
+            esProcess.State.Should().BeEquivalentTo(newData.State);
+            esProcess.StateStartedAt.Should().BeEquivalentTo(newData.StateStartedAt.ToString("O"));
             esProcess.Should().BeEquivalentTo(_process);
             return true;
         }
