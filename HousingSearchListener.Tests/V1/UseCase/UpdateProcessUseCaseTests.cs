@@ -68,7 +68,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             var newData = _message.EventData.NewData as ProcessStateChangeData;
             esProcess.State.Should().BeEquivalentTo(newData.State);
-            esProcess.StateStartedAt.Should().BeEquivalentTo(newData.StateStartedAt.ToString());
+            esProcess.StateStartedAt.Should().BeEquivalentTo(newData.StateStartedAt.ToString("O"));
             esProcess.Should().BeEquivalentTo(_process);
             return true;
         }

@@ -63,7 +63,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             process.Should().NotBeNull();
             process.State.Should().Be(_stateChangeData.State);
             process.StateStartedAt.Should().NotBeNull();
-            process.StateStartedAt.Should().Be(_stateChangeData.StateStartedAt.ToString());
+            process.StateStartedAt.Should().Be(_stateChangeData.StateStartedAt.ToString("O"));
         }
 
         public void ThenNoExceptionsAreThrown()
