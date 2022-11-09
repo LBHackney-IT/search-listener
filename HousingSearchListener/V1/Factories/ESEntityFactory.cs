@@ -178,8 +178,8 @@ namespace HousingSearchListener.V1.Factories
             if (asset.Tenure != null)
             {
                 assetTenure.Id = asset.Tenure?.Id;
-                assetTenure.StartOfTenureDate = asset.Tenure?.StartOfTenureDate.ToString();
-                assetTenure.EndOfTenureDate = asset.Tenure?.EndOfTenureDate.ToString();
+                assetTenure.StartOfTenureDate = asset.Tenure?.StartOfTenureDate?.ToString();
+                assetTenure.EndOfTenureDate = asset.Tenure?.EndOfTenureDate?.ToString();
                 assetTenure.PaymentReference = asset.Tenure?.PaymentReference;
                 assetTenure.Type = asset.Tenure?.Type;
                 queryableAsset.Tenure = assetTenure;

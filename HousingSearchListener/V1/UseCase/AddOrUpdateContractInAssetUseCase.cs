@@ -56,10 +56,12 @@ namespace HousingSearchListener.V1.UseCase
             if (asset is null)
                 throw new EntityNotFoundException<Contract>(assetId);
 
+            List<QueryableCharges> queryableCharges;
             if (contract != null)
             {
-                List<QueryableCharges> queryableCharges = new List<QueryableCharges>();
+                queryableCharges = new List<QueryableCharges>();
                 asset.AssetContract.Id = contract.Id;
+
                 foreach (var charge in contract.Charges)
                 {
                     _logger.LogInformation($"Charge with id {charge.Id} being added to asset");
