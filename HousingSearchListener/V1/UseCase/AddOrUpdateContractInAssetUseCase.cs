@@ -56,11 +56,12 @@ namespace HousingSearchListener.V1.UseCase
             if (asset is null)
                 throw new EntityNotFoundException<Contract>(assetId);
 
-            List<QueryableCharges> queryableCharges;
-            if (contract != null)
+            asset.AssetContract.Id = contract.Id;
+
+            var chargesCount = contract.Charges.Count();
+            if (chargesCount > 0)
             {
-                queryableCharges = new List<QueryableCharges>();
-                asset.AssetContract.Id = contract.Id;
+                _logger.LogInformation($"{chargesCount} charges found.");
 
                 foreach (var charge in contract.Charges)
                 {
@@ -71,11 +72,8 @@ namespace HousingSearchListener.V1.UseCase
                     queryableCharge.SubType = charge.SubType;
                     queryableCharge.Frequency = charge.Frequency;
                     queryableCharge.Amount = charge.Amount;
-                    queryableCharges.Add(queryableCharge);
+                    asset.AssetContract.Charges.ToList().Add(queryableCharge);
                 }
-                //Remove all charges and re-add
-                if (contract.Charges != null)
-                    asset.AssetContract.Charges = queryableCharges;
             }
 
 
