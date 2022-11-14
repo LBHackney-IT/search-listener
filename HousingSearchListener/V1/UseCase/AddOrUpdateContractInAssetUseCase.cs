@@ -75,7 +75,7 @@ namespace HousingSearchListener.V1.UseCase
                     queryableCharge.SubType = charge.SubType;
                     queryableCharge.Frequency = charge.Frequency;
                     queryableCharge.Amount = charge.Amount;
-                    asset.AssetContract.Charges.ToList().Add(queryableCharge);
+                    asset.AssetContract.Charges.Add(queryableCharge);
                 }
             }
 
