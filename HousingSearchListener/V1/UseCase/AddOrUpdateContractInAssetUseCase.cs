@@ -59,24 +59,26 @@ namespace HousingSearchListener.V1.UseCase
             asset.AssetContract = new QueryableAssetContract()
             {
                 Id = contract.Id,
-                Charges = new List<QueryableCharges>()
             };
 
             if (contract.Charges.Any())
             {
                 _logger.LogInformation($"{contract.Charges.Count()} charges found.");
+                var charges = new List<QueryableCharges>();
 
                 foreach (var charge in contract.Charges)
                 {
                     _logger.LogInformation($"Charge with id {charge.Id} being added to asset");
-                    QueryableCharges queryableCharge = new QueryableCharges();
+                    var queryableCharge = new QueryableCharges();
                     queryableCharge.Id = charge.Id;
                     queryableCharge.Type = charge.Type;
                     queryableCharge.SubType = charge.SubType;
                     queryableCharge.Frequency = charge.Frequency;
                     queryableCharge.Amount = charge.Amount;
-                    asset.AssetContract.Charges.Add(queryableCharge);
+                    charges.Add(queryableCharge);
                 }
+
+                asset.AssetContract.Charges = charges;
             }
 
             // 4. Update the indexes
