@@ -56,12 +56,15 @@ namespace HousingSearchListener.V1.UseCase
             if (asset is null)
                 throw new EntityNotFoundException<Contract>(assetId);
 
-            asset.AssetContract.Id = contract.Id;
-
-            var chargesCount = contract.Charges.Count();
-            if (chargesCount > 0)
+            asset.AssetContract = new QueryableAssetContract()
             {
-                _logger.LogInformation($"{chargesCount} charges found.");
+                Id = contract.Id,
+                Charges = new List<QueryableCharges>()
+            };
+
+            if (contract.Charges.Any())
+            {
+                _logger.LogInformation($"{contract.Charges.Count()} charges found.");
 
                 foreach (var charge in contract.Charges)
                 {
@@ -75,8 +78,6 @@ namespace HousingSearchListener.V1.UseCase
                     asset.AssetContract.Charges.ToList().Add(queryableCharge);
                 }
             }
-
-
 
             // 4. Update the indexes
             await UpdateAssetIndexAsync(asset);
