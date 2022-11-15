@@ -39,7 +39,7 @@ namespace HousingSearchListener.V1.UseCase
         {
             if (message is null) throw new ArgumentNullException(nameof(message));
 
-            // 1. Get Tenure from Tenure service API
+            // 1. Get Contract from Contract service API
             var contract = await _contractApiGateway.GetContractByIdAsync(message.EntityId, message.CorrelationId)
                                                 .ConfigureAwait(false);
             if (contract is null) throw new EntityNotFoundException<Contract>(message.EntityId);
@@ -85,7 +85,10 @@ namespace HousingSearchListener.V1.UseCase
 
         private async Task UpdateAssetIndexAsync(QueryableAsset asset)
         {
-            var esAsset = _esEntityFactory.CreateAsset(asset);
+            var esAsset = await _esGateway.GetAssetById(asset.Id.ToString()).ConfigureAwait(false);
+            if (esAsset is null)
+                throw new ArgumentException($"No asset found in index with id: {asset.Id}");
+            esAsset = _esEntityFactory.CreateAsset(asset);
             await _esGateway.IndexAsset(esAsset);
         }
     }
