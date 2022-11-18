@@ -1,4 +1,5 @@
 using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.HousingSearch.Domain.Contract;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
@@ -226,7 +227,8 @@ namespace HousingSearchListener.V1.Factories
                     queryableCharge.Id = charge.Id;
                     queryableCharge.Type = charge.Type;
                     queryableCharge.SubType = charge.SubType;
-                    queryableCharge.Frequency = charge.Frequency;
+                    string frequencyEnumString = Enum.GetName(typeof(Frequency), charge.Frequency);
+                    queryableCharge.Frequency = frequencyEnumString;
                     queryableCharge.Amount = charge.Amount;
                     queryableCharges.Add(queryableCharge);
                 }
