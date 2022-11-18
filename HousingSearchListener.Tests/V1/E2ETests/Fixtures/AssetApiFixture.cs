@@ -2,7 +2,9 @@
 using Hackney.Core.Testing.Shared.E2E;
 using Hackney.Shared.HousingSearch.Domain.Asset;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 using System;
+using System.Linq;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
@@ -32,11 +34,16 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 
         public QueryableAsset GivenTheAssetExists(Guid id)
         {
+            var charges = _fixture.Build<QueryableCharges>()
+                  .With(ch => ch.Frequency, "1")
+                  .CreateMany(1).ToList();
+
             ResponseObject = _fixture.Build<QueryableAsset>()
                                      .With(x => x.Id, id.ToString())
                                      .With(x => x.AssetContract, _fixture.Build<QueryableAssetContract>()
                                          .With(c => c.TargetId, id.ToString())
                                          .With(c => c.TargetType, "asset")
+                                         .With(c => c.Charges, charges)
                                          .Create())
                                      .Create();
 
