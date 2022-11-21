@@ -68,7 +68,7 @@ namespace HousingSearchListener.V1.UseCase
 
                 foreach (var charge in contract.Charges)
                 {
-                    _logger.LogInformation($"Charge with id {charge.Id} being added to asset");
+                    _logger.LogInformation($"Charge with id {charge.Id} being added to asset with frequency {charge.Frequency}");
                     var queryableCharge = new QueryableCharges();
                     queryableCharge.Id = charge.Id;
                     queryableCharge.Type = charge.Type;
