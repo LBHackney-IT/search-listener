@@ -3,12 +3,14 @@ using FluentAssertions;
 using Hackney.Core.Sns;
 using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
 using Moq;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
@@ -53,9 +55,18 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private QueryableAsset CreateAsset(Guid entityId)
         {
+            var charges = _fixture.Build<QueryableCharges>()
+              .With(ch => ch.Frequency, "1")
+              .CreateMany(1).ToList();
+
             return _fixture.Build<QueryableAsset>()
-                           .With(x => x.Id, entityId.ToString())
-                           .Create();
+                                     .With(x => x.Id, entityId.ToString())
+                                     .With(x => x.AssetContract, _fixture.Build<QueryableAssetContract>()
+                                         .With(c => c.TargetId, entityId.ToString())
+                                         .With(c => c.TargetType, "asset")
+                                         .With(c => c.Charges, charges)
+                                         .Create())
+                                     .Create();
         }
 
         private bool VerifyAssetIndexed(QueryableAsset esAsset)
