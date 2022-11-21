@@ -227,8 +227,7 @@ namespace HousingSearchListener.V1.Factories
                     queryableCharge.Id = charge.Id;
                     queryableCharge.Type = charge.Type;
                     queryableCharge.SubType = charge.SubType;
-                    string frequencyEnumString = Enum.GetName(typeof(Frequency), int.Parse(charge.Frequency));
-                    queryableCharge.Frequency = frequencyEnumString;
+                    queryableCharge.Frequency = charge.Frequency;
                     queryableCharge.Amount = charge.Amount;
                     queryableCharges.Add(queryableCharge);
                 }
