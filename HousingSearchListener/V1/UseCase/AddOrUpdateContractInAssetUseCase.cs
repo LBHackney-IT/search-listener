@@ -39,7 +39,7 @@ namespace HousingSearchListener.V1.UseCase
         {
             if (message is null) throw new ArgumentNullException(nameof(message));
 
-            // 1. Get Tenure from Tenure service API
+            // 1. Get Contract from Contract service API
             var contract = await _contractApiGateway.GetContractByIdAsync(message.EntityId, message.CorrelationId)
                                                 .ConfigureAwait(false);
             if (contract is null) throw new EntityNotFoundException<Contract>(message.EntityId);
@@ -56,27 +56,30 @@ namespace HousingSearchListener.V1.UseCase
             if (asset is null)
                 throw new EntityNotFoundException<Contract>(assetId);
 
-            if (contract != null)
+            asset.AssetContract = new QueryableAssetContract()
             {
-                List<QueryableCharges> queryableCharges = new List<QueryableCharges>();
-                asset.AssetContract.Id = contract.Id;
+                Id = contract.Id,
+            };
+
+            if (contract.Charges.Any())
+            {
+                _logger.LogInformation($"{contract.Charges.Count()} charges found.");
+                var charges = new List<QueryableCharges>();
+
                 foreach (var charge in contract.Charges)
                 {
-                    _logger.LogInformation($"Charge with id {charge.Id} being added to asset");
-                    QueryableCharges queryableCharge = new QueryableCharges();
+                    _logger.LogInformation($"Charge with id {charge.Id} being added to asset with frequency {charge.Frequency}");
+                    var queryableCharge = new QueryableCharges();
                     queryableCharge.Id = charge.Id;
                     queryableCharge.Type = charge.Type;
                     queryableCharge.SubType = charge.SubType;
                     queryableCharge.Frequency = charge.Frequency;
                     queryableCharge.Amount = charge.Amount;
-                    queryableCharges.Add(queryableCharge);
+                    charges.Add(queryableCharge);
                 }
-                //Remove all charges and re-add
-                if (contract.Charges != null)
-                    asset.AssetContract.Charges = queryableCharges;
+
+                asset.AssetContract.Charges = charges;
             }
-
-
 
             // 4. Update the indexes
             await UpdateAssetIndexAsync(asset);
@@ -84,7 +87,10 @@ namespace HousingSearchListener.V1.UseCase
 
         private async Task UpdateAssetIndexAsync(QueryableAsset asset)
         {
-            var esAsset = _esEntityFactory.CreateAsset(asset);
+            var esAsset = await _esGateway.GetAssetById(asset.Id.ToString()).ConfigureAwait(false);
+            if (esAsset is null)
+                throw new ArgumentException($"No asset found in index with id: {asset.Id}");
+            esAsset = _esEntityFactory.CreateAsset(asset);
             await _esGateway.IndexAsset(esAsset);
         }
     }

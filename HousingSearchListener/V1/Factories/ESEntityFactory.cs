@@ -1,4 +1,5 @@
 using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.HousingSearch.Domain.Contract;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
@@ -178,8 +179,8 @@ namespace HousingSearchListener.V1.Factories
             if (asset.Tenure != null)
             {
                 assetTenure.Id = asset.Tenure?.Id;
-                assetTenure.StartOfTenureDate = asset.Tenure?.StartOfTenureDate.ToString();
-                assetTenure.EndOfTenureDate = asset.Tenure?.EndOfTenureDate.ToString();
+                assetTenure.StartOfTenureDate = asset.Tenure?.StartOfTenureDate?.ToString();
+                assetTenure.EndOfTenureDate = asset.Tenure?.EndOfTenureDate?.ToString();
                 assetTenure.PaymentReference = asset.Tenure?.PaymentReference;
                 assetTenure.Type = asset.Tenure?.Type;
                 queryableAsset.Tenure = assetTenure;
