@@ -214,7 +214,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
 
         [Fact]
         [Obsolete]
-        public void GetByIdAsyncTestNotInitialisedThrows()
+        public async Task GetByIdAsyncTestNotInitialisedThrows()
         {
             var id = Guid.NewGuid();
             var route = $"{ApiRoute}accounts/{id}";
@@ -222,7 +222,7 @@ namespace HousingSearchListener.Tests.V1.Gateway
             var sut = new NewtonsoftApiGateway(_mockHttpClientFactory.Object, _configuration);
             Func<Task<SomeResponseObject>> act =
                 async () => await sut.GetByIdAsync<SomeResponseObject>(route, id, _correlationId).ConfigureAwait(false);
-            act.Should().Throw<InvalidOperationException>();
+            await act.Should().ThrowAsync<InvalidOperationException>();
         }
 
         [Fact]

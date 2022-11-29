@@ -15,7 +15,9 @@ namespace HousingSearchListener.Tests.V1.Infrastructure
 
             options.PropertyNamingPolicy.Should().Be(JsonNamingPolicy.CamelCase);
             options.WriteIndented.Should().BeTrue();
-            options.Converters.Should().ContainEquivalentOf(new JsonStringEnumConverter());
+            options.Converters.Should().HaveCount(1);
+            options.Converters[0].Should().NotBeNull();
+            options.Converters[0].GetType().Name.Should().BeEquivalentTo(typeof(JsonStringEnumConverter).Name);
         }
     }
 }
