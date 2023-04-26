@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using Hackney.Core.Testing.Shared.E2E;
-using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Contract;
 using System;
 

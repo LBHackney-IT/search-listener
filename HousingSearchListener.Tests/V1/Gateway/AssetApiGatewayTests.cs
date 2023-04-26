@@ -1,8 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
 using Hackney.Core.Http;
-using Hackney.Shared.Asset.Boundary.Response;
-using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using HousingSearchListener.V1.Gateway;
 using Moq;

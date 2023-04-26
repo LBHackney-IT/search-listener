@@ -1,6 +1,5 @@
 ﻿using Hackney.Core.Logging;
 using Hackney.Core.Sns;
-using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Contract;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Contract;

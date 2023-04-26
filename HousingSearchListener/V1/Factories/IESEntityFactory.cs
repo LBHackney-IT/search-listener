@@ -6,9 +6,6 @@ using System.Collections.Generic;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using HousingSearchListener.V1.Domain.Transaction;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
-using Hackney.Shared.Asset.Domain;
-using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
-using Hackney.Shared.HousingSearch.Domain.Process;
 
 namespace HousingSearchListener.V1.Factories
 {

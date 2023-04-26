@@ -8,15 +8,12 @@ using Hackney.Core.Sns;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using System.Collections.Generic;
 using Hackney.Shared.Tenure.Domain;
-using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Person;
 using HousingSearchApi.V1.Factories;
 using HousingSearchListener.V1.UseCase.Exceptions;
 using Hackney.Shared.Processes.Domain;
-using HousingSearchProcess = Hackney.Shared.HousingSearch.Domain.Process.Process;
 using Hackney.Shared.HousingSearch.Factories;
 using Process = Hackney.Shared.Processes.Domain.Process;
-using Hackney.Shared.Processes.Factories;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 
 namespace HousingSearchListener.V1.UseCase
