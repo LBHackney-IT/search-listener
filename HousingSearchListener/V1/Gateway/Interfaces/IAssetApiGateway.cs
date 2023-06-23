@@ -1,5 +1,4 @@
-﻿using Hackney.Shared.Asset.Domain;
-using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+﻿using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using System;
 using System.Threading.Tasks;
 

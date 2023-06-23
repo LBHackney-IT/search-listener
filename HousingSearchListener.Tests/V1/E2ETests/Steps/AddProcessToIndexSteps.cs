@@ -1,8 +1,6 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.HousingSearch.Domain.Person;
-using Hackney.Shared.HousingSearch.Domain.Process;
 using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 using Hackney.Shared.Processes.Domain;
 using Hackney.Shared.Processes.Factories;
