@@ -31,7 +31,7 @@ namespace HousingSearchListener.V1.UseCase
             if (message is null) throw new ArgumentNullException(nameof(message));
 
             LambdaLogger.Log($"{nameof(ProcessMessageAsync)}: id is {message.EntityId}");
-            
+
             // 1. Get Person from Person service API
             var person = await _personApiGateway.GetPersonByIdAsync(message.EntityId, message.CorrelationId)
                                          .ConfigureAwait(false);
