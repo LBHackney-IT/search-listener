@@ -1,4 +1,5 @@
-﻿using Hackney.Core.Http;
+﻿using Amazon.Lambda.Core;
+using Hackney.Core.Http;
 using Hackney.Core.Logging;
 using HousingSearchListener.V1.Domain.Person;
 using HousingSearchListener.V1.Gateway.Interfaces;
