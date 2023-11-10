@@ -25,6 +25,7 @@ namespace HousingSearchListener.V1.Gateway
         public async Task<Person> GetPersonByIdAsync(Guid id, Guid correlationId)
         {
             var route = $"{_apiGateway.ApiRoute}/persons/{id}";
+            LambdaLogger.Log($"{nameof(GetPersonByIdAsync)} route is {route}");
             return await _apiGateway.GetByIdAsync<Person>(route, id, correlationId);
         }
     }

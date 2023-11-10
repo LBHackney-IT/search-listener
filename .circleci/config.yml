@@ -253,14 +253,14 @@ workflows:
             - terraform-compliance-development
           filters:
             branches:
-              only: master
+              only: feature/housing-search-investigation
       - deploy-to-development:
           context: api-nuget-token-context
           requires:
             - terraform-apply-development
           filters:
             branches:
-              only: master
+              only: feature/housing-search-investigation
   check-and-deploy-staging-and-production:
       jobs:
       - check-code-formatting:
