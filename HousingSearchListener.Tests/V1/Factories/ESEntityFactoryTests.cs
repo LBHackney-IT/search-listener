@@ -10,10 +10,6 @@ using HousingSearchListener.V1.Domain.Transaction;
 using Xunit;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
 using Tenure = HousingSearchListener.V1.Domain.Person.Tenure;
-using Hackney.Shared.Asset.Domain;
-using Hackney.Shared.HousingSearch.Domain.Process;
-using Hackney.Shared.Processes.Domain;
-using Process = Hackney.Shared.Processes.Domain.Process;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 

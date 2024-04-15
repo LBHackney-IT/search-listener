@@ -1,9 +1,6 @@
-using Hackney.Shared.Asset.Domain;
-using Hackney.Shared.HousingSearch.Domain.Contract;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 using Hackney.Shared.HousingSearch.Gateways.Models.Persons;
-using Hackney.Shared.HousingSearch.Gateways.Models.Processes;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using Hackney.Shared.HousingSearch.Gateways.Models.Transactions;
 using HousingSearchListener.V1.Domain.Person;
