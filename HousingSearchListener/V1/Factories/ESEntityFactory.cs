@@ -67,9 +67,9 @@ namespace HousingSearchListener.V1.Factories
                     Type = tenure.TenuredAsset?.Type,
                     Uprn = tenure.TenuredAsset?.Uprn
                 },
-                TemporaryAccommodationInfo = new QueryableTemporaryAccommodationInfo()
+                TemporaryAccommodationInfo = tenure.TemporaryAccommodationInfo == null ? null : new QueryableTemporaryAccommodationInfo()
                 {
-                    BookingStatus = tenure.TemporaryAccommodationInfo?.BookingStatus
+                    BookingStatus = tenure.TemporaryAccommodationInfo.BookingStatus
                 }
             };
         }
