@@ -63,7 +63,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.StartOfTenureDate.Should().Be(domainTenure.StartOfTenureDate);
             result.TenuredAsset.Should().BeEquivalentTo(domainTenure.TenuredAsset);
             result.TenureType.Should().BeEquivalentTo(domainTenure.TenureType);
-            result.TemporaryAccommodationInfo.Should().BeEquivalentTo(domainTenure.TemporaryAccommodationInfo);
+            result.TempAccommodationInfo.Should().BeEquivalentTo(domainTenure.TempAccommodationInfo);
         }
 
         [Fact]
