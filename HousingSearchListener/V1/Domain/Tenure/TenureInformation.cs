@@ -12,5 +12,6 @@ namespace HousingSearchListener.V1.Domain.Tenure
         public bool IsActive { get; set; }
         public List<HouseholdMembers> HouseholdMembers { get; set; }
         public string PaymentReference { get; set; }
+        public TempAccommodationInfo TempAccommodationInfo { get; set; }
     }
 }
