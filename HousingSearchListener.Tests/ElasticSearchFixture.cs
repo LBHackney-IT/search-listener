@@ -165,6 +165,7 @@ namespace HousingSearchListener.Tests
             esTenure.EndOfTenureDate = null;
             esTenure.PaymentReference = null;
             esTenure.TenuredAsset.FullAddress = "Somewhere";
+            esTenure.TempAccommodationInfo.BookingStatus = "Some booking status";
             var request = new IndexRequest<QueryableTenure>(esTenure, IndexNameTenures);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
         }

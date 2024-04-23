@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
 using QueryableTenuredAsset = Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenuredAsset;
+using QueryableTempAccommodationInfo = Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTempAccommodationInfo;
 
 namespace HousingSearchListener.V1.Factories
 {
@@ -65,6 +66,10 @@ namespace HousingSearchListener.V1.Factories
                     Id = tenure.TenuredAsset?.Id,
                     Type = tenure.TenuredAsset?.Type,
                     Uprn = tenure.TenuredAsset?.Uprn
+                },
+                TempAccommodationInfo = tenure.TempAccommodationInfo == null ? null : new QueryableTempAccommodationInfo()
+                {
+                    BookingStatus = tenure.TempAccommodationInfo.BookingStatus
                 }
             };
         }
