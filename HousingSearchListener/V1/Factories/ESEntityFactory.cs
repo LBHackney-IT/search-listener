@@ -69,7 +69,8 @@ namespace HousingSearchListener.V1.Factories
                 },
                 TempAccommodationInfo = tenure.TempAccommodationInfo == null ? null : new QueryableTempAccommodationInfo()
                 {
-                    BookingStatus = tenure.TempAccommodationInfo.BookingStatus
+                    BookingStatus = tenure.TempAccommodationInfo.BookingStatus,
+                    AssignedOfficer = tenure.TempAccommodationInfo.AssignedOfficer
                 }
             };
         }

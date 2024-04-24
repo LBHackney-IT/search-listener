@@ -12,6 +12,7 @@ using Person = HousingSearchListener.V1.Domain.Person.Person;
 using Tenure = HousingSearchListener.V1.Domain.Person.Tenure;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
+using TestStack.BDDfy;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
@@ -64,6 +65,26 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.TenuredAsset.Should().BeEquivalentTo(domainTenure.TenuredAsset);
             result.TenureType.Should().BeEquivalentTo(domainTenure.TenureType);
             result.TempAccommodationInfo.Should().BeEquivalentTo(domainTenure.TempAccommodationInfo);
+        }
+
+        [Fact]
+        public void CreateQueryableTenureAddsTempAccommodationProperties()
+        {
+            var domainTenure = _fixture.Create<TenureInformation>();
+
+            var result = _sut.CreateQueryableTenure(domainTenure);
+            result.TempAccommodationInfo.BookingStatus.Should().Be(domainTenure.TempAccommodationInfo.BookingStatus);
+            result.TempAccommodationInfo.AssignedOfficer.Should().Be(domainTenure.TempAccommodationInfo.AssignedOfficer);
+        }
+
+        [Fact]
+        public void CreateQueryableTenureSetsTempAccommodationInfoToNullWhenPropertyIsNullInDomain()
+        {
+            var domainTenure = _fixture.Create<TenureInformation>();
+            domainTenure.TempAccommodationInfo = null;
+            
+            var result = _sut.CreateQueryableTenure(domainTenure);
+            result.TempAccommodationInfo.Should().BeNull();
         }
 
         [Fact]
