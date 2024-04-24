@@ -82,7 +82,7 @@ namespace HousingSearchListener.Tests.V1.Factories
         {
             var domainTenure = _fixture.Create<TenureInformation>();
             domainTenure.TempAccommodationInfo = null;
-            
+
             var result = _sut.CreateQueryableTenure(domainTenure);
             result.TempAccommodationInfo.Should().BeNull();
         }
