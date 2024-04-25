@@ -3,6 +3,6 @@
     public class TempAccommodationInfo
     {
         public string BookingStatus { get; set; }
-        public string AssignedOfficer { get; set; }
+        public TempAccommodationOfficer AssignedOfficer { get; set; }
     }
 }

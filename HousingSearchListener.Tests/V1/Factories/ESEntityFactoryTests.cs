@@ -66,17 +66,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.TenureType.Should().BeEquivalentTo(domainTenure.TenureType);
             result.TempAccommodationInfo.Should().BeEquivalentTo(domainTenure.TempAccommodationInfo);
         }
-
-        [Fact]
-        public void CreateQueryableTenureAddsTempAccommodationProperties()
-        {
-            var domainTenure = _fixture.Create<TenureInformation>();
-
-            var result = _sut.CreateQueryableTenure(domainTenure);
-            result.TempAccommodationInfo.BookingStatus.Should().Be(domainTenure.TempAccommodationInfo.BookingStatus);
-            result.TempAccommodationInfo.AssignedOfficer.Should().Be(domainTenure.TempAccommodationInfo.AssignedOfficer);
-        }
-
+        
         [Fact]
         public void CreateQueryableTenureSetsTempAccommodationInfoToNullWhenPropertyIsNullInDomain()
         {
