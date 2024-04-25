@@ -12,7 +12,7 @@ using System.Linq;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
 using QueryableTenuredAsset = Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTenuredAsset;
 using QueryableTempAccommodationInfo = Hackney.Shared.HousingSearch.Gateways.Models.Tenures.QueryableTempAccommodationInfo;
-using TemporaryAccommodationOfficer = Hackney.Shared.HousingSearch.Domain.Tenure.TemporaryAccommodationOfficer;
+using TemporaryAccommodationOfficer = Hackney.Shared.HousingSearch.Domain.Tenure.TempAccommodationOfficer;
 
 namespace HousingSearchListener.V1.Factories
 {
@@ -66,7 +66,8 @@ namespace HousingSearchListener.V1.Factories
                     FullAddress = tenure.TenuredAsset?.FullAddress,
                     Id = tenure.TenuredAsset?.Id,
                     Type = tenure.TenuredAsset?.Type,
-                    Uprn = tenure.TenuredAsset?.Uprn
+                    Uprn = tenure.TenuredAsset?.Uprn,
+                    IsTemporaryAccommodation = tenure.TenuredAsset?.IsTemporaryAccommodation
                 },
                 TempAccommodationInfo = tenure.TempAccommodationInfo == null ? null : new QueryableTempAccommodationInfo()
                 {
