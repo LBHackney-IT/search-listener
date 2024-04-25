@@ -66,8 +66,7 @@ namespace HousingSearchListener.V1.Factories
                     FullAddress = tenure.TenuredAsset?.FullAddress,
                     Id = tenure.TenuredAsset?.Id,
                     Type = tenure.TenuredAsset?.Type,
-                    Uprn = tenure.TenuredAsset?.Uprn,
-                    IsTemporaryAccommodation = tenure.TenuredAsset?.IsTemporaryAccommodation
+                    Uprn = tenure.TenuredAsset?.Uprn
                 },
                 TempAccommodationInfo = tenure.TempAccommodationInfo == null ? null : new QueryableTempAccommodationInfo()
                 {
