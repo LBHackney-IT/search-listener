@@ -66,7 +66,7 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.TenureType.Should().BeEquivalentTo(domainTenure.TenureType);
             result.TempAccommodationInfo.Should().BeEquivalentTo(domainTenure.TempAccommodationInfo);
         }
-        
+
         [Fact]
         public void CreateQueryableTenureSetsTempAccommodationInfoToNullWhenPropertyIsNullInDomain()
         {
