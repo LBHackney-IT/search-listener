@@ -12,7 +12,6 @@ using Person = HousingSearchListener.V1.Domain.Person.Person;
 using Tenure = HousingSearchListener.V1.Domain.Person.Tenure;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
-using TestStack.BDDfy;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
