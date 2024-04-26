@@ -48,6 +48,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
             var newData = oldData.DeepClone();
 
             var newHm = CreateHouseholdMembers(1).First();
+            newHm.IsResponsible = true; //ensure newly added person is always the responsible one which makes them a tenant. This is the expected state in the index
             newData.Add(newHm);
             AddedPersonId = Guid.Parse(newHm.Id);
 
