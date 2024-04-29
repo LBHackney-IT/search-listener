@@ -67,6 +67,16 @@ namespace HousingSearchListener.Tests.V1.Factories
         }
 
         [Fact]
+        public void CreateQueryableTenureSetsTempAccommodationInfoToNullWhenPropertyIsNullInDomain()
+        {
+            var domainTenure = _fixture.Create<TenureInformation>();
+            domainTenure.TempAccommodationInfo = null;
+
+            var result = _sut.CreateQueryableTenure(domainTenure);
+            result.TempAccommodationInfo.Should().BeNull();
+        }
+
+        [Fact]
         public void CreateQueryableHouseholdMembersTestNoInput()
         {
             var result = _sut.CreateQueryableHouseholdMembers(null);
