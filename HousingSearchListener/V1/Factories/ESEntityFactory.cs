@@ -74,7 +74,8 @@ namespace HousingSearchListener.V1.Factories
                     {
                         FirstName = tenure.TempAccommodationInfo.AssignedOfficer?.FirstName,
                         LastName = tenure.TempAccommodationInfo.AssignedOfficer?.LastName,
-                        Email = tenure.TempAccommodationInfo.AssignedOfficer?.Email
+                        Email = tenure.TempAccommodationInfo.AssignedOfficer?.Email,
+                        Id = tenure.TempAccommodationInfo.AssignedOfficer?.Id
                     }
                 }
             };
