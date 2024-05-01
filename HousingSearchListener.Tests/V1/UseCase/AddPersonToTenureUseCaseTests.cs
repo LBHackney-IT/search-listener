@@ -241,6 +241,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
                         .With(x => x.Id, Guid.NewGuid().ToString())
                         .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-40).ToString(DateFormat))
                         .With(x => x.PersonTenureType, "Tenant")
+                        .With(x => x.IsResponsible, true) //ensure TenureTypes.GetPersonTenureType always returns Tenant for this person which is the expected state in the index in VerifyPersonIndexed
                         .Create()
                 : null;
 
