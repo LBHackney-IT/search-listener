@@ -250,7 +250,7 @@ namespace HousingSearchListener.V1.Factories
                     queryableCharges.Add(queryableCharge);
                 }
                 assetContract.Charges = queryableCharges;
-                
+
                 foreach (var relatedPerson in asset.AssetContract.RelatedPeople)
                 {
                     var queryableRelatedPerson = new QueryableRelatedPeople
