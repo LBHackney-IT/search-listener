@@ -165,6 +165,7 @@ namespace HousingSearchListener.V1.Factories
             QueryableAssetLocation assetLocation = new QueryableAssetLocation();
             QueryableAssetContract assetContract = new QueryableAssetContract();
             List<QueryableCharges> queryableCharges = new List<QueryableCharges>();
+            List<QueryableRelatedPeople> queryableRelatedPeople = new List<QueryableRelatedPeople>();
 
             queryableAsset.Id = asset.Id.ToString();
             queryableAsset.AssetId = asset.AssetId;
@@ -230,17 +231,38 @@ namespace HousingSearchListener.V1.Factories
             if (asset.AssetContract != null)
             {
                 assetContract.Id = asset.AssetContract.Id;
+                assetContract.TargetId = asset.AssetContract.TargetId;
+                assetContract.TargetType = asset.AssetContract.TargetType;
+                assetContract.IsApproved = asset.AssetContract.IsApproved;
+                assetContract.ApprovalDate = asset.AssetContract.ApprovalDate;
+                assetContract.StartDate = asset.AssetContract.StartDate;
+                
                 foreach (var charge in asset.AssetContract.Charges)
                 {
-                    QueryableCharges queryableCharge = new QueryableCharges();
-                    queryableCharge.Id = charge.Id;
-                    queryableCharge.Type = charge.Type;
-                    queryableCharge.SubType = charge.SubType;
-                    queryableCharge.Frequency = charge.Frequency;
-                    queryableCharge.Amount = charge.Amount;
+                    var queryableCharge = new QueryableCharges
+                    {
+                        Id = charge.Id,
+                        Type = charge.Type,
+                        SubType = charge.SubType,
+                        Frequency = charge.Frequency,
+                        Amount = charge.Amount
+                    };
                     queryableCharges.Add(queryableCharge);
                 }
                 assetContract.Charges = queryableCharges;
+                
+                foreach (var relatedPerson in asset.AssetContract.RelatedPeople)
+                {
+                    var queryableRelatedPerson = new QueryableRelatedPeople
+                    {
+                        Id = relatedPerson.Id,
+                        Type = relatedPerson.Type,
+                        SubType = relatedPerson.SubType,
+                        Name = relatedPerson.Name
+                    };
+                    queryableRelatedPeople.Add(queryableRelatedPerson);
+                }
+                assetContract.RelatedPeople = queryableRelatedPeople;
                 queryableAsset.AssetContract = assetContract;
             }
 
