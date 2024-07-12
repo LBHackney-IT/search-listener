@@ -31,7 +31,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             _lastException.Should().BeOfType(typeof(EntityNotFoundException<Contract>));
             (_lastException as EntityNotFoundException<Contract>).Id.Should().Be(id);
         }
-        
+
         public void ThenAnAssetNotFoundExceptionIsThrown(Guid id)
         {
             _lastException.Should().NotBeNull();

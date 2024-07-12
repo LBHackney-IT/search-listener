@@ -86,7 +86,7 @@ namespace HousingSearchListener.V1.UseCase
 
                 asset.AssetContract.Charges = charges;
             }
-            
+
             if (contract.RelatedPeople.Any())
             {
                 _logger.LogInformation($"{contract.RelatedPeople.Count()} related people found.");
@@ -107,7 +107,7 @@ namespace HousingSearchListener.V1.UseCase
 
                 asset.AssetContract.RelatedPeople = relatedPeople;
             }
-            
+
             // 4. Update the indexes
             await UpdateAssetIndexAsync(asset);
         }

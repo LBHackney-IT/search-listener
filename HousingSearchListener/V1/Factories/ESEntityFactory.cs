@@ -236,7 +236,7 @@ namespace HousingSearchListener.V1.Factories
                 assetContract.IsApproved = asset.AssetContract.IsApproved;
                 assetContract.ApprovalDate = asset.AssetContract.ApprovalDate;
                 assetContract.StartDate = asset.AssetContract.StartDate;
-                
+
                 foreach (var charge in asset.AssetContract.Charges)
                 {
                     var queryableCharge = new QueryableCharges
