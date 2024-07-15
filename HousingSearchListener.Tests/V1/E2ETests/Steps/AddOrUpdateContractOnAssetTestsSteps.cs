@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
-using HousingSearchListener.V1.Factories;
 using HousingSearchListener.V1.Infrastructure.Exceptions;
 using Nest;
 using System;
@@ -12,8 +11,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
     public class AddOrUpdateContractOnAssetTestsSteps : BaseSteps
     {
-        private readonly ESEntityFactory _entityFactory = new ESEntityFactory();
-
         public AddOrUpdateContractOnAssetTestsSteps()
         {
             _eventType = EventTypes.ContractCreatedEvent;
