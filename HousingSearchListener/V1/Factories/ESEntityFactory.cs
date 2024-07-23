@@ -237,32 +237,39 @@ namespace HousingSearchListener.V1.Factories
                 assetContract.ApprovalDate = asset.AssetContract.ApprovalDate;
                 assetContract.StartDate = asset.AssetContract.StartDate;
 
-                foreach (var charge in asset.AssetContract.Charges)
+                if (asset.AssetContract.Charges != null)
                 {
-                    var queryableCharge = new QueryableCharges
+                    foreach (var charge in asset.AssetContract.Charges)
                     {
-                        Id = charge.Id,
-                        Type = charge.Type,
-                        SubType = charge.SubType,
-                        Frequency = charge.Frequency,
-                        Amount = charge.Amount
-                    };
-                    queryableCharges.Add(queryableCharge);
+                        var queryableCharge = new QueryableCharges
+                        {
+                            Id = charge.Id,
+                            Type = charge.Type,
+                            SubType = charge.SubType,
+                            Frequency = charge.Frequency,
+                            Amount = charge.Amount
+                        };
+                        queryableCharges.Add(queryableCharge);
+                    }
+                    assetContract.Charges = queryableCharges;
                 }
-                assetContract.Charges = queryableCharges;
 
-                foreach (var relatedPerson in asset.AssetContract.RelatedPeople)
+                if (asset.AssetContract.RelatedPeople != null)
                 {
-                    var queryableRelatedPerson = new QueryableRelatedPeople
+                    foreach (var relatedPerson in asset.AssetContract.RelatedPeople)
                     {
-                        Id = relatedPerson.Id,
-                        Type = relatedPerson.Type,
-                        SubType = relatedPerson.SubType,
-                        Name = relatedPerson.Name
-                    };
-                    queryableRelatedPeople.Add(queryableRelatedPerson);
+                        var queryableRelatedPerson = new QueryableRelatedPeople
+                        {
+                            Id = relatedPerson.Id,
+                            Type = relatedPerson.Type,
+                            SubType = relatedPerson.SubType,
+                            Name = relatedPerson.Name
+                        };
+                        queryableRelatedPeople.Add(queryableRelatedPerson);
+                    }
+                    assetContract.RelatedPeople = queryableRelatedPeople;
                 }
-                assetContract.RelatedPeople = queryableRelatedPeople;
+
                 queryableAsset.AssetContract = assetContract;
             }
 
