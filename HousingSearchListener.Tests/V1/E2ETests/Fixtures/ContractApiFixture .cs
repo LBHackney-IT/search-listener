@@ -13,7 +13,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
             : base(FixtureConstants.ContractsApiRoute, FixtureConstants.ContractsApiToken)
         {
             Environment.SetEnvironmentVariable("ContractApiUrl", FixtureConstants.ContractsApiRoute);
-            Environment.SetEnvironmentVariable("ContracttApiToken", FixtureConstants.ContractsApiToken);
+            Environment.SetEnvironmentVariable("ContractApiToken", FixtureConstants.ContractsApiToken);
         }
 
         protected override void Dispose(bool disposing)
@@ -29,10 +29,12 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
             // Nothing to do here
         }
 
-        public Contract GivenTheContractExists(Guid id)
+        public Contract GivenTheContractExists(Guid contractId, Guid targetId)
         {
             ResponseObject = _fixture.Build<Contract>()
-                                     .With(x => x.Id, id.ToString())
+                                     .With(x => x.Id, contractId.ToString())
+                                     .With(x => x.TargetId, targetId.ToString())
+                                     .With(x => x.TargetType, "asset")
                                      .Create();
 
             return ResponseObject;

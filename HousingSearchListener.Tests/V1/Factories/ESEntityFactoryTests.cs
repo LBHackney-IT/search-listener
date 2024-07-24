@@ -1,17 +1,17 @@
 ﻿using AutoFixture;
 using FluentAssertions;
+using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
+using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 using Hackney.Shared.HousingSearch.Gateways.Models.Tenures;
 using HousingSearchListener.V1.Domain.Tenure;
+using HousingSearchListener.V1.Domain.Transaction;
 using HousingSearchListener.V1.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using HousingSearchListener.V1.Domain.Transaction;
 using Xunit;
 using Person = HousingSearchListener.V1.Domain.Person.Person;
 using Tenure = HousingSearchListener.V1.Domain.Person.Tenure;
-using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
-using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 
 namespace HousingSearchListener.Tests.V1.Factories
 {
@@ -193,6 +193,28 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.AssetLocation.FloorNo.Should().Be(domainAsset.AssetLocation.FloorNo);
             result.ParentAssetIds.Should().Be(domainAsset.ParentAssetIds);
             result.RootAsset.Should().Be(domainAsset.RootAsset);
+        }
+
+        [Fact]
+        public void CreateAssetCanHandleNullAssetContractCharges()
+        {
+            var domainAsset = _fixture.Create<QueryableAsset>();
+            domainAsset.AssetContract.Charges = null;
+
+            var result = _sut.CreateAsset(domainAsset);
+
+            result.AssetContract.Charges.Should().BeNull();
+        }
+
+        [Fact]
+        public void CreateAssetCanHandleNullAssetContractRelatedPeople()
+        {
+            var domainAsset = _fixture.Create<QueryableAsset>();
+            domainAsset.AssetContract.RelatedPeople = null;
+
+            var result = _sut.CreateAsset(domainAsset);
+
+            result.AssetContract.RelatedPeople.Should().BeNull();
         }
     }
 }
