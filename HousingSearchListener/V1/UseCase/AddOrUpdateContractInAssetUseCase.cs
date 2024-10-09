@@ -62,6 +62,7 @@ namespace HousingSearchListener.V1.UseCase
                 TargetType = contract.TargetType,
                 IsApproved = contract.IsApproved,
                 ApprovalStatus = contract.ApprovalStatus,
+                ApprovalStatusReason = contract.ApprovalStatusReason,
                 IsActive = contract.IsActive,
                 ApprovalDate = contract.ApprovalDate,
                 StartDate = contract.StartDate
