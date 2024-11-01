@@ -235,7 +235,6 @@ namespace HousingSearchListener.V1.Factories
                 assetContract.TargetType = asset.AssetContract.TargetType;
                 assetContract.EndDate = asset.AssetContract.EndDate;
                 assetContract.EndReason = asset.AssetContract.EndReason;
-                assetContract.IsApproved = asset.AssetContract.IsApproved;
                 assetContract.ApprovalStatus = asset.AssetContract.ApprovalStatus;
                 assetContract.ApprovalStatusReason = asset.AssetContract.ApprovalStatusReason;
                 assetContract.IsActive = asset.AssetContract.IsActive;
