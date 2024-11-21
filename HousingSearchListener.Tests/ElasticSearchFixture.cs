@@ -265,7 +265,7 @@ namespace HousingSearchListener.Tests
                               .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-40).ToString(DateFormat))
                               .With(x => x.PersonTenureType, personType)
                               .With(x => x.IsResponsible, isResponsible)
-                              .CreateMany(1).ToList();
+                              .CreateMany(3).ToList();
             hms.Last().Id = personId;
 
             return _fixture.Build<QueryableTenure>()
