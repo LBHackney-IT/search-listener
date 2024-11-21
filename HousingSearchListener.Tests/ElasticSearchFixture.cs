@@ -265,7 +265,7 @@ namespace HousingSearchListener.Tests
                               .With(x => x.DateOfBirth, DateTime.UtcNow.AddYears(-40).ToString(DateFormat))
                               .With(x => x.PersonTenureType, personType)
                               .With(x => x.IsResponsible, isResponsible)
-                              .CreateMany(3).ToList();
+                              .CreateMany(1).ToList();
             hms.Last().Id = personId;
 
             return _fixture.Build<QueryableTenure>()
@@ -293,13 +293,13 @@ namespace HousingSearchListener.Tests
 
         public async Task GivenAContractIsIndexed(string assetId, string contractId)
         {
-            var esAssetContract = _fixture.Build<QueryableAssetContract>()
+            var esAssetContracts = _fixture.Build<QueryableAssetContract>()
                                         .With(x => x.Id, contractId)
-                                        .Create();
+                                        .CreateMany(1);
             var esAsset = _fixture.Build<QueryableAsset>()
                                   .With(x => x.Id, assetId)
                                   .With(x => x.AssetId, assetId)
-                                  .With(x => x.AssetContract, esAssetContract)
+                                  .With(x => x.AssetContracts, esAssetContracts)
                                   .Create();
             var request = new IndexRequest<QueryableAsset>(esAsset, IndexNameAssets);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);

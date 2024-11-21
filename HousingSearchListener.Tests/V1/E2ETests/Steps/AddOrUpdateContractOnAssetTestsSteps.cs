@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Hackney.Shared.HousingSearch.Domain.Contract;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
+using System.Linq;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
@@ -43,7 +44,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
                                        .ConfigureAwait(false);
 
             var assetInIndex = result.Source;
-            assetInIndex.AssetContract.Should().BeEquivalentTo(contract);
+            assetInIndex.AssetContracts.First().Should().BeEquivalentTo(contract);
         }
     }
 }

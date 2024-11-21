@@ -163,7 +163,7 @@ namespace HousingSearchListener.V1.Factories
             QueryableAssetCharacteristics assetCharacteristics = new QueryableAssetCharacteristics();
             QueryableAssetManagement assetManagement = new QueryableAssetManagement();
             QueryableAssetLocation assetLocation = new QueryableAssetLocation();
-            QueryableAssetContract assetContract = new QueryableAssetContract();
+            List<QueryableAssetContract> queryableAssetContracts = new List<QueryableAssetContract>();
             List<QueryableCharges> queryableCharges = new List<QueryableCharges>();
             List<QueryableRelatedPeople> queryableRelatedPeople = new List<QueryableRelatedPeople>();
 
@@ -228,53 +228,61 @@ namespace HousingSearchListener.V1.Factories
                 queryableAsset.AssetManagement = assetManagement;
             }
 
-            if (asset.AssetContract != null)
+            if (asset.AssetContracts != null)
             {
-                assetContract.Id = asset.AssetContract.Id;
-                assetContract.TargetId = asset.AssetContract.TargetId;
-                assetContract.TargetType = asset.AssetContract.TargetType;
-                assetContract.EndDate = asset.AssetContract.EndDate;
-                assetContract.EndReason = asset.AssetContract.EndReason;
-                assetContract.ApprovalStatus = asset.AssetContract.ApprovalStatus;
-                assetContract.ApprovalStatusReason = asset.AssetContract.ApprovalStatusReason;
-                assetContract.IsActive = asset.AssetContract.IsActive;
-                assetContract.ApprovalDate = asset.AssetContract.ApprovalDate;
-                assetContract.StartDate = asset.AssetContract.StartDate;
-
-                if (asset.AssetContract.Charges != null)
+                foreach (var contract in asset.AssetContracts)
                 {
-                    foreach (var charge in asset.AssetContract.Charges)
-                    {
-                        var queryableCharge = new QueryableCharges
-                        {
-                            Id = charge.Id,
-                            Type = charge.Type,
-                            SubType = charge.SubType,
-                            Frequency = charge.Frequency,
-                            Amount = charge.Amount
-                        };
-                        queryableCharges.Add(queryableCharge);
-                    }
-                    assetContract.Charges = queryableCharges;
-                }
 
-                if (asset.AssetContract.RelatedPeople != null)
-                {
-                    foreach (var relatedPerson in asset.AssetContract.RelatedPeople)
+                    var queryableContract = new QueryableAssetContract
                     {
-                        var queryableRelatedPerson = new QueryableRelatedPeople
-                        {
-                            Id = relatedPerson.Id,
-                            Type = relatedPerson.Type,
-                            SubType = relatedPerson.SubType,
-                            Name = relatedPerson.Name
-                        };
-                        queryableRelatedPeople.Add(queryableRelatedPerson);
-                    }
-                    assetContract.RelatedPeople = queryableRelatedPeople;
-                }
+                        Id = contract.Id,
+                        TargetId = contract.TargetId,
+                        TargetType = contract.TargetType,
+                        EndDate = contract.EndDate,
+                        EndReason = contract.EndReason,
+                        ApprovalStatus = contract.ApprovalStatus,
+                        ApprovalStatusReason = contract.ApprovalStatusReason,
+                        IsActive = contract.IsActive,
+                        ApprovalDate = contract.ApprovalDate,
+                        StartDate = contract.StartDate
+                    };
 
-                queryableAsset.AssetContract = assetContract;
+                    queryableAssetContracts.Add(queryableContract);
+
+                    if (contract.Charges != null)
+                    {
+                        foreach (var charge in contract.Charges)
+                        {
+                            var queryableCharge = new QueryableCharges
+                            {
+                                Id = charge.Id,
+                                Type = charge.Type,
+                                SubType = charge.SubType,
+                                Frequency = charge.Frequency,
+                                Amount = charge.Amount
+                            };
+                            queryableCharges.Add(queryableCharge);
+                        }
+                        queryableContract.Charges = queryableCharges;
+                    }
+
+                    if (contract.RelatedPeople != null)
+                    {
+                        foreach (var relatedPerson in contract.RelatedPeople)
+                        {
+                            var queryableRelatedPerson = new QueryableRelatedPeople
+                            {
+                                Id = relatedPerson.Id,
+                                Type = relatedPerson.Type,
+                                SubType = relatedPerson.SubType,
+                                Name = relatedPerson.Name
+                            };
+                            queryableRelatedPeople.Add(queryableRelatedPerson);
+                        }
+                        queryableContract.RelatedPeople = queryableRelatedPeople;
+                    }
+                }
+                queryableAsset.AssetContracts = queryableAssetContracts;
             }
 
             if (asset.AssetLocation != null)

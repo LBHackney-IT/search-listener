@@ -55,67 +55,75 @@ namespace HousingSearchListener.V1.UseCase
             if (asset is null)
                 throw new EntityNotFoundException<QueryableAsset>(assetId);
 
-            asset.AssetContract = new QueryableAssetContract
+            asset.AssetContracts = new List<QueryableAssetContract>();
+            if (asset.AssetContracts.Any())
             {
-                Id = contract.Id,
-                TargetId = contract.TargetId,
-                TargetType = contract.TargetType,
-                EndDate = contract.EndDate,
-                EndReason = contract.EndReason,
-                ApprovalStatus = contract.ApprovalStatus,
-                ApprovalStatusReason = contract.ApprovalStatusReason,
-                IsActive = contract.IsActive,
-                ApprovalDate = contract.ApprovalDate,
-                StartDate = contract.StartDate
-            };
+                _logger.LogInformation($"{asset.AssetContracts.Count()} contracts found.");
 
-            if (contract.Charges.Any())
-            {
-                _logger.LogInformation($"{contract.Charges.Count()} charges found.");
-                var charges = new List<QueryableCharges>();
-
-                foreach (var charge in contract.Charges)
+                var assetContracts = new List<QueryableAssetContract>();
+                foreach (var assetContract in assetContracts)
                 {
-                    _logger.LogInformation($"Charge with id {charge.Id} being added to asset with frequency {charge.Frequency}");
-                    var queryableCharge = new QueryableCharges
+                    var queryableAssetContracts = new QueryableAssetContract
                     {
-                        Id = charge.Id,
-                        Type = charge.Type,
-                        SubType = charge.SubType,
-                        Frequency = charge.Frequency,
-                        Amount = charge.Amount
+                        Id = assetContract.Id,
+                        TargetId = assetContract.TargetId,
+                        TargetType = assetContract.TargetType,
+                        EndDate = assetContract.EndDate,
+                        EndReason = assetContract.EndReason,
+                        ApprovalStatus = assetContract.ApprovalStatus,
+                        ApprovalStatusReason = assetContract.ApprovalStatusReason,
+                        IsActive = assetContract.IsActive,
+                        ApprovalDate = assetContract.ApprovalDate,
+                        StartDate = contract.StartDate
                     };
-                    charges.Add(queryableCharge);
-                }
 
-                asset.AssetContract.Charges = charges;
-            }
-
-            if (contract.RelatedPeople.Any())
-            {
-                _logger.LogInformation($"{contract.RelatedPeople.Count()} related people found.");
-                var relatedPeople = new List<QueryableRelatedPeople>();
-
-                foreach (var relatedPerson in contract.RelatedPeople)
-                {
-                    _logger.LogInformation($"Related person with id {relatedPerson.Id} being added to asset");
-                    var queryableRelatedPeople = new QueryableRelatedPeople
+                    if (assetContract.Charges.Any())
                     {
-                        Id = relatedPerson.Id,
-                        Type = relatedPerson.Type,
-                        SubType = relatedPerson.SubType,
-                        Name = relatedPerson.Name,
-                    };
-                    relatedPeople.Add(queryableRelatedPeople);
+                        _logger.LogInformation($"{assetContract.Charges.Count()} charges found.");
+                        var charges = new List<QueryableCharges>();
+
+                        foreach (var charge in contract.Charges)
+                        {
+                            _logger.LogInformation($"Charge with id {charge.Id} being added to asset with frequency {charge.Frequency}");
+                            var queryableCharge = new QueryableCharges
+                            {
+                                Id = charge.Id,
+                                Type = charge.Type,
+                                SubType = charge.SubType,
+                                Frequency = charge.Frequency,
+                                Amount = charge.Amount
+                            };
+                            charges.Add(queryableCharge);
+                        }
+
+                        assetContract.Charges = charges;
+                    }
+
+                    if (assetContract.RelatedPeople.Any())
+                    {
+                        _logger.LogInformation($"{assetContract.RelatedPeople.Count()} related people found.");
+                        var relatedPeople = new List<QueryableRelatedPeople>();
+
+                        foreach (var relatedPerson in assetContract.RelatedPeople)
+                        {
+                            _logger.LogInformation($"Related person with id {relatedPerson.Id} being added to asset");
+                            var queryableRelatedPeople = new QueryableRelatedPeople
+                            {
+                                Id = relatedPerson.Id,
+                                Type = relatedPerson.Type,
+                                SubType = relatedPerson.SubType,
+                                Name = relatedPerson.Name,
+                            };
+                            relatedPeople.Add(queryableRelatedPeople);
+                        }
+
+                        assetContract.RelatedPeople = relatedPeople;
+                    }
                 }
-
-                asset.AssetContract.RelatedPeople = relatedPeople;
+                // 4. Update the indexes
+                await UpdateAssetIndexAsync(asset);
             }
-
-            // 4. Update the indexes
-            await UpdateAssetIndexAsync(asset);
         }
-
         private async Task UpdateAssetIndexAsync(QueryableAsset asset)
         {
             var esAsset = await _esGateway.GetAssetById(asset.Id.ToString()).ConfigureAwait(false);
