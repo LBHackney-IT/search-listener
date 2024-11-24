@@ -1,8 +1,10 @@
-﻿using Hackney.Core.Http;
+﻿using Hackney.Core.DynamoDb;
+using Hackney.Core.Http;
 using Hackney.Core.Logging;
 using Hackney.Shared.HousingSearch.Domain.Contract;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.Gateway
@@ -26,6 +28,12 @@ namespace HousingSearchListener.V1.Gateway
         {
             var route = $"{_apiGateway.ApiRoute}/contracts/{id}";
             return await _apiGateway.GetByIdAsync<Contract>(route, id, correlationId);
+        }
+        [LogCall]
+        public async Task<PagedResult<Contract>> GetContractsByAssetIdAsync(Guid targetId, Guid correlationId)
+        {
+            var route = $"{_apiGateway.ApiRoute}/contracts?targetId={targetId}";
+            return await _apiGateway.GetByIdAsync<PagedResult<Contract>>(route, targetId, correlationId);
         }
     }
 }
