@@ -38,16 +38,9 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
                   .With(ch => ch.Frequency, "1")
                   .CreateMany(1).ToList();
 
-            var contracts = _fixture.Build<QueryableAssetContract>()
-                                    .With(c => c.TargetId, id.ToString())
-                                    .With(c => c.TargetType, "asset")
-                                    .With(c => c.Charges, charges)
-                                    .CreateMany(1)
-                                    .ToList();
 
             ResponseObject = _fixture.Build<QueryableAsset>()
                                     .With(x => x.Id, id.ToString())
-                                    .With(x => x.AssetContracts, contracts)
                                     .Create();
 
 

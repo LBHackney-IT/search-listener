@@ -17,9 +17,9 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             _eventType = EventTypes.ContractCreatedEvent;
         }
 
-        public async Task WhenTheFunctionIsTriggered(Guid contractId, string eventType)
+        public async Task WhenTheFunctionIsTriggered(Guid contractId, string eventType, string targetType)
         {
-            var eventMsg = CreateEvent(contractId, eventType);
+            var eventMsg = CreateEvent(contractId, eventType, targetType);
             await TriggerFunction(CreateMessage(eventMsg));
         }
 

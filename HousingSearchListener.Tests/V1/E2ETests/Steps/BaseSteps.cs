@@ -45,13 +45,17 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         }
 
 
-        protected EntityEventSns CreateEvent(Guid entityId, string eventType)
+        protected EntityEventSns CreateEvent(Guid entityId, string eventType, string targetId = "")
         {
             return _fixture.Build<EntityEventSns>()
                            .With(x => x.EntityId, entityId)
                            .With(x => x.EventType, eventType)
                            .With(x => x.CorrelationId, _correlationId)
-                           .Create();
+                           .With(x => x.EventData, new EventData
+                           {
+                               NewData = new { Id = targetId }
+                           })
+                            .Create();
         }
 
         protected SQSEvent.SQSMessage CreateMessage(Guid personId)

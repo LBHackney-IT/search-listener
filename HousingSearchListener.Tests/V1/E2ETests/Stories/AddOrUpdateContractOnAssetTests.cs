@@ -54,7 +54,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         {
             var contractId = Guid.NewGuid();
             this.Given(g => _ContractApiFixture.GivenTheContractDoesNotExist(contractId))
-                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType))
+                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType, "assetId.ToString()"))
                 .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_ContractApiFixture.ReceivedCorrelationIds))
                 .Then(t => _steps.ThenAContractNotFoundExceptionIsThrown(contractId))
                 .BDDfy();
@@ -69,7 +69,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             var assetId = Guid.NewGuid();
             this.Given(g => _ContractApiFixture.GivenTheContractExists(contractId, assetId))
                 .And(g => _AssetApiFixture.GivenTheAssetDoesNotExist(assetId))
-                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType))
+                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType, ""))
                 .Then(t => _steps.ThenAnAssetNotFoundExceptionIsThrown(assetId))
                 .BDDfy();
         }
@@ -84,7 +84,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             this.Given(g => _ContractApiFixture.GivenTheContractExists(contractId, assetId))
                 .And(g => _AssetApiFixture.GivenTheAssetExists(assetId))
                 .And(g => _esFixture.GivenAnAssetIsIndexed(assetId.ToString()))
-                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType))
+                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType, assetId.ToString()))
                 .Then(t => _steps.ThenTheAssetInTheIndexIsUpdatedWithTheContract(_AssetApiFixture.ResponseObject,
                     _ContractApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
