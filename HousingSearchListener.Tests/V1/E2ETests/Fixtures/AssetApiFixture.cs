@@ -34,12 +34,9 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 
         public QueryableAsset GivenTheAssetExists(Guid id)
         {
-            var charges = _fixture.Build<QueryableCharges>()
-                  .With(ch => ch.Frequency, "1")
-                  .CreateMany(1).ToList();
-
 
             ResponseObject = _fixture.Build<QueryableAsset>()
+                                    .Without(x => x.AssetContracts)
                                     .With(x => x.Id, id.ToString())
                                     .Create();
 
