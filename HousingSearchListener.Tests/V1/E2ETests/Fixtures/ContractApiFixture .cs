@@ -40,7 +40,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 
             return ResponseObject;
         }
-        public List<Contract> GivenTheContractsExists(Guid contractId, Guid targetId)
+        public Contract GivenTheContractsExists(Guid contractId, Guid targetId)
         {
             ResponseObject = _fixture.Build<Contract>()
                                      .With(x => x.Id, contractId.ToString())
@@ -48,7 +48,17 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
                                      .With(x => x.TargetType, "asset")
                                      .Create();
 
-            return new List<Contract>{ResponseObject};
-        }        
+            return ResponseObject;
+        }
+        public Contract GivenOneContractExists(Guid contractId, Guid targetId)
+        {
+            ResponseObject = _fixture.Build<Contract>()
+                                     .With(x => x.Id, contractId.ToString())
+                                     .With(x => x.TargetId, targetId.ToString())
+                                     .With(x => x.TargetType, "asset")
+                                     .Create();
+
+            return ResponseObject;
+        }
     }
 }

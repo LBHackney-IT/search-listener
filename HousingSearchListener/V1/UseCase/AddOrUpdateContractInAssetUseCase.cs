@@ -61,14 +61,14 @@ namespace HousingSearchListener.V1.UseCase
 
             var asset = await _assetApiGateway.GetAssetByIdAsync(assetId, message.CorrelationId)
                                                 .ConfigureAwait(false) ?? throw new EntityNotFoundException<QueryableAsset>(assetId);
-                                                
-            var call = await _contractApiGateway.GetContractByIdAsync(assetId, message.CorrelationId).ConfigureAwait(false);
+
+            var OGCall = await _contractApiGateway.GetContractByIdAsync(assetId, message.CorrelationId).ConfigureAwait(false);
 
             // 3. Get all contracts from Contract API
             var allContracts = await _contractApiGateway.GetContractsByAssetIdAsync(assetId, message.CorrelationId).ConfigureAwait(false);
 
             // 4. Cycle over them to retrieve data (will need filters)
-            if (allContracts.Results.Any())
+            /*if (allContracts.Results.Any())
             {
                 _logger.LogInformation($"{allContracts.Results.Count()} contracts found.");
 
@@ -136,7 +136,7 @@ namespace HousingSearchListener.V1.UseCase
                 asset.AssetContracts = assetContracts;
                 // 5. Update the indexes
                 await UpdateAssetIndexAsync(asset);
-            }
+            }*/
         }
         private async Task UpdateAssetIndexAsync(QueryableAsset asset)
         {
