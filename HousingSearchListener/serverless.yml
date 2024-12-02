@@ -28,8 +28,8 @@ functions:
       AccountApiToken: ${ssm:/housing-tl/${self:provider.stage}/account-api-token}
       FinancialTransactionApiUrl: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-url}
       FinancialTransactionApiToken: ${ssm:/housing-finance/${self:provider.stage}/financial-transaction-api-token}
-      AssetApiUrl: ${ssm:/housing-tl/${self:provider.stage}/asset-api-url}
-      AssetApiToken: ${ssm:/housing-tl/${self:provider.stage}/asset-api-token}
+      AssetApiUrl: ${ssm:/housing-tl/${self:provider.stage}/asset-information-url}
+      AssetApiToken: ${ssm:/housing-tl/${self:provider.stage}/asset-information-token}
       ProcessesApiUrl: ${ssm:/housing-tl/${self:provider.stage}/process-api-url-v1}
       ProcessesApiToken: ${ssm:/housing-tl/${self:provider.stage}/processes-api-token}
       ContractApiUrl: ${ssm:/housing-tl/${self:provider.stage}/contract-api-url}
