@@ -55,6 +55,11 @@ namespace HousingSearchListener.V1.UseCase
             //1. Get Asset data from message
             var assetMessageData = GetAssetDataFromEventData(message.EventData.NewData);
 
+            if (assetMessageData.Id == null)
+            {
+                throw new ArgumentException($"No assetId was found in the message");
+            }
+
             var assetId = Guid.Parse(assetMessageData.Id);
 
             // 2. Get asset from Asset API
@@ -62,18 +67,16 @@ namespace HousingSearchListener.V1.UseCase
             var asset = await _assetApiGateway.GetAssetByIdAsync(assetId, message.CorrelationId)
                                                 .ConfigureAwait(false) ?? throw new EntityNotFoundException<QueryableAsset>(assetId);
 
-            var OGCall = await _contractApiGateway.GetContractByIdAsync(assetId, message.CorrelationId).ConfigureAwait(false);
-
             // 3. Get all contracts from Contract API
-            var allContracts = await _contractApiGateway.GetContractsByAssetIdAsync(assetId, message.CorrelationId).ConfigureAwait(false);
+            var allContracts = await _contractApiGateway.GetContractsByAssetIdAsync(assetId, message.CorrelationId).ConfigureAwait(false) ?? throw new EntityNotFoundException<List<Hackney.Shared.HousingSearch.Domain.Contract.Contract>>(assetId);
 
             // 4. Cycle over them to retrieve data (will need filters)
-            /*if (allContracts.Results.Any())
+            if (allContracts.Any())
             {
-                _logger.LogInformation($"{allContracts.Results.Count()} contracts found.");
+                _logger.LogInformation($"{allContracts.Count()} contracts found.");
 
                 var assetContracts = new List<QueryableAssetContract>();
-                foreach (var assetContract in allContracts.Results)
+                foreach (var assetContract in allContracts)
                 {
                     var queryableAssetContract = new QueryableAssetContract
                     {
@@ -108,7 +111,7 @@ namespace HousingSearchListener.V1.UseCase
                             charges.Add(queryableCharge);
                         }
 
-                        assetContract.Charges = charges;
+                        queryableAssetContract.Charges = charges;
                     }
 
                     if (assetContract.RelatedPeople.Any())
@@ -129,14 +132,14 @@ namespace HousingSearchListener.V1.UseCase
                             relatedPeople.Add(queryableRelatedPeople);
                         }
 
-                        assetContract.RelatedPeople = relatedPeople;
+                        queryableAssetContract.RelatedPeople = relatedPeople;
                     }
                     assetContracts.Add(queryableAssetContract);
                 }
                 asset.AssetContracts = assetContracts;
                 // 5. Update the indexes
                 await UpdateAssetIndexAsync(asset);
-            }*/
+            }
         }
         private async Task UpdateAssetIndexAsync(QueryableAsset asset)
         {

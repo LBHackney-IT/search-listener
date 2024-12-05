@@ -71,8 +71,21 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             var assetId = Guid.NewGuid();
             this.Given(g => _ContractApiFixture.GivenTheContractExists(contractId, assetId))
                 .And(g => _AssetApiFixture.GivenTheAssetDoesNotExist(assetId))
-                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType, ""))
+                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType, assetId.ToString()))
                 .Then(t => _steps.ThenAnAssetNotFoundExceptionIsThrown(assetId))
+                .BDDfy();
+        }
+
+        [Theory]
+        [InlineData(EventTypes.ContractCreatedEvent)]
+        [InlineData(EventTypes.ContractUpdatedEvent)]
+        public void NullAssetIdInMessage(string eventType)
+        {
+            var contractId = Guid.NewGuid();
+            var assetId = Guid.NewGuid();
+            this.Given(g => _ContractApiFixture.GivenTheContractExists(contractId, assetId))
+                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType, null))
+                .Then(t => _steps.ThenAnArgumentExceptionIsThrown())
                 .BDDfy();
         }
 
@@ -83,13 +96,12 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         {
             var contractId = Guid.NewGuid();
             var assetId = Guid.NewGuid();
-            this.Given(g => _ContractsApiFixture.GivenTheContractsExists(contractId, assetId))
+            this.Given(g => _ContractsApiFixture.GivenMultipleContractsExist(contractId, assetId))
                 .And(g => _AssetApiFixture.GivenTheAssetExists(assetId))
                 .And(g => _esFixture.GivenAnAssetIsIndexed(assetId.ToString()))
                 .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType, assetId.ToString()))
-                /*.Then(t => _steps.ThenTheAssetInTheIndexIsUpdatedWithTheContract(_AssetApiFixture.ResponseObject,
-                    _ContractsApiFixture.ResponseObject, _esFixture.ElasticSearchClient))*/
-                .Then("blah")
+                .Then(t => _steps.ThenTheAssetInTheIndexIsUpdatedWithTheContracts(_AssetApiFixture.ResponseObject,
+                    _ContractsApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
     }

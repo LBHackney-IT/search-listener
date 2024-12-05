@@ -27,7 +27,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
         }
 
 
-        public IEnumerable<Contract> GivenTheContractsExists(Guid contractId, Guid targetId)
+        public IEnumerable<Contract> GivenMultipleContractsExist(Guid contractId, Guid targetId)
         {
             ResponseObject = _fixture.Build<Contract>()
                                      .With(x => x.Id, contractId.ToString())

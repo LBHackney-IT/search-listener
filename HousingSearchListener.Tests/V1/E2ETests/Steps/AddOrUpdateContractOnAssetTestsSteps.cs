@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Hackney.Shared.HousingSearch.Domain.Contract;
 using EventTypes = HousingSearchListener.V1.Boundary.EventTypes;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 {
@@ -37,6 +38,12 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
             (_lastException as EntityNotFoundException<QueryableAsset>).Id.Should().Be(id);
         }
 
+        public void ThenAnArgumentExceptionIsThrown()
+        {
+            _lastException.Should().NotBeNull();
+            _lastException.Should().BeOfType(typeof(ArgumentException));
+        }
+
         public async Task ThenTheAssetInTheIndexIsUpdatedWithTheContract(
             QueryableAsset asset, Contract contract, IElasticClient esClient)
         {
@@ -45,6 +52,16 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
 
             var assetInIndex = result.Source;
             assetInIndex.AssetContracts.First().Should().BeEquivalentTo(contract);
+        }
+
+        public async Task ThenTheAssetInTheIndexIsUpdatedWithTheContracts(
+            QueryableAsset asset, IEnumerable<Contract> contracts, IElasticClient esClient)
+        {
+            var result = await esClient.GetAsync<QueryableAsset>(asset.Id, g => g.Index("assets"))
+                                       .ConfigureAwait(false);
+
+            var assetInIndex = result.Source;
+            assetInIndex.AssetContracts.Should().BeEquivalentTo(contracts);
         }
     }
 }

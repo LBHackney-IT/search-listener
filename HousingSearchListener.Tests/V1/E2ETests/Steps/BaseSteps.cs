@@ -45,7 +45,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         }
 
 
-        protected EntityEventSns CreateEvent(Guid entityId, string eventType, string targetId = "")
+        protected EntityEventSns CreateEvent(Guid entityId, string eventType, string targetId = null)
         {
             return _fixture.Build<EntityEventSns>()
                            .With(x => x.EntityId, entityId)

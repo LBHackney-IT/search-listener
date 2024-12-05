@@ -188,6 +188,7 @@ namespace HousingSearchListener.Tests
                                   .With(x => x.Id, assetId)
                                   .With(x => x.AssetId, assetId)
                                   .With(x => x.Tenure, esAssetTenure)
+                                  .Without(x => x.AssetContracts)
                                   .Create();
             var request = new IndexRequest<QueryableAsset>(esAsset, IndexNameAssets);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
