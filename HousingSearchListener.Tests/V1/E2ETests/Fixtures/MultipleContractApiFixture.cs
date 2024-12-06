@@ -4,6 +4,7 @@ using Hackney.Shared.HousingSearch.Domain.Contract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
@@ -27,16 +28,27 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
         }
 
 
-        public IEnumerable<Contract> GivenMultipleContractsExist(Guid contractId, Guid targetId)
+        public List<Contract> GivenMultipleContractsExist(Guid contractId, Guid targetId)
         {
-            ResponseObject = _fixture.Build<Contract>()
+            var ResponseObject = _fixture.Build<Contract>()
                                      .With(x => x.Id, contractId.ToString())
                                      .With(x => x.TargetId, targetId.ToString())
                                      .With(x => x.TargetType, "asset")
-                                     .CreateMany(1)
-                                     .ToList();
+                                     .Create();
 
-            return ResponseObject;
+            //return ResponseObject.ToList();     BEWARE OF THE LIES! THIS DOES NOT IN FACT MAKE A LIST -__-  
+            return new List<Contract> { ResponseObject };
+
+
+            /*var singleContract = new Contract    
+            {
+                Id = contractId.ToString(),
+                TargetId = contractId.ToString(),
+                TargetType = "asset"
+            };
+
+            return new List<Contract> {singleContract};*/
+
         }
     }
 }

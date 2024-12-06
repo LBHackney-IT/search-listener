@@ -34,7 +34,6 @@ namespace HousingSearchListener.V1.Gateway
         public async Task<List<Contract>> GetContractsByAssetIdAsync(Guid targetId, Guid correlationId)
         {
             var route = $"{_apiGateway.ApiRoute}/contracts?targetId={targetId}&targetType=asset";
-            //var route = $"{_apiGateway.ApiRoute}/contracts/oof";
             var apiCall = await _apiGateway.GetByIdAsync<List<Contract>>(route, targetId, correlationId);
             return apiCall;
         }

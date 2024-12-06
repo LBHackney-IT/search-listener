@@ -2,7 +2,6 @@
 using Hackney.Core.Testing.Shared.E2E;
 using Hackney.Shared.HousingSearch.Domain.Contract;
 using System;
-using System.Collections.Generic;
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
