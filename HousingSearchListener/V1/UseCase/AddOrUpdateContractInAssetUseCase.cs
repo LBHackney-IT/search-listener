@@ -70,13 +70,16 @@ namespace HousingSearchListener.V1.UseCase
             // 3. Get all contracts from Contract API
             var allContracts = await _contractApiGateway.GetContractsByAssetIdAsync(assetId, message.CorrelationId).ConfigureAwait(false) ?? throw new EntityNotFoundException<List<Hackney.Shared.HousingSearch.Domain.Contract.Contract>>(assetId);
 
+
+            var allFilteredContracts = allContracts.Where(x => x?.ApprovalStatus != "Approved").Where(x => x?.EndReason != "ContractNoLongerNeeded");
+
             // 4. Cycle over them to retrieve data (will need filters)
-            if (allContracts.Any())
+            if (allFilteredContracts.Any())
             {
-                _logger.LogInformation($"{allContracts.Count()} contracts found.");
+                _logger.LogInformation($"{allFilteredContracts.Count()} contracts found.");
 
                 var assetContracts = new List<QueryableAssetContract>();
-                foreach (var assetContract in allContracts)
+                foreach (var assetContract in allFilteredContracts)
                 {
                     var queryableAssetContract = new QueryableAssetContract
                     {

@@ -36,10 +36,8 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
         {
 
             ResponseObject = _fixture.Build<QueryableAsset>()
-                                    .Without(x => x.AssetContracts)
                                     .With(x => x.Id, id.ToString())
                                     .Create();
-
 
             return ResponseObject;
         }
