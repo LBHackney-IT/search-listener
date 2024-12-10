@@ -35,20 +35,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
                                      .With(x => x.TargetId, targetId.ToString())
                                      .With(x => x.TargetType, "asset")
                                      .Create();
-
-            //return ResponseObject.ToList();     BEWARE OF THE LIES! THIS DOES NOT IN FACT MAKE A LIST -__-  
             return new List<Contract> { ResponseObject };
-
-
-            /*var singleContract = new Contract    
-            {
-                Id = contractId.ToString(),
-                TargetId = contractId.ToString(),
-                TargetType = "asset"
-            };
-
-            return new List<Contract> {singleContract};*/
-
         }
     }
 }
