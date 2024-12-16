@@ -188,6 +188,7 @@ namespace HousingSearchListener.Tests
                                   .With(x => x.Id, assetId)
                                   .With(x => x.AssetId, assetId)
                                   .With(x => x.Tenure, esAssetTenure)
+                                  .Without(x => x.AssetContracts)
                                   .Create();
             var request = new IndexRequest<QueryableAsset>(esAsset, IndexNameAssets);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);
@@ -293,13 +294,13 @@ namespace HousingSearchListener.Tests
 
         public async Task GivenAContractIsIndexed(string assetId, string contractId)
         {
-            var esAssetContract = _fixture.Build<QueryableAssetContract>()
+            var esAssetContracts = _fixture.Build<QueryableAssetContract>()
                                         .With(x => x.Id, contractId)
-                                        .Create();
+                                        .CreateMany(1);
             var esAsset = _fixture.Build<QueryableAsset>()
                                   .With(x => x.Id, assetId)
                                   .With(x => x.AssetId, assetId)
-                                  .With(x => x.AssetContract, esAssetContract)
+                                  .With(x => x.AssetContracts, esAssetContracts)
                                   .Create();
             var request = new IndexRequest<QueryableAsset>(esAsset, IndexNameAssets);
             await ElasticSearchClient.IndexAsync(request).ConfigureAwait(false);

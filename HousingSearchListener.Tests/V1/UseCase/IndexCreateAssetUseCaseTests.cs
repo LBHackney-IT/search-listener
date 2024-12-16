@@ -58,13 +58,16 @@ namespace HousingSearchListener.Tests.V1.UseCase
               .With(ch => ch.Frequency, "1")
               .CreateMany(1).ToList();
 
+            var contracts = _fixture.Build<QueryableAssetContract>()
+                        .With(c => c.TargetId, entityId.ToString())
+                        .With(c => c.TargetType, "asset")
+                        .With(c => c.Charges, charges)
+                        .CreateMany(1)
+                        .ToList();
+
             return _fixture.Build<QueryableAsset>()
                                      .With(x => x.Id, entityId.ToString())
-                                     .With(x => x.AssetContract, _fixture.Build<QueryableAssetContract>()
-                                         .With(c => c.TargetId, entityId.ToString())
-                                         .With(c => c.TargetType, "asset")
-                                         .With(c => c.Charges, charges)
-                                         .Create())
+                                     .With(x => x.AssetContracts, contracts)
                                      .Create();
         }
 
