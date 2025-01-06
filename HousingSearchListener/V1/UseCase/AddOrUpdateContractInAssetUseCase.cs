@@ -50,10 +50,12 @@ namespace HousingSearchListener.V1.UseCase
                 throw new ArgumentException($"No charges of Types asset found for contract id: {contract.Id}");
             _logger.LogInformation($"Contract with id {contract.Id} found. Now fetching Asset {contract.TargetId}");
             */
+            _logger.LogInformation($"message.EventData.NewData follows[{message.EventData.NewData}]");
 
             //New process to handle multiple contracts
             //1. Get Asset data from message
             var assetMessageData = GetAssetDataFromEventData(message.EventData.NewData);
+            _logger.LogInformation($"assetMessageData: [{assetMessageData}]");
 
             if (assetMessageData.Id == null)
             {
