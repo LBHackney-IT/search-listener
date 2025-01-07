@@ -40,7 +40,7 @@ namespace HousingSearchListener.V1.UseCase
         {
             if (message is null) throw new ArgumentNullException(nameof(message));
 
-            // 1. Turns out, I still need to get Contract from Contract service API
+            // 1. Turns out, I still need to get Contract from Contract service API, as the message doesn't contain the assetId as we assumed
             var contract = await _contractApiGateway.GetContractByIdAsync(message.EntityId, message.CorrelationId)
                                                 .ConfigureAwait(false);
             if (contract is null) throw new EntityNotFoundException<Contract>(message.EntityId);
@@ -52,7 +52,7 @@ namespace HousingSearchListener.V1.UseCase
 
 
             //New process to handle multiple contracts
-            //1. Get Asset data from message
+            //1. Get Asset data from contract
 
             var assetId = Guid.Parse(contract.TargetId);
 
