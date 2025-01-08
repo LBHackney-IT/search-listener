@@ -67,19 +67,6 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         [Theory]
         [InlineData(EventTypes.ContractCreatedEvent)]
         [InlineData(EventTypes.ContractUpdatedEvent)]
-        public void NullAssetIdInMessage(string eventType)
-        {
-            var contractId = Guid.NewGuid();
-            var assetId = Guid.NewGuid();
-            this.Given(g => _ContractApiFixture.GivenTheContractExists(contractId, assetId))
-                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType, null))
-                .Then(t => _steps.ThenAnArgumentExceptionIsThrown())
-                .BDDfy();
-        }
-
-        [Theory]
-        [InlineData(EventTypes.ContractCreatedEvent)]
-        [InlineData(EventTypes.ContractUpdatedEvent)]
         public void ContractAddedToAsset(string eventType)
         {
             var contractId = Guid.NewGuid();

@@ -40,7 +40,7 @@ namespace HousingSearchListener.V1.UseCase
         {
             if (message is null) throw new ArgumentNullException(nameof(message));
 
-            /* 1. Get Contract from Contract service API
+            // 1. Turns out, I still need to get Contract from Contract service API, as the message doesn't contain the assetId as we assumed
             var contract = await _contractApiGateway.GetContractByIdAsync(message.EntityId, message.CorrelationId)
                                                 .ConfigureAwait(false);
             if (contract is null) throw new EntityNotFoundException<Contract>(message.EntityId);
@@ -49,18 +49,12 @@ namespace HousingSearchListener.V1.UseCase
             if (!contract.TargetType.ToLower().Equals("asset"))
                 throw new ArgumentException($"No charges of Types asset found for contract id: {contract.Id}");
             _logger.LogInformation($"Contract with id {contract.Id} found. Now fetching Asset {contract.TargetId}");
-            */
+
 
             //New process to handle multiple contracts
-            //1. Get Asset data from message
-            var assetMessageData = GetAssetDataFromEventData(message.EventData.NewData);
+            //1. Get Asset data from contract
 
-            if (assetMessageData.Id == null)
-            {
-                throw new ArgumentException($"No assetId was found in the message");
-            }
-
-            var assetId = Guid.Parse(assetMessageData.Id);
+            var assetId = Guid.Parse(contract.TargetId);
 
             // 2. Get asset from Asset API
 
@@ -151,10 +145,6 @@ namespace HousingSearchListener.V1.UseCase
                 throw new ArgumentException($"No asset found in index with id: {asset.Id}");
             esAsset = _esEntityFactory.CreateAsset(asset);
             await _esGateway.IndexAsset(esAsset);
-        }
-        private static Asset GetAssetDataFromEventData(object data)
-        {
-            return (data is Asset) ? data as Asset : ObjectFactory.ConvertFromObject<Asset>(data);
         }
     }
 }
