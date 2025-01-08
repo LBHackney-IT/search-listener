@@ -1,10 +1,11 @@
 ﻿using AutoFixture;
+using Hackney.Core.DynamoDb;
 using Hackney.Core.Testing.Shared.E2E;
 using Hackney.Shared.HousingSearch.Domain.Contract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+
 
 namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
 {
@@ -28,14 +29,14 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Fixtures
         }
 
 
-        public List<Contract> GivenMultipleContractsExist(Guid contractId, Guid targetId)
+        public PagedResult<Contract> GivenMultipleContractsAreReturned(Guid contractId, Guid targetId)
         {
             var ResponseObject = _fixture.Build<Contract>()
                                      .With(x => x.Id, contractId.ToString())
                                      .With(x => x.TargetId, targetId.ToString())
                                      .With(x => x.TargetType, "asset")
-                                     .Create();
-            return new List<Contract> { ResponseObject };
+                                     .CreateMany(1).ToList();
+            return new PagedResult<Contract> { Results = ResponseObject };
         }
     }
 }
