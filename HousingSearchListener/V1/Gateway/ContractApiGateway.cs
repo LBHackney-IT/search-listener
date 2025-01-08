@@ -4,8 +4,6 @@ using Hackney.Core.Logging;
 using Hackney.Shared.HousingSearch.Domain.Contract;
 using HousingSearchListener.V1.Gateway.Interfaces;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HousingSearchListener.V1.Gateway
@@ -31,10 +29,10 @@ namespace HousingSearchListener.V1.Gateway
             return await _apiGateway.GetByIdAsync<Contract>(route, id, correlationId);
         }
         [LogCall]
-        public async Task<List<Contract>> GetContractsByAssetIdAsync(Guid targetId, Guid correlationId)
+        public async Task<PagedResult<Contract>> GetContractsByAssetIdAsync(Guid targetId, Guid correlationId)
         {
             var route = $"{_apiGateway.ApiRoute}/contracts?targetId={targetId}&targetType=asset";
-            var apiCall = await _apiGateway.GetByIdAsync<List<Contract>>(route, targetId, correlationId);
+            var apiCall = await _apiGateway.GetByIdAsync<PagedResult<Contract>>(route, targetId, correlationId);
             return apiCall;
         }
     }

@@ -159,6 +159,18 @@ namespace HousingSearchListener.Tests.V1.UseCase
         }
 
         [Fact]
+        public void ProcessMessageAsyncTestGetContractsByAssetIdExceptionThrown()
+        {
+            var exMsg = "This is an error";
+            _mockContractApi.Setup(x => x.GetContractsByAssetIdAsync(_messageCreated.EntityId, _messageCreated.CorrelationId))
+                                       .ThrowsAsync(new Exception(exMsg));
+
+            Func<Task> func = async () => await _sut.ProcessMessageAsync(_messageCreated).ConfigureAwait(false);
+            func.Should().ThrowAsync<EntityNotFoundException<Contract>>();
+        }
+
+
+        [Fact]
         public void ProcessMessageAsyncTestGetContractReturnsNullThrows()
         {
             _mockContractApi.Setup(x => x.GetContractByIdAsync(_messageCreated.EntityId, _messageCreated.CorrelationId))

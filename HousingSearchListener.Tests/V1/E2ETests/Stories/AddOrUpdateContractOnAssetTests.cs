@@ -71,7 +71,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         {
             var contractId = Guid.NewGuid();
             var assetId = Guid.NewGuid();
-            this.Given(g => _ContractsApiFixture.GivenMultipleContractsExist(contractId, assetId))
+            this.Given(g => _ContractsApiFixture.GivenMultipleContractsAreReturned(contractId, assetId))
                 .And(g => _AssetApiFixture.GivenTheAssetExists(assetId))
                 .And(g => _esFixture.GivenAnAssetIsIndexed(assetId.ToString()))
                 .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType, assetId.ToString()))
