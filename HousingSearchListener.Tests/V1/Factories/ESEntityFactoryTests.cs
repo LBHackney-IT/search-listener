@@ -193,6 +193,8 @@ namespace HousingSearchListener.Tests.V1.Factories
             result.AssetCharacteristics.NumberOfBedrooms.Should().Be(domainAsset.AssetCharacteristics.NumberOfBedrooms);
             result.AssetCharacteristics.HasPrivateBathroom.Should().Be(domainAsset.AssetCharacteristics.HasPrivateBathroom);
             result.AssetManagement.PropertyOccupiedStatus.Should().Be(domainAsset.AssetManagement.PropertyOccupiedStatus);
+            result.AssetManagement.IsTemporaryAccommodationBlock.Should().Be(domainAsset.AssetManagement.IsTemporaryAccommodationBlock);
+            result.AssetManagement.TemporaryAccommodationParentAssetId.Should().Be(domainAsset.AssetManagement.TemporaryAccommodationParentAssetId);
             result.AssetLocation.FloorNo.Should().Be(domainAsset.AssetLocation.FloorNo);
             result.ParentAssetIds.Should().Be(domainAsset.ParentAssetIds);
             result.RootAsset.Should().Be(domainAsset.RootAsset);
