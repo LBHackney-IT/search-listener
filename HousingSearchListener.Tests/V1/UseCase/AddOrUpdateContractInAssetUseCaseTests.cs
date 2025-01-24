@@ -10,6 +10,7 @@ using HousingSearchListener.V1.Infrastructure.Exceptions;
 using HousingSearchListener.V1.UseCase;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,9 +75,15 @@ namespace HousingSearchListener.Tests.V1.UseCase
 
         private QueryableAsset CreateAsset(Guid entityId)
         {
+            var contracts = _fixture.Build<QueryableAssetContract>()
+                                    .With(c => c.TargetType, "asset")
+                                    .CreateMany(1)
+                                    .ToList();
             return _fixture.Build<QueryableAsset>()
                            .With(x => x.Id, entityId.ToString())
+                           .With(x => x.AssetContracts, contracts)
                            .Create();
+
         }
 
         private Contract CreateContract(Guid entityId)
@@ -95,19 +102,18 @@ namespace HousingSearchListener.Tests.V1.UseCase
                 OldData = new Dictionary<string, object> { { "asset", oldData } },
                 NewData = new Dictionary<string, object> { { "asset", newData } }
             };
-
             Guid? contractId = null;
             if (hasChanges)
             {
                 if (added is null)
                 {
                     var changed = newData;
-                    changed.AssetContract.Charges.First().Amount = 90;
+                    changed.AssetContracts.First().Charges.First().Amount = 90;
                     contractId = Guid.Parse(changed.Id);
                 }
                 else
                 {
-                    newData.AssetContract.Charges = added.Charges;
+                    newData.AssetContracts.First().Charges = added.Charges;
                     contractId = Guid.Parse(added.Id);
                 }
             }
@@ -125,7 +131,7 @@ namespace HousingSearchListener.Tests.V1.UseCase
         {
             esAsset.Should().BeEquivalentTo(_esEntityFactory.CreateAsset(asset));
 
-            var newContract = esAsset.AssetContract;
+            var newContract = esAsset.AssetContracts.First();
             newContract.Should().NotBeNull();
             newContract.TargetId.Should().Be(contract.TargetId);
             newContract.TargetType.Should().Be(contract.TargetType);
@@ -151,6 +157,18 @@ namespace HousingSearchListener.Tests.V1.UseCase
             Func<Task> func = async () => await _sut.ProcessMessageAsync(_messageCreated).ConfigureAwait(false);
             func.Should().ThrowAsync<EntityNotFoundException<Contract>>();
         }
+
+        [Fact]
+        public void ProcessMessageAsyncTestGetContractsByAssetIdExceptionThrown()
+        {
+            var exMsg = "This is an error";
+            _mockContractApi.Setup(x => x.GetContractsByAssetIdAsync(_messageCreated.EntityId, _messageCreated.CorrelationId))
+                                       .ThrowsAsync(new Exception(exMsg));
+
+            Func<Task> func = async () => await _sut.ProcessMessageAsync(_messageCreated).ConfigureAwait(false);
+            func.Should().ThrowAsync<EntityNotFoundException<Contract>>();
+        }
+
 
         [Fact]
         public void ProcessMessageAsyncTestGetContractReturnsNullThrows()

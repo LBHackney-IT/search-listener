@@ -45,13 +45,23 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Steps
         }
 
 
-        protected EntityEventSns CreateEvent(Guid entityId, string eventType)
+        protected EntityEventSns CreateEvent(Guid entityId, string eventType, string targetId = null)
         {
-            return _fixture.Build<EntityEventSns>()
-                           .With(x => x.EntityId, entityId)
-                           .With(x => x.EventType, eventType)
-                           .With(x => x.CorrelationId, _correlationId)
-                           .Create();
+            var EntityEventBuilder = _fixture.Build<EntityEventSns>()
+                                .With(x => x.EntityId, entityId)
+                                .With(x => x.EventType, eventType)
+                                .With(x => x.CorrelationId, _correlationId);
+
+            //had to make this conditional as it was messing with preexisting tests
+            if (targetId != null)
+            {
+                EntityEventBuilder = EntityEventBuilder.With(x => x.EventData, new EventData
+                {
+                    NewData = new { Id = targetId }
+                });
+            }
+
+            return EntityEventBuilder.Create();
         }
 
         protected SQSEvent.SQSMessage CreateMessage(Guid personId)

@@ -17,7 +17,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         private readonly ElasticSearchFixture _esFixture;
         private readonly AssetApiFixture _AssetApiFixture;
         private readonly ContractApiFixture _ContractApiFixture;
-
+        private readonly MultipleContractApiFixture _ContractsApiFixture;
         private readonly AddOrUpdateContractOnAssetTestsSteps _steps;
 
         public AddOrUpdateContractOnAssetTests(ElasticSearchFixture esFixture)
@@ -25,6 +25,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             _esFixture = esFixture;
             _AssetApiFixture = new AssetApiFixture();
             _ContractApiFixture = new ContractApiFixture();
+            _ContractsApiFixture = new MultipleContractApiFixture();
 
             _steps = new AddOrUpdateContractOnAssetTestsSteps();
         }
@@ -42,23 +43,12 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             {
                 _AssetApiFixture.Dispose();
                 _ContractApiFixture.Dispose();
+                _ContractsApiFixture.Dispose();
 
                 _disposed = true;
             }
         }
 
-        [Theory]
-        [InlineData(EventTypes.ContractCreatedEvent)]
-        [InlineData(EventTypes.ContractUpdatedEvent)]
-        public void ContractNotFound(string eventType)
-        {
-            var contractId = Guid.NewGuid();
-            this.Given(g => _ContractApiFixture.GivenTheContractDoesNotExist(contractId))
-                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType))
-                .Then(t => _steps.ThenTheCorrelationIdWasUsedInTheApiCall(_ContractApiFixture.ReceivedCorrelationIds))
-                .Then(t => _steps.ThenAContractNotFoundExceptionIsThrown(contractId))
-                .BDDfy();
-        }
 
         [Theory]
         [InlineData(EventTypes.ContractCreatedEvent)]
@@ -69,7 +59,7 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
             var assetId = Guid.NewGuid();
             this.Given(g => _ContractApiFixture.GivenTheContractExists(contractId, assetId))
                 .And(g => _AssetApiFixture.GivenTheAssetDoesNotExist(assetId))
-                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType))
+                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType, assetId.ToString()))
                 .Then(t => _steps.ThenAnAssetNotFoundExceptionIsThrown(assetId))
                 .BDDfy();
         }
@@ -81,12 +71,12 @@ namespace HousingSearchListener.Tests.V1.E2ETests.Stories
         {
             var contractId = Guid.NewGuid();
             var assetId = Guid.NewGuid();
-            this.Given(g => _ContractApiFixture.GivenTheContractExists(contractId, assetId))
+            this.Given(g => _ContractsApiFixture.GivenMultipleContractsAreReturned(contractId, assetId))
                 .And(g => _AssetApiFixture.GivenTheAssetExists(assetId))
                 .And(g => _esFixture.GivenAnAssetIsIndexed(assetId.ToString()))
-                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType))
-                .Then(t => _steps.ThenTheAssetInTheIndexIsUpdatedWithTheContract(_AssetApiFixture.ResponseObject,
-                    _ContractApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
+                .When(w => _steps.WhenTheFunctionIsTriggered(contractId, eventType, assetId.ToString()))
+                .Then(t => _steps.ThenTheAssetInTheIndexIsUpdatedWithTheContracts(_AssetApiFixture.ResponseObject,
+                    _ContractsApiFixture.ResponseObject, _esFixture.ElasticSearchClient))
                 .BDDfy();
         }
     }

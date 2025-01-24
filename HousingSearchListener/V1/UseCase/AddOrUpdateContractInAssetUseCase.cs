@@ -1,6 +1,6 @@
 ﻿using Hackney.Core.Logging;
 using Hackney.Core.Sns;
-using Hackney.Shared.HousingSearch.Domain.Contract;
+using Hackney.Shared.Processes.Sns;
 using Hackney.Shared.HousingSearch.Gateways.Models.Assets;
 using Hackney.Shared.HousingSearch.Gateways.Models.Contract;
 using HousingSearchListener.V1.Factories;
@@ -12,6 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HousingSearchApi.V1.Factories;
+using Hackney.Shared.HousingSearch.Domain.Asset;
 
 namespace HousingSearchListener.V1.UseCase
 {
@@ -38,7 +40,7 @@ namespace HousingSearchListener.V1.UseCase
         {
             if (message is null) throw new ArgumentNullException(nameof(message));
 
-            // 1. Get Contract from Contract service API
+            // 1. Turns out, I still need to get Contract from Contract service API, as the message doesn't contain the assetId as we assumed
             var contract = await _contractApiGateway.GetContractByIdAsync(message.EntityId, message.CorrelationId)
                                                 .ConfigureAwait(false);
             if (contract is null) throw new EntityNotFoundException<Contract>(message.EntityId);
@@ -48,75 +50,93 @@ namespace HousingSearchListener.V1.UseCase
                 throw new ArgumentException($"No charges of Types asset found for contract id: {contract.Id}");
             _logger.LogInformation($"Contract with id {contract.Id} found. Now fetching Asset {contract.TargetId}");
 
-            // 3. Get asset from asset API
+
+            //New process to handle multiple contracts
+            //1. Get Asset data from contract
+
             var assetId = Guid.Parse(contract.TargetId);
+
+            // 2. Get asset from Asset API
+
             var asset = await _assetApiGateway.GetAssetByIdAsync(assetId, message.CorrelationId)
-                                                .ConfigureAwait(false);
-            if (asset is null)
-                throw new EntityNotFoundException<QueryableAsset>(assetId);
+                                                .ConfigureAwait(false) ?? throw new EntityNotFoundException<QueryableAsset>(assetId);
 
-            asset.AssetContract = new QueryableAssetContract
+            // 3. Get all contracts from Contract API
+            var allContracts = await _contractApiGateway.GetContractsByAssetIdAsync(assetId, message.CorrelationId).ConfigureAwait(false) ?? throw new EntityNotFoundException<List<Hackney.Shared.HousingSearch.Domain.Contract.Contract>>(assetId);
+
+            var allFilteredContracts = allContracts.Results.Where(x => x?.ApprovalStatus != "Approved").Where(x => x?.EndReason != "ContractNoLongerNeeded");
+
+            // 4. Cycle over them to retrieve data 
+            if (allFilteredContracts.Any())
             {
-                Id = contract.Id,
-                TargetId = contract.TargetId,
-                TargetType = contract.TargetType,
-                IsApproved = contract.IsApproved,
-                EndDate = contract.EndDate,
-                EndReason = contract.EndReason,
-                ApprovalStatus = contract.ApprovalStatus,
-                ApprovalStatusReason = contract.ApprovalStatusReason,
-                IsActive = contract.IsActive,
-                ApprovalDate = contract.ApprovalDate,
-                StartDate = contract.StartDate
-            };
+                _logger.LogInformation($"{allFilteredContracts.Count()} contracts found.");
 
-            if (contract.Charges.Any())
-            {
-                _logger.LogInformation($"{contract.Charges.Count()} charges found.");
-                var charges = new List<QueryableCharges>();
-
-                foreach (var charge in contract.Charges)
+                var assetContracts = new List<QueryableAssetContract>();
+                foreach (var assetContract in allFilteredContracts)
                 {
-                    _logger.LogInformation($"Charge with id {charge.Id} being added to asset with frequency {charge.Frequency}");
-                    var queryableCharge = new QueryableCharges
+                    var queryableAssetContract = new QueryableAssetContract
                     {
-                        Id = charge.Id,
-                        Type = charge.Type,
-                        SubType = charge.SubType,
-                        Frequency = charge.Frequency,
-                        Amount = charge.Amount
+                        Id = assetContract.Id,
+                        TargetId = assetContract.TargetId,
+                        TargetType = assetContract.TargetType,
+                        EndDate = assetContract.EndDate,
+                        EndReason = assetContract.EndReason,
+                        ApprovalStatus = assetContract.ApprovalStatus,
+                        ApprovalStatusReason = assetContract.ApprovalStatusReason,
+                        IsActive = assetContract.IsActive,
+                        ApprovalDate = assetContract.ApprovalDate,
+                        StartDate = assetContract.StartDate
                     };
-                    charges.Add(queryableCharge);
-                }
 
-                asset.AssetContract.Charges = charges;
-            }
-
-            if (contract.RelatedPeople.Any())
-            {
-                _logger.LogInformation($"{contract.RelatedPeople.Count()} related people found.");
-                var relatedPeople = new List<QueryableRelatedPeople>();
-
-                foreach (var relatedPerson in contract.RelatedPeople)
-                {
-                    _logger.LogInformation($"Related person with id {relatedPerson.Id} being added to asset");
-                    var queryableRelatedPeople = new QueryableRelatedPeople
+                    if (assetContract.Charges.Any())
                     {
-                        Id = relatedPerson.Id,
-                        Type = relatedPerson.Type,
-                        SubType = relatedPerson.SubType,
-                        Name = relatedPerson.Name,
-                    };
-                    relatedPeople.Add(queryableRelatedPeople);
+                        _logger.LogInformation($"{assetContract.Charges.Count()} charges found.");
+                        var charges = new List<QueryableCharges>();
+
+                        foreach (var charge in assetContract.Charges)
+                        {
+                            _logger.LogInformation($"Charge with id {charge.Id} being added to asset with frequency {charge.Frequency}");
+                            var queryableCharge = new QueryableCharges
+                            {
+                                Id = charge.Id,
+                                Type = charge.Type,
+                                SubType = charge.SubType,
+                                Frequency = charge.Frequency,
+                                Amount = charge.Amount
+                            };
+                            charges.Add(queryableCharge);
+                        }
+
+                        queryableAssetContract.Charges = charges;
+                    }
+
+                    if (assetContract.RelatedPeople.Any())
+                    {
+                        _logger.LogInformation($"{assetContract.RelatedPeople.Count()} related people found.");
+                        var relatedPeople = new List<QueryableRelatedPeople>();
+
+                        foreach (var relatedPerson in assetContract.RelatedPeople)
+                        {
+                            _logger.LogInformation($"Related person with id {relatedPerson.Id} being added to asset");
+                            var queryableRelatedPeople = new QueryableRelatedPeople
+                            {
+                                Id = relatedPerson.Id,
+                                Type = relatedPerson.Type,
+                                SubType = relatedPerson.SubType,
+                                Name = relatedPerson.Name,
+                            };
+                            relatedPeople.Add(queryableRelatedPeople);
+                        }
+
+                        queryableAssetContract.RelatedPeople = relatedPeople;
+                    }
+                    assetContracts.Add(queryableAssetContract);
                 }
-
-                asset.AssetContract.RelatedPeople = relatedPeople;
+                asset.AssetContracts = assetContracts;
+                // 5. Update the indexes
+                await UpdateAssetIndexAsync(asset);
             }
-
-            // 4. Update the indexes
-            await UpdateAssetIndexAsync(asset);
         }
-
         private async Task UpdateAssetIndexAsync(QueryableAsset asset)
         {
             var esAsset = await _esGateway.GetAssetById(asset.Id.ToString()).ConfigureAwait(false);
